@@ -242,7 +242,9 @@
     "electron-context-menu": "^0.10.0",
     "electron-store": "^2.0.0",
     "electron-updater": "^2.21.10",
+    "eos-rc-parser": "^1.0.4",
     "eosjs": "^16.0.6",
+    "eosjs2": "^1.0.0",
     "history": "^4.7.2",
     "i": "^0.3.6",
     "i18next": "^11.3.2",
@@ -267,7 +269,10 @@
     "redux-electron-store": "^0.6.2",
     "redux-persist": "^5.10.0",
     "redux-persist-electron-storage": "^1.1.2",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "scrypt-async": "^2.0.1",
+    "socket.io": "^2.1.1",
+    "socketio": "^1.0.0"
   },
   "devEngines": {
     "node": ">=7.x",
