@@ -14,6 +14,8 @@ import WelcomeWallet from './Welcome/Wallet';
 
 import * as types from '../../shared/actions/types';
 
+import ToolsModalKeysGenerate from './Tools/Modal/Keys/Generate';
+
 import GlobalSettingsLanguage from './Global/Settings/Language';
 
 const { shell } = require('electron');
@@ -142,25 +144,36 @@ class Welcome extends Component<Props> {
                 settings
                 selection
               />
-              {(
-                (stage === types.SETUP_STAGE_ACCOUNT_OPTIONS
-                  || (stage === types.SETUP_STAGE_ACCOUNT_LOOKUP && validate.ACCOUNT !== 'SUCCESS'))
-                && !settings.walletInit
-                && settings.walletMode !== 'cold'
-              )
-                ? (
-                  <p>
-                    <Button
-                      content={t('welcome:welcome_lookup_account_skip')}
-                      icon="x"
-                      onClick={this.skipImport}
-                      size="small"
-                      style={{ marginTop: '1em' }}
-                    />
-                  </p>
-                )
-                : false
-              }
+              <p style={{ marginTop: '1em' }}>
+                <ToolsModalKeysGenerate
+                  t={t}
+                  connection={connection}
+                  button={{
+                    color: 'blue',
+                    content: 'tools_keys_key_generation_new_key',
+                    fluid: false,
+                    icon: 'key',
+                    size: 'small'
+                  }}
+                />
+                {(
+                  (stage === types.SETUP_STAGE_ACCOUNT_OPTIONS
+                    || (stage === types.SETUP_STAGE_ACCOUNT_LOOKUP && validate.ACCOUNT !== 'SUCCESS'))
+                      && !settings.walletInit
+                      && settings.walletMode !== 'cold'
+                  )
+                  ? (
+                      <Button
+                        content={t('welcome:welcome_lookup_account_skip')}
+                        icon="x"
+                        onClick={this.skipImport}
+                        size="small"
+                        style={{ marginLeft: '1em' }}
+                      />
+                    )
+                    : false
+                }
+              </p>
             </Container>
           </Grid.Column>
         </Grid>
