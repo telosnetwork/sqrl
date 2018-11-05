@@ -139,7 +139,7 @@ export default class Identity {
         return new Promise((resolve, reject) => {
             PrivateKey.randomKey().then(privateKey => {
                 this.privateKey = privateKey.toWif();
-                this.publicKey = "TLOS"+privateKey.toPublic().toString().substring(3);
+                this.publicKey = ecc.privateToPublic(privateKey);
                 this.hash = hash;
                 resolve(true);
             });

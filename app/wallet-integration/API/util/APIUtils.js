@@ -2,8 +2,13 @@ import EosPlugin from '../plugins/default/eos';
 import Permission from '../models/Permission';
 import AuthorizedApp from '../models/AuthorizedApp';
 import Identity from '../models/Identity';
+import PopupService from '../services/PopupService';
+
+const CryptoJS = require('crypto-js');
 
 export default class APIUtils{
+    static plugin = new EosPlugin();
+
     static findApp(authorizedApps, origin){
         return authorizedApps.find(x => x.origin === origin);
     }
@@ -38,6 +43,41 @@ export default class APIUtils{
         return null;
     }
 
-
-    static plugin = new EosPlugin()
+    static decrypt(data, pass, iterations = 4500) {
+        const keySize = 256;
+        const salt = CryptoJS.enc.Hex.parse(data.substr(0, 32));
+        const iv = CryptoJS.enc.Hex.parse(data.substr(32, 32));
+        const encrypted = data.substring(64);
+        const key = CryptoJS.PBKDF2(pass, salt, {
+            iterations,
+            keySize: keySize / 4
+        });
+        const decrypted = CryptoJS.AES.decrypt(encrypted, key, {
+            iv,
+            padding: CryptoJS.pad.Pkcs7,
+            mode: CryptoJS.mode.CBC
+        });
+        try{
+            return decrypted.toString(CryptoJS.enc.Utf8);
+        }catch(err){
+            console.error(err);
+            return '';
+        }
+    }
+    
+    static encrypt(data, pass, iterations = 4500) {
+        const keySize = 256;
+        const salt = CryptoJS.lib.WordArray.random(128 / 8);
+        const key = CryptoJS.PBKDF2(pass, salt, {
+            iterations,
+            keySize: keySize / 4
+        });
+        const iv = CryptoJS.lib.WordArray.random(128 / 8);
+        const encrypted = CryptoJS.AES.encrypt(data, key, {
+            iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return (salt.toString() + iv.toString() + encrypted.toString()).toString(CryptoJS.enc.Utf8);
+    }
 }

@@ -19,9 +19,12 @@ import * as WAPII_AUTH_APPS_ACTIONS from "../actions/authorizedApps";
 import * as WAPII_IDENTITY_ACTIONS from "../actions/identity";
 import * as WAPII_KEYPROVIDER_ACTIONS from "../actions/keyProvider";
 import * as WAPII_PERMISSIONS_ACTIONS from "../actions/permissions";
+import { useWallet } from "../../shared/actions/wallets";
 
 import PopupService from '../API/services/PopupService';
 import SocketService from '../API/services/SocketService';
+import Hasher from '../API/util/Hasher';
+import IdGenerator from '../API/util/IdGenerator';
 
 let rekeyPromise;
 let io = null;
@@ -42,6 +45,28 @@ class APIIntegration extends Component<Props> {
       keyProviderObfuscated: {},
       open:false
     };
+
+    if(this.props){
+      let accounts, identity;
+      if(this.props.wallets){
+        accounts = this._extractAccounts(this.props);
+      }
+      
+      if(!this.props.wapii || !this.props.wapii.identity){
+        identity = Identity.placeholder();
+        identity.initialize(Hasher.unsaltedQuickHash(IdGenerator.text(32)))
+          .then(()=>{
+            this.props.actions.updateIdentity(identity);
+          }, (err) => console.error(err))
+          .catch((err) => console.error(err));
+      }
+
+      accounts = accounts || [];
+      
+      if(!this.props.wapii || !this.props.wapii.accounts){
+        this.props.actions.updateAccounts(accounts);
+      }
+    }
   }
 
   onClose = (data) => {
@@ -67,18 +92,20 @@ class APIIntegration extends Component<Props> {
       open,
       popupData
     } = this.state;
+    const {
+      actions
+    } = this.props;
     return ( 
       <I18n ns="wallet">
         {
           (t) => (
             <Prompt
-              onChange={this.onChange}
-              onKeyPress={this.onKeyPress}
+              actions={actions}
               onClose={this.onClose}
               onSubmit={this.onSubmit}
               open={open}
               data={popupData}
-              validate={this.validate}
+              // validate={this.validate}
             />
           )
         }
@@ -89,42 +116,6 @@ class APIIntegration extends Component<Props> {
   componentDidMount(){
     PopupService.connect( this.onOpen, this.props.actions );
     SocketService.initialize(this.props.actions);
-    
-    if(this.props){
-      let accounts, identity;
-      if(this.props.wallets){
-        accounts = this._extractAccounts(this.props);
-      }
-      if(this.props.keys && this.props.keys.account){
-        identity = Identity.placeholder();
-        identity.accounts = accounts;
-      }
-      
-      identity = identity || Identity.placeholder;
-      accounts = accounts || [];
-      
-      if(!this.props.wapii || !this.props.wapii.identity){
-        this.props.actions.updateIdentity(identity);
-      }
-      if(!this.props.wapii || !this.props.wapii.accounts){
-        this.props.actions.updateAccounts(accounts);
-      }
-    }
-  }
-
-  _extractIdentity(props){
-    let key = '';
-    for(let i = 0; i < props.wallets.length && !key; i++){
-      if(props.wallets[i].account === props.account){
-        key = props.wallets[i].pubkey;
-      }
-    }
-    return Identity.fromJson({
-      hash: '', // props.keys.hash,
-      privateKey: '', // props.keys.key,
-      publicKey: '', // props.keys.pubkey || key,
-      name: '', // props.account
-    });
   }
 
   _extractAccounts(props){
@@ -144,35 +135,10 @@ class APIIntegration extends Component<Props> {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("INTEGRATION NEXT PROPS", this.props, nextProps);
-    
-    // extract identity and accounts
     const accounts = this._extractAccounts(nextProps);
     if( (this.props.wapii.accounts || []).length !== accounts.length ){
       this.props.actions.updateAccounts(accounts);
     }
-    // if( nextProps.keys.account != this.props.keys.account ){
-    //   const identity = this._extractIdentity(nextProps, accounts);
-    //   this.props.actions.updateIdentity(identity);
-    // }
-    
-    // if(nextProps.keyProviderObfuscated){
-    //   this.setState({keyProviderObfuscated: nextProps.keyProviderObfuscated});
-    // }
-
-    // if(nextProps.keyProviderObfuscated && nextProps.keyProviderObfuscated.key){
-    //   this.setState({open: false});
-    // }else{
-    //   this.setState({open: true});
-    // }
-    
-    // const {
-    //   actions
-    // } = this.props;
-    // const {
-    //   getConnection
-    // } = actions;
-    // getConnection();
   } 
 }
 
@@ -193,7 +159,8 @@ function mapDispatchToProps(dispatch) {
       ...WAPII_AUTH_APPS_ACTIONS,
       ...WAPII_IDENTITY_ACTIONS,
       ...WAPII_KEYPROVIDER_ACTIONS,
-      ...WAPII_PERMISSIONS_ACTIONS
+      ...WAPII_PERMISSIONS_ACTIONS,
+      useWallet
     }, dispatch)
   };
 }

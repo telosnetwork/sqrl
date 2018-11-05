@@ -1,5 +1,8 @@
 import * as Actions from '../models/api/ApiActions';
+import APIUtils from '../util/APIUtils';
+import { pctEncChar } from 'uri-js';
 
+const ecc = require('eosjs-ecc');
 export class PopupService {
     openPopup = null;
     queue = [];
@@ -17,45 +20,85 @@ export class PopupService {
         }
     }
 
+
+    async requestAccess(forPublicKey){
+        console.log("REQUEST ACCESS");
+        return new Promise((resolve, reject) => {
+            // get wallet
+            const wallets = this.actions.getWallets(forPublicKey);
+            if(!wallets || !wallets.wallets || !wallets.wallets.length){
+                return resolve(null);
+            }
+            
+            const wallet = wallets.wallets.reduce((acc, w) => {
+                acc = acc.account === wallets.currentAccount ? acc : w;
+                return acc;
+            }, {});
+
+            const keyProvider = this.actions.getKeyProvider();
+            if(!keyProvider || !keyProvider.hash || keyProvider.account !== wallet.account){
+                this.popup({
+                    type:Actions.UNLOCK_ACCESS, 
+                    payload:{wallet}, 
+                    transformResult:(popupResult)=>{
+                        return new Promise((resolve, reject)=>{
+                            if(popupResult.changeWallet){
+                                this.actions.useWallet(wallet.account);
+                            }
+                            this.actions.unlockWallet({
+                                useWallet: wallet,
+                                password: popupResult.password,
+                                changeWallet: popupResult.changeWallet
+                            }).then((key)=>{
+                                if(key){
+                                    return resolve({wif:key});
+                                }
+                                reject(new Error("Invalid Password"))
+                            });
+                        });  
+                    }
+                }, 
+                (result) => {
+                    if(!result || !result.wif){
+                        return resolve(null);
+                    }
+                    resolve(result.wif);
+                });
+            }else{
+                const wif = APIUtils.decrypt(keyProvider.key, keyProvider.hash, 1);
+                if (ecc.isValidPrivate(wif) === true) {
+                    return resolve(wif);
+                }
+                resolve(null);
+            }
+        });
+    }
+
     popup = (popupRequest, cb) => {
         if(typeof cb !== "function"){
             console.error("cb needs to be a function!");
             return null;
         }
-
-        let popupData = {
-            info: {
-                type: popupRequest.type
-            },
-            cb
-        };
-        
-        let returnData = null;
-
+    
         switch(popupRequest.type){
             case Actions.GET_OR_REQUEST_IDENTITY:{
-                popupData.info.message = "DO YOU WANNA GIVE IDENTITY BRO ?";
-                popupData.info.selectAccount = this.actions.getAccounts();
-                popupData.getResult = (response) => {
-                    return this.actions.getPromptIdentity(response);
-                }
-            }break;
-
-            case Actions.REQUEST_SIGNATURE:{
-                popupData.info.message = "DO YOU WANNA SIGN BRO ?";
-                popupData.getResult = (reponse) => {
-                    return {
-                        whitelists:[]
+                if(!popupRequest.transformResult)
+                    popupRequest.transformResult = (popupResponse) => {
+                        return Promise.resolve( this.actions.getPromptIdentity(popupResponse.account) );
                     }
-                }
             }break;
 
-            case 'repair':
-            default:{
-                popupData.info.message = "DO YOU WANNA PAIR BRO ?";
-                popupData.getResult = (response) => true;
-            }break;
+            // no transformation needed
+            // case Actions.REPAIR:
+            // case Actions.UNLOCK_ACCESS:
+            // case Actions.REQUEST_SIGNATURE:
+            default: break;
         }
+
+        let popupData = {
+            info: popupRequest,
+            cb
+        };
 
         if(!this.currentPopup){
             this.currentPopup = popupData;
@@ -68,7 +111,8 @@ export class PopupService {
     open = () => {
         this.openPopup(this.currentPopup.info)
             .then(
-                (data) => this.currentPopup.cb(this.currentPopup.getResult(data)),
+                // return the data as it is or true if there's no data for cases with no processing involved
+                (data) => this.currentPopup.cb(data || true),
                 (data) => this.currentPopup.cb(null)
             )
             .finally(this.next)

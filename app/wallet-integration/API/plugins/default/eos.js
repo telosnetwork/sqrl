@@ -18,6 +18,8 @@ import * as Actions from '../../models/api/ApiActions';
 import eosjs2 from 'eosjs2';
 // import * as numeric from  "../../../node_modules/eosjs2/dist/eosjs2-numeric";
 import { decrypt } from '../../../../shared/actions/wallet';
+import APIUtils from '../../util/APIUtils';
+import PopupService from '../../services/PopupService';
 
 const CryptoJS = require('crypto-js');
 
@@ -237,7 +239,7 @@ export default class EOS{
     // }
 
     defaultDecimals(){ return 4; }
-    defaultToken(){ return {symbol:'TLOS', account:'eosio.token', name:'TELOS', blockchain:Blockchains.TELOS}; }
+    defaultToken(){ return {symbol:Blockchains.TELOS.toUpperCase(), account:'eosio.token', name:'TELOS', blockchain:Blockchains.TELOS}; }
 
     // async fetchTokens(tokens){
     //     tokens.push(this.defaultToken());
@@ -354,24 +356,22 @@ export default class EOS{
     //     })
     // }
 
-    async signer(payload, publicKey, keyProviderObfuscated, arbitrary = false, isHash = false){
-        const {
-            hash,
-            key
-        } = keyProviderObfuscated;
-
-        let privateKey;
-        if (hash && key) {
-            privateKey = decrypt(key, hash, 1).toString(CryptoJS.enc.Utf8);
+    async signer(payload, publicKey, arbitrary = false, isHash = false){
+        const privateKey = await PopupService.requestAccess(publicKey);
+        if(!privateKey){
+            return Promise.resolve(null);
         }
-        // let privateKey = KeyPairService.publicToPrivate(publicKey);
-        if (!privateKey) return;
-        //  = "5KWhYk1Mb3ny674UngBcGrPd2t3Lu6V5JApsNtzaugi6CkEUWg4";
 
         if(typeof privateKey !== 'string') privateKey = this.bufferToHexPrivate(privateKey);
 
         if (arbitrary && isHash) return ecc.Signature.signHash(payload.data, privateKey).toString();
         return ecc.sign(Buffer.from(arbitrary ? payload.data : payload.buf, 'utf8'), privateKey);
+
+        // let privateKey;
+        // if (hash && key) {
+        //     privateKey = decrypt(key, hash, 1).toString(CryptoJS.enc.Utf8);
+        // }
+
     }
 
     async createTransaction(actions, account, network){
@@ -389,7 +389,7 @@ export default class EOS{
             httpEndpoint:network.fullhost(),
             chainId:network.chainId,
             broadcast: false,
-            keyPrefix: Blockchains.TELOS.toUpperCase(),
+            keyPrefix: Blockchains.EOS.toUpperCase(),
             sign: true,
             signProvider
         };

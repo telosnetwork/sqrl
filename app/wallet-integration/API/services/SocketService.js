@@ -7,6 +7,7 @@ import AuthorizedApp from '../models/AuthorizedApp';
 // import {Popup} from '../models/popups/Popup'
 import PopupService from './PopupService';
 // import Scatter from '../models/Scatter';
+import * as Actions from '../models/api/ApiActions';
 
 let io = null;
 
@@ -119,7 +120,7 @@ const socketHandler = (socket, actions) => {
             if(existingApp.checkKey(request.data.appkey)){
                 return socket.emit('paired', true);
             } else {
-                PopupService.popup({type:"repair"}, (result) => {
+                PopupService.popup({type:Actions.REPAIR, payload:request}, (result) => {
                     if(result){
                         return repair();
                     }

@@ -1,0 +1,11 @@
+{
+    "wapii_prompt_message_identity": "Please review the app request and choose an account if you want to approve the link.",
+    "wapii_prompt_header_identity": "Allow app to link ?",
+    "wapii_prompt_header_sign": "Aprove sign request ?",
+    "wapii_prompt_header_unlock": "Aprove access ?",
+    "wapii_prompt_message_unlock": "Enter the local wallet password to unlock.",
+    "wapii_prompt_header_pair": "App request to link",
+    "wapii_prompt_ok_unlock": "Allow",
+    "wapii_prompt_ok": "Aprove",
+    "cancel": "Cancel"
+}

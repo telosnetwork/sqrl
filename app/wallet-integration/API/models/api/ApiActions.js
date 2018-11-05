@@ -11,3 +11,7 @@ export const CREATE_TRANSACTION =               'createTransaction';
 export const REQUEST_ARBITRARY_SIGNATURE =      'requestArbitrarySignature';
 export const REQUEST_ADD_NETWORK =              'requestAddNetwork';
 export const AUTHENTICATE =                     'authenticate';
+
+// internal use actions for prompts and others
+export const REPAIR =                           'repair';
+export const UNLOCK_ACCESS =                    'unlockAccess';

@@ -324,13 +324,13 @@ export default class ApiService {
             // Getting the identity for this transaction
             const identity = this.apiHandler.findIdentity(possibleId.publicKey);
 
-            const signAndReturn = async (selectedLocation) => {
+            const signAndReturn = async (selectedLocation, keyProvider) => {
                 const signatures = await Promise.all(participants.map(x => {
                     // if(KeyPairService.isHardware(x.publicKey)){
                     //     const keypair = KeyPairService.getKeyPairFromPublicKey(x.publicKey);
                     //     return keypair.external.interface.sign(x.publicKey, payload, payload.abi, network);
                     // } else 
-                    return plugin.signer(payload, x.publicKey, this.apiHandler.getKeyProvider());
+                    return plugin.signer(payload, x.publicKey);
                 }));
 
                 if(signatures.length !== participants.length) return resolve({id:request.id, result:Error.signatureAccountMissing()});
@@ -358,6 +358,7 @@ export default class ApiService {
 
             console.log(existingApp, !hasHardwareKeys, !needToSelectLocation, identity.locations, "got here ??? :/");
             
+            request.possibleId = possibleId;
             PopupService.popup(request, (result) => {
                 if(!result) return resolve({id:request.id, result:Error.signatureError("signature_rejected", "User rejected the signature request")});
 
