@@ -45,7 +45,7 @@ export function createAccount(
         delegatedBw.split(' ')[0],
         delegatedCpu.split(' ')[0],
         transferTokens,
-        connection
+        settings
       ));
     }, {
       broadcast: connection.broadcast,

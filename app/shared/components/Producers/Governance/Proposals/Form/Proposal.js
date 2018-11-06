@@ -309,7 +309,17 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                     icon="x"
                     />
                   )
-                  : ''
+                  : <Header
+                    attached="top"
+                    color="black"
+                    block
+                    size="huge"
+                  >
+                  {title}
+                  <Header.Subheader>
+                    Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+                  </Header.Subheader>
+                </Header>
                 }
               <Message
                 content="The Worker Proposal system is a smart contract that allows EOSIO stakeholders to be involved in the governance of the blockchain. When a proposal is entered into the Worker Proposal contract, all accounts staking tokens will be allowed to vote Yes, No, or Abstain within a timeframe of a set number of cycles (each cycle represents ~29 days) on the matters presented in the proposal."

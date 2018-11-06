@@ -93,6 +93,7 @@ class ToolsFormDelegation extends Component<Props> {
           onBack={this.onBack}
           onClose={onClose}
           onConfirm={this.onConfirm}
+          settings={settings}
           system={system}
         />
       ) : (

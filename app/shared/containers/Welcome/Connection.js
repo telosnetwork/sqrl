@@ -40,19 +40,21 @@ class WelcomeConnectionContainer extends Component<Props> {
     const { actions, settings } = this.props;
     const { node } = this.state;
     if (settings.skipImport) {
-      if (settings.blockchainSelected){
+      if (settings.blockchainSelected) {
         actions.validateNode(settings.blockchain.node);
       }
-      else{
+      else {
         actions.validateNode(node);
         // manually set to TLOS testnet by default
         // user can go in to change later
-        actions.setSetting('blockchain',{
+        const blockchain = {
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
           node:node,
           chainId: '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
-        });
+        };
+        actions.setSetting('blockchain', blockchain);
+        actions.changeCoreTokenSymbol(blockchain.tokenSymbol);
       }
     }
   }

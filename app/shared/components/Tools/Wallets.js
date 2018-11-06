@@ -10,11 +10,20 @@ import GlobalButtonAccountImport from '../Global/Button/Account/Import';
 class ToolsWallets extends Component<Props> {
   removeWallet = (account) => {
     const { actions } = this.props;
-    actions.removeWallet(account);
+    actions.removeWallet(account.account, account.chainId);
   }
   swapWallet = (account, password = false) => {
-    const { actions } = this.props;
-    actions.useWallet(account);
+    const { actions, settings } = this.props;
+
+    // if we're not on the chain associated with this wallet, do so now...
+    const blockchain = settings.blockchains.filter( (c) => { return c.chainId === account.chainId})[0];
+    if (blockchain && blockchain.chainId !== settings.blockchain.chainId) {
+      actions.setSetting('blockchain', blockchain);
+      actions.setSettingWithValidation('node', blockchain.node);
+      actions.changeCoreTokenSymbol(blockchain.tokenSymbol);
+    }
+
+    actions.useWallet(account.account, account.chainId);
     if (password) {
       actions.unlockWallet(password);
     }
@@ -30,6 +39,7 @@ class ToolsWallets extends Component<Props> {
     if (!wallets || !wallets.length) {
       return false;
     }
+    console.log('my wallets:',wallets)
     return (
       <Segment basic>
         <Button.Group floated="right">
@@ -55,10 +65,10 @@ class ToolsWallets extends Component<Props> {
             {([].concat(wallets)
                 .sort((a, b) => a.account > b.account)
                 .map((account) => (
-                  <Table.Row key={account.account}>
+                  <Table.Row key={account.account + account.chainId}>
                     <Table.Cell>
                       <Header size="small">
-                        {account.account}
+                      {settings.blockchains.filter( (c) => { return c.chainId === account.chainId})[0].blockchain} ({account.account})
                       </Header>
                     </Table.Cell>
                     <Table.Cell textAlign="center">
@@ -81,20 +91,20 @@ class ToolsWallets extends Component<Props> {
                           <Button
                             color="green"
                             content={t('tools_wallets_swap')}
-                            disabled={(account.account === wallet.account)}
+                            disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
                             icon="random"
-                            onClick={() => this.swapWallet(account.account)}
+                            onClick={() => this.swapWallet(account)}
                           />
                         )
                         : (
                           <GlobalButtonElevate
-                            onSuccess={(password) => this.swapWallet(account.account, password)}
+                            onSuccess={(password) => this.swapWallet(account, password)}
                             settings={settings}
                             trigger={(
                               <Button
                                 color="green"
                                 content={t('tools_wallets_swap')}
-                                disabled={(account.account === wallet.account)}
+                                disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
                                 icon="random"
                               />
                             )}
@@ -107,19 +117,19 @@ class ToolsWallets extends Component<Props> {
                         ? (
                           <Button
                             color="red"
-                            disabled={(account.account === wallet.account)}
+                            disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
                             icon="trash"
-                            onClick={() => this.removeWallet(account.account)}
+                            onClick={() => this.removeWallet(account)}
                           />
                         )
                         : (
                           <GlobalButtonElevate
-                            onSuccess={() => this.removeWallet(account.account)}
+                            onSuccess={() => this.removeWallet(account)}
                             settings={settings}
                             trigger={(
                               <Button
                                 color="red"
-                                disabled={(account.account === wallet.account)}
+                                disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
                                 icon="trash"
                               />
                             )}

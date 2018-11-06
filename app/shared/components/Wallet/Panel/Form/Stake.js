@@ -268,7 +268,6 @@ class WalletPanelFormStake extends Component<Props> {
                   </Header>
                 ) : ''}
               <WalletPanelFormStakeStats
-                connection={connection}
                 cpuOriginal={cpuOriginal}
                 EOSbalance={EOSbalance}
                 netOriginal={netOriginal}
@@ -297,7 +296,6 @@ class WalletPanelFormStake extends Component<Props> {
                     name="cpuAmount"
                     onChange={this.onChange}
                     defaultValue={decimalCpuAmount.toFixed(4)}
-                    connection={connection}
                     settings={settings}
                   />
 
@@ -308,7 +306,6 @@ class WalletPanelFormStake extends Component<Props> {
                     name="netAmount"
                     onChange={this.onChange}
                     defaultValue={decimalNetAmount.toFixed(4)}
-                    connection={connection}
                     settings={settings}
                   />
                 </Form.Group>
@@ -351,7 +348,6 @@ class WalletPanelFormStake extends Component<Props> {
               netOriginal={netOriginal}
               onBack={this.onBack}
               onConfirm={this.onConfirm}
-              connection={connection}
               settings={settings}
             />
           ) : ''}

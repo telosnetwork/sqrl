@@ -180,6 +180,7 @@ export function removeBlockchain(chainId) {
 export default {
   addBlockchain,
   addCustomToken,
+  changeCoreTokenSymbol,
   clearSettingsCache,
   clearSettingsInvalid,
   removeBlockchain,

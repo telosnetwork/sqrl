@@ -39,7 +39,7 @@ export function setStake(accountName, netAmount, cpuAmount) {
           increaseInStake.netAmount,
           increaseInStake.cpuAmount,
           0,
-          connection
+          settings
         ));
       }
       if (decreaseInStake.netAmount > 0 || decreaseInStake.cpuAmount > 0) {
@@ -48,7 +48,7 @@ export function setStake(accountName, netAmount, cpuAmount) {
           accountName,
           decreaseInStake.netAmount,
           decreaseInStake.cpuAmount,
-          connection
+          settings
         ));
       }
     }, {

@@ -23,22 +23,26 @@ export function importWallets(accounts, key = false, password = false, mode = 'h
     forEach(accounts, (account) => dispatch(importWallet(account, key, password, mode, chainId)));
 }
 
-export function removeWallet(account) {
+export function removeWallet(account, chainId) {
   return (dispatch: () => void) => {
     dispatch({
       type: types.REMOVE_WALLET,
       payload: {
-        account
+        account,
+        chainId
       }
     });
   };
 }
 
-export function useWallet(account) {
+export function useWallet(account, chainId) {
   return (dispatch: () => void, getState) => {
     const { wallets } = getState();
-    // Find the wallet by account name
-    const wallet = find(wallets, { account });
+    // Find the wallet by account name for chain
+    const wallet = find(wallets, { 
+      account, 
+      chainId
+    });
     // Lock the wallet to remove old account keys
     dispatch({
       type: types.WALLET_LOCK

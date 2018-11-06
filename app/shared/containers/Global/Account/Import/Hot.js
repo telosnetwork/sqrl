@@ -32,6 +32,7 @@ class GlobalModalAccountImportHot extends Component<Props> {
       actions,
       settings
     } = this.props;
+    console.log('importing wallet:',selected,value,password,settings.blockchain)
     actions.importWallets(selected, value, password, 'hot', settings.blockchain.chainId);
     this.props.onClose();
   }

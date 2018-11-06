@@ -22,7 +22,7 @@ class GlobalBlockchainDropdown extends Component<Props> {
     this.setState({ open: !this.state.open });
   }
   swapChain = (blockchain) => {
-    const { actions, blockExplorers } = this.props;
+    const { actions } = this.props;
     actions.setSetting('blockchain', blockchain);
     actions.setSettingWithValidation('node', blockchain.node);
     actions.changeCoreTokenSymbol(blockchain.tokenSymbol);

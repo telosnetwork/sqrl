@@ -62,6 +62,7 @@ class WelcomeWalletContainer extends Component<Props> {
       key
     } = keys;
     const {
+      changeCoreTokenSymbol,
       setSetting,
       setSettingWithValidation,
       setWalletKey
@@ -75,6 +76,7 @@ class WelcomeWalletContainer extends Component<Props> {
     if (blockchain){
       setSetting('blockchain', blockchain);
       setSettingWithValidation('node', blockchain.node);
+      changeCoreTokenSymbol(blockchain.tokenSymbol);
     }
     if (encryptWallet) {
       setSetting('walletInit', true);

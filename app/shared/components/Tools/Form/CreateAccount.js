@@ -377,14 +377,14 @@ class ToolsFormCreateAccount extends Component<Props> {
                   label={t('tools_form_create_account_delegated_bw', {tokenSymbol:settings.blockchain.tokenSymbol})}
                   name="delegatedBw"
                   onChange={this.onChange}
-                  connection={connection}
+                  settings={settings}
                 />
                 <GlobalFormFieldToken
                   defaultValue={delegatedCpu && delegatedCpu.split(' ')[0]}
                   label={t('tools_form_create_account_delegated_cpu', {tokenSymbol:settings.blockchain.tokenSymbol})}
                   name="delegatedCpu"
                   onChange={this.onChange}
-                  connection={connection}
+                  settings={settings}
                 />
                 <Form.Checkbox
                   checked={transferTokens}
