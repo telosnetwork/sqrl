@@ -137,13 +137,18 @@ class Welcome extends Component<Props> {
             }
             {stageElement}
             <Container textAlign="center">
-            <Button
-                content="Generate Key Pair"
-                icon="plus"
-                size="small"
-                primary
-                style={{ marginTop: '1em', marginRight: '1em' }}
-              />
+              <ToolsModalKeysGenerate
+                  t={t}
+                  connection={connection}
+                  button={{
+                    color: 'blue',
+                    content: 'tools_keys_key_generation_new_key',
+                    fluid: false,
+                    icon: 'key',
+                    size: 'small',
+                    style: { marginTop: '1em', marginRight: '1em' }
+                  }}
+                />
               <GlobalSettingsLanguage
                 actions={actions}
                 setLanguage={settings.lang}
@@ -152,17 +157,6 @@ class Welcome extends Component<Props> {
                 selection
               />
               <p style={{ marginTop: '1em' }}>
-                <ToolsModalKeysGenerate
-                  t={t}
-                  connection={connection}
-                  button={{
-                    color: 'blue',
-                    content: 'tools_keys_key_generation_new_key',
-                    fluid: false,
-                    icon: 'key',
-                    size: 'small'
-                  }}
-                />
                 {(
                   (stage === types.SETUP_STAGE_ACCOUNT_OPTIONS
                     || (stage === types.SETUP_STAGE_ACCOUNT_LOOKUP && validate.ACCOUNT !== 'SUCCESS'))
