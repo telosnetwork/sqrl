@@ -22,11 +22,11 @@ class GlobalAccountDropdown extends Component<Props> {
     this.setState({ open: !this.state.open });
   }
   onSearchChange = (e, { searchQuery }) => {
-    // console.log(searchQuery);
+    
   }
   swapAccount = (account, password = false) => {
-    const { actions } = this.props;
-    actions.useWallet(account);
+    const { actions, settings } = this.props;
+    actions.useWallet(account, settings.blockchain.chainId);
     if (password) {
       actions.unlockWallet(password);
     }
@@ -117,7 +117,7 @@ class GlobalAccountDropdown extends Component<Props> {
         };
         if (options.length > 0) { // switch to first wallet
           setTimeout(() => {
-            actions.useWallet(options[0].w.account);
+            actions.useWallet(options[0].w.account, settings.blockchain.chainId);
           }, 1000);
         }
         break;
@@ -149,6 +149,7 @@ class GlobalAccountDropdown extends Component<Props> {
                 }
                 return (
                   <GlobalButtonElevate
+                    key={props.value}
                     onSuccess={(password) => this.swapAccount(w.account, password)}
                     settings={settings}
                     trigger={<Dropdown.Item key={props.value} {...props} />}

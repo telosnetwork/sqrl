@@ -29,6 +29,7 @@
   "error_invalid_proposal_amount": "This is not a valid Amount (must have be a positive amount with a maximum of 4 decimals of precision eg. 12.1212).",
   "error_invalid_proposal_cycles": "Each cycle represents 5,000,000 blocks (approx ~29 days). Please enter a valid number of cycles for this proposal.",
   "error_no_stake_left": "Panustatud summat ei saa seada nulliks. See takistaks edaspidi kõikide tehingute teostamise võrgus.",
+  "error_account_does_not_exist": "This account name does not exist.",
   "error_not_enough_balance": "Ei ole piisavalt EOSIO osakutid tehingu lõpetamiseks.",
   "error_not_enough_delegated_bw_for_new_account": "Teil on vaja delegeerida mõned ribalaiusvahendid uuele kontole.",
   "error_not_enough_delegated_cpu_for_new_account": "Teil on vaja delegeerida mõned Protsessori vahendid uuele kontole.",

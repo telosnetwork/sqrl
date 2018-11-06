@@ -76,7 +76,7 @@ class WelcomeKeyContainer extends Component<Props> {
         // Import the watch wallet
         importWallet(settings.account, false, false, 'watch', settings.blockchain.chainId);
         // Set this wallet as the used wallet
-        useWallet(settings.account);
+        useWallet(settings.account, settings.blockchain.chainId);
         // Initialize the wallet setting
         setSetting('walletInit', true);
         // Move on to the voter
