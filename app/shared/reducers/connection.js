@@ -2,7 +2,7 @@ import { find } from 'lodash';
 
 import * as types from '../actions/types';
 
-const DEFAULT_PUB_KEY_PREFIX = 'TLOS';
+const DEFAULT_PUB_KEY_PREFIX = 'EOS';
 
 const initialState = {
   authorization: undefined,

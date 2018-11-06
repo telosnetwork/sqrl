@@ -132,14 +132,16 @@ export default class Prompt extends Component<Props> {
       case Actions.REPAIR:{
         result.headerMessage = 'wapii_prompt_header_pair';
         payload.messages = {
-          "app": payload.origin,
-          "requires account for network": payload.fields.accounts.map((a) => { return {
+          "app": payload.origin || payload.data.origin,
+          // "nonce": request.nonce,
+          "with appkey": request.appkey 
+        };
+        if(payload.fields && payload.fields.accounts){
+          payload.message["requires account for network"] = payload.fields.accounts.map((a) => { return {
             blockchain: a.blockchain,
             chainId: a.chainId
-          }}),
-          // "nonce": request.nonce,
-          "with appkey": request.appkey
-        };
+          }});
+        }
       }break;
     }
 
