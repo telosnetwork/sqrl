@@ -131,28 +131,30 @@ class ContractInterfaceTabTables extends Component<Props> {
             >
               {(rows && rows.length > 0)
                 ? (
-                  <Table>
-                    <Table.Header>
-                      <Table.Row>
-                        {fields.map((field) => (
-                          <Table.HeaderCell>
-                            {field.name}
-                          </Table.HeaderCell>
-                        ))}
-                      </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                      {rows.map((row) => (
+                  <Segment basic style={{overflowX: 'auto', padding: '0em'}}>
+                    <Table>
+                      <Table.Header>
                         <Table.Row>
                           {fields.map((field) => (
-                            <Table.Cell>
-                              {row[field.name]}
-                            </Table.Cell>
+                            <Table.HeaderCell>
+                              {field.name}
+                            </Table.HeaderCell>
                           ))}
                         </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table>
+                      </Table.Header>
+                      <Table.Body>
+                        {rows.map((row) => (
+                          <Table.Row>
+                            {fields.map((field) => (
+                              <Table.Cell>
+                                {row[field.name]}
+                              </Table.Cell>
+                            ))}
+                          </Table.Row>
+                        ))}
+                      </Table.Body>
+                    </Table>
+                  </Segment>
                 )
                 : (
                   <Segment color="orange" secondary stacked>
