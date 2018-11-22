@@ -51,7 +51,7 @@ class WelcomeConnectionContainer extends Component<Props> {
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
           node:node,
-          chainId: '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
+          chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
         });
       }
     }

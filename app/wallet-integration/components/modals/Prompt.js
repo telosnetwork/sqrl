@@ -1,11 +1,14 @@
-// @flow
 import React, { Component } from 'react';
 import { I18n } from 'react-i18next';
-import { Button, Form, Header, Icon, Input, Message, Modal, Checkbox } from 'semantic-ui-react';
-import ReactJson from 'react-json-view';
+import { Button, Message, Modal, Icon } from 'semantic-ui-react';
 import WalletModalUnlock from '../../../shared/components/Wallet/Modal/Unlock';
 import * as Actions from  '../../API/models/api/ApiActions';
 import { debounce } from 'lodash';
+import UnlockAccessPrompt from './UnlockAccessPrompt';
+import RequestSignaturePrompt from './RequestSignaturePrompt';
+import GetIdentityPrompt from './GetIdentityPrompt';
+import RePairPrompt from './RePairPrompt';
+import ArbitrarySignature from './ArbitrarySignature';
 
 export default class Prompt extends Component<Props> {
   state = {
@@ -13,7 +16,8 @@ export default class Prompt extends Component<Props> {
     password: '',
     account: {authorityName:''},
     error: '',
-    loading: false
+    loading: false,
+    closeAll: false
   }
 
   resetState = ()=>{
@@ -22,7 +26,8 @@ export default class Prompt extends Component<Props> {
       password: '',
       account: {authorityName:''},
       error: '',
-      loading: false
+      loading: false,
+      closeAll: false
     });
   }
 
@@ -64,101 +69,82 @@ export default class Prompt extends Component<Props> {
     this.resetState();
     this.props.onClose(result);
   }
+  closeAll = () => {
+    this.state.closeAll = true;
+    this.onClose();
+  }
 
   chooseAccount = (account) => {
     this.setState({account});
   }
 
-  extractModalInfo = (data) => {
+  toggleChangeWallet = () => {
+    this.setState({changeWallet: !this.state.changeWallet});
+  }
+
+  extractModalInfo = (data, error) => {
     const result = {
       request: data || {},
-      displayMessage: '',
-      headerMessage: '',
-      listAccounts: [],
-      messages: '',
-      unlock: '',
+      payload: {},
       okButtonMessage: 'wapii_prompt_ok',
       disableOK: false,
+      modalContent: null,
       size: 'large' //'fullscreen' | 'large' | 'mini' | 'small' | 'tiny'
     }
-    const {
-      actions
-    } = this.props;
 
     const request = result.request;
     const payload = request.payload || {};
+    result.payload = payload;
 
     switch(request.type){
       case Actions.GET_OR_REQUEST_IDENTITY:{
         result.disableOK = !this.state.account.authorityName;
-        result.listAccounts = actions.getAccounts().map(a => {a.authorityName=a.name+'@'+a.authority; return a;});
-        result.displayMessage = 'wapii_prompt_message_identity';
-        result.headerMessage = 'wapii_prompt_header_identity';
-        payload.messages = {
-          "app": payload.origin,
-          "with key": request.appkey,
-          "using network": payload.fields.accounts.map((a) => { return {
-            blockchain: a.blockchain,
-            chainId: a.chainId
-          }})
-        };
+        result.modalContent = <GetIdentityPrompt
+          error={error}
+          request={request}
+          payload={payload}
+          account={this.state.account}
+          chooseAccount={this.chooseAccount}
+        />
       }break;
+
       case Actions.REQUEST_SIGNATURE:{
-        result.headerMessage = 'wapii_prompt_header_sign';
+        result.modalContent = <RequestSignaturePrompt
+          error={error}
+          request={request}
+          payload={payload}
+        />
       }break;
+      
       case Actions.UNLOCK_ACCESS:{
         result.okButtonMessage = 'wapii_prompt_ok_unlock';
-        result.headerMessage = 'wapii_prompt_header_unlock';
-        result.displayMessage = 'wapii_prompt_message_unlock';
-        result.unlock = 
-                <React.Fragment>
-                  <Form.Field
-                    autoFocus
-                    control={Input}
-                    fluid
-                    label={"Password to unlock "+payload.wallet.account}
-                    onChange={this.onChange}
-                    onKeyPress={this.onKeyPress}
-                    type="password"
-                  />
-                  
-                  <Checkbox
-                    label="Change to this wallet"
-                    checked={this.state.changeWallet}
-                    onChange={() => this.setState({changeWallet: !this.state.changeWallet})}
-                  />
-                </React.Fragment>
-      }break;
-      case Actions.REPAIR:{
-        result.headerMessage = 'wapii_prompt_header_pair';
-        payload.messages = {
-          "app": payload.origin || payload.data.origin,
-          // "nonce": request.nonce,
-          "with appkey": request.appkey 
-        };
-        if(payload.fields && payload.fields.accounts){
-          payload.message["requires account for network"] = payload.fields.accounts.map((a) => { return {
-            blockchain: a.blockchain,
-            chainId: a.chainId
-          }});
-        }
-      }break;
-    }
-
-    if( payload.messages ){
-      result.messages = (<React.Fragment> 
-        <h4>Details</h4> 
-        <ReactJson
-            displayDataTypes={false}
-            displayObjectSize={false}
-            iconStyle="square"
-            name={null}
-            src={payload.messages}
-            style={{ padding: '1em' }}
-            theme="harmonic"
+        
+        result.modalContent = <UnlockAccessPrompt
+          error={error}
+          request={request}
+          payload={payload}
+          onKeyPress={this.onKeyPress}
+          onChange={this.onChange}
+          changeWallet={this.state.changeWallet}
+          toggleChangeWallet={this.toggleChangeWallet}
         />
-        </React.Fragment>
-      );
+      }break;
+
+      case Actions.REPAIR:{
+        result.modalContent = <RePairPrompt
+          error={error}
+          request={request}
+          payload={payload}
+        />
+      }break;
+
+      case Actions.REQUEST_ARBITRARY_SIGNATURE:{
+        result.modalContent = <ArbitrarySignature
+          error={error}
+          request={request}
+          payload={payload}
+        />
+      }
     }
 
     return result;
@@ -170,31 +156,18 @@ export default class Prompt extends Component<Props> {
       onSubmit,
       onClose,
       open,
-      data
-      // settings
-      // trigger
-      // validate
+      data,
+      queueInfo
     } = this.props;
 
     if(!open){
       return null;
     }
 
-    const info = this.extractModalInfo(data);
-    const {
-      headerMessage,
-      displayMessage,
-      listAccounts,
-      messages,
-      unlock,
-      okButtonMessage,
-      disableOK,
-      size
-    } = info;
-
     let{
       error,
-      loading
+      loading,
+      account
     } = this.state;
 
     if(error){
@@ -207,45 +180,48 @@ export default class Prompt extends Component<Props> {
       />;
     }
 
+    const info = this.extractModalInfo(data, error);
+    const {
+      okButtonMessage,
+      disableOK,
+      size,
+      modalContent
+    } = info;
+
     return (
       <I18n ns="wapii">
         {
           (t) => (
             <Modal
               centered={false}
-              // trigger={trigger}
               onClose={this.onClose}
               open={open}
               size={size}
             >
-              <Header icon="unlock" content={t(headerMessage)} />
-              <Modal.Content>
-                <h3>{t(displayMessage)}</h3>
+              {modalContent}
 
-                {listAccounts.map((item, index) => (
-                  <Button onClick={ ()=>{this.chooseAccount(item)} } key={index} primary={this.state.account.authorityName === item.authorityName} > {item.authorityName} </Button>)
-                )}
-
-                {messages}
-
-                {unlock}
-                
-                {error}
-
-              </Modal.Content>
               <Modal.Actions>
+                { queueInfo.size > 1 &&
+                  "Queue: 1 of " + queueInfo.size
+                }{queueInfo.size > 1 &&
+                  <Button
+                      onClick={this.closeAll}
+                  >
+                      <Icon name="x" /> {t('cancel_all')}
+                  </Button>
+                }
                 <Button
-                  onClick={this.onClose}
+                    onClick={this.onClose}
                 >
-                  <Icon name="x" /> {t('cancel')}
+                    <Icon name="x" /> {t('cancel')}
                 </Button>
                 <Button
-                  color="green"
-                  content={t(okButtonMessage)}
-                  icon="unlock"
-                  loading={loading}
-                  onClick={this.onSubmit}
-                  disabled={disableOK || loading}
+                    color="green"
+                    content={t(okButtonMessage)}
+                    icon="unlock"
+                    loading={loading}
+                    onClick={this.onSubmit}
+                    disabled={disableOK || loading}
                 />
               </Modal.Actions>
             </Modal>

@@ -2,7 +2,9 @@ import * as types from '../wapii.types';
 import * as SqrlTypes from '../../shared/actions/types';
 import eos from '../../shared/actions/helpers/eos';
 import APIUtils from '../API/util/APIUtils';
+import Network from '../API/models/Network';
 const ecc = require('eosjs-ecc');
+var urlParser = document.createElement('a');
 
 export function updateAccounts(accounts) {
     return (dispatch: () => void, getState) => {
@@ -13,10 +15,39 @@ export function updateAccounts(accounts) {
     };
 }
 
+export function updateQueueInfo(queueInfo) {
+    return (dispatch: () => void, getState) => {
+        dispatch({
+            type: types.WAPII_SAVE_QUEUE_INFO,
+            payload: queueInfo
+        });
+    };
+}
+
 export function getAccounts(){
     return (dispatch: () => void, getState) => {
         const currentWallet = getState().settings.account;
         return getState().wapii.accounts.filter(x => x.name === currentWallet);
+    }
+}
+
+export function getNetworks(){
+    return (dispatch: () => void, getState) => {
+        const blockchains = getState().settings.blockchains;
+        return blockchains.map(b=>{
+            urlParser.href = b.node;
+            let protocol = urlParser.protocol; protocol = protocol.substring(0, protocol.length - 1);
+            const host = urlParser.hostname;
+            const port = urlParser.port || 80;
+            Network.fromJson({
+                name:b.blockchain,
+                chainId:b.chainId,
+                blockchain:b.tokenSymbol.toLowerCase(),
+                protocol,
+                host,
+                port
+            })
+        });
     }
 }
 

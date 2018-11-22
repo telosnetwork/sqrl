@@ -22,6 +22,11 @@ export default function wapii(state = {}, action) {
         identity: action.payload
       });
     }
+    case types.WAPII_SAVE_QUEUE_INFO:{
+      return Object.assign({}, state, {
+        queueInfo: action.payload
+      });
+    }
     default: {
       return state;
     }

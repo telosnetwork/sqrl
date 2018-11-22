@@ -1,3 +1,4 @@
+import APIUtils from "../util/APIUtils";
 
 export default class Account {
     constructor(){
@@ -39,6 +40,6 @@ export default class Account {
     clone(){ return Account.fromJson(JSON.parse(JSON.stringify(this))) }
 
     asReturnable(){
-        // return PluginRepository.plugin(this.blockchain()).returnableAccount(this);
+        return APIUtils.plugin.returnableAccount(this);
     }
 }

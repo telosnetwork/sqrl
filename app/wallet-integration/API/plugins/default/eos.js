@@ -79,13 +79,23 @@ export const BLOCKCHAIN_SUPPORT = 'blockchain_support';
 export default class EOS{
 
     constructor(){ 
+        this.blockchain = {
+            chain: Blockchains.EOSIO,
+            tokenSymbol: Blockchains.EOSIO.toUpperCase(),
+            chainId: "",
+            node: "",
+        }
         this.name = Blockchains.TELOS;
         this.type = BLOCKCHAIN_SUPPORT;
     }
 
+    setBlockchain(blockchain){
+        this.blockchain = Object.assign({chain: blockchain.tokenSymbol.toLowerCase()}, blockchain);
+    }
+
     explorers(){ return EXPLORERS; }
     accountFormatter(account){ return `${account.name}@${account.authority}` }
-    returnableAccount(account){ return { name:account.name, authority:account.authority, publicKey:account.publicKey, blockchain:Blockchains.TELOS }}
+    returnableAccount(account){ return { name:account.name, authority:account.authority, publicKey:account.publicKey, blockchain: this.blockchain.chain }}
 
     forkSupport(){
         return true;
@@ -94,11 +104,11 @@ export default class EOS{
     async getEndorsedNetwork(){
         return new Promise((resolve, reject) => {
             resolve(new Network(
-                'TELOS Testnet', 'http',
-                '18.223.79.140',
-                8888,
+                'TELOS Testnet', 'https',
+                'api.eos.miami',
+                17441,
                 Blockchains.TELOS,
-                '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
+                '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
             ));
         });
     }
@@ -190,9 +200,9 @@ export default class EOS{
     // }
 
     isValidRecipient(name){ return /(^[a-z1-5.]{1,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)/g.test(name); }
-    privateToPublic(privateKey, prefix = null){ return ecc.PrivateKey(privateKey).toPublic().toString(prefix ? prefix : Blockchains.TELOS.toUpperCase()); }
+    privateToPublic(privateKey, prefix = null){ return ecc.PrivateKey(privateKey).toPublic().toString(prefix ? prefix : Blockchains.EOSIO.toUpperCase()); }
     validPrivateKey(privateKey){ return privateKey.length === 51 && ecc.isValidPrivate(privateKey); }
-    validPublicKey(publicKey, prefix = null){ return ecc.PublicKey.fromStringOrThrow(publicKey, prefix ? prefix : Blockchains.TELOS.toUpperCase()); }
+    validPublicKey(publicKey, prefix = null){ return ecc.PublicKey.fromStringOrThrow(publicKey, prefix ? prefix : Blockchains.EOSIO.toUpperCase()); }
 
     randomPrivateKey(){ return ecc.randomKey(); }
     conformPrivateKey(privateKey){ return privateKey.trim(); }
@@ -239,7 +249,9 @@ export default class EOS{
     // }
 
     defaultDecimals(){ return 4; }
-    defaultToken(){ return {symbol:Blockchains.TELOS.toUpperCase(), account:'eosio.token', name:'TELOS', blockchain:Blockchains.TELOS}; }
+    defaultToken(){ 
+        return {symbol:this.blockchain.tokenSymbol, account:'eosio.token', name:'TELOS', blockchain:this.blockchain.chain}; 
+    }
 
     // async fetchTokens(tokens){
     //     tokens.push(this.defaultToken());
@@ -389,7 +401,7 @@ export default class EOS{
             httpEndpoint:network.fullhost(),
             chainId:network.chainId,
             broadcast: false,
-            keyPrefix: Blockchains.EOS.toUpperCase(),
+            keyPrefix: Blockchains.EOSIO.toUpperCase(),
             sign: true,
             signProvider
         };

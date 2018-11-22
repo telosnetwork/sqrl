@@ -3,7 +3,7 @@ import Action from '../models/api/Action'
 // import {store} from '../store/store'
 // import * as StoreActions from '../store/constants'
 import ObjectHelpers from '../util/ObjectHelpers'
-// import Hasher from '../util/Hasher'
+import Hasher from '../util/Hasher'
 // import IdGenerator from '../util/IdGenerator'
 
 // import {Popup} from '../models/popups/Popup';
@@ -56,16 +56,6 @@ export default class ApiService {
     static async [Actions.GET_OR_REQUEST_IDENTITY](request){
         return new Promise((resolve) => {
             const plugin = APIUtils.plugin;
-            // const returnableIdentity = this.apiHandler.getState().identity.asOnlyRequiredFields(request.payload.fields);
-            // returnableIdentity.accounts = this.apiHandler.getState().identity.accounts.map(x => plugin.returnableAccount(x));
-            
-            // console.log("REQ >> ", request);
-            // this.apiHandler.popup(request, (result) => {
-            //     if(result){
-            //         return resolve({id:request.id, result:returnableIdentity});
-            //     }
-            //     resolve({id:request.id, result:Error.signatureError("identity_rejected", "User rejected the provision of an Identity")});
-            // });
 
             const possibleId = this.apiHandler.identityFromPermissions(request.payload.origin);
             if(possibleId) return resolve({id:request.id, result:possibleId});
@@ -91,28 +81,28 @@ export default class ApiService {
     //  * @param request
     //  * @returns {Promise}
     //  */
-    // static async [Actions.AUTHENTICATE](request){
-    //     return new Promise(async resolve => {
-    //         const identity = PermissionService.identityFromPermissions(request.payload.origin);
-    //         if(!identity) return resolve({id:request.id, result:Error.identityMissing()});
+    static async [Actions.AUTHENTICATE](request){
+        return new Promise(async resolve => {
+            const identity = this.apiHandler.identityFromPermissions(request.payload.origin);
+            if(!identity) return resolve({id:request.id, result:Error.identityMissing()});
 
-    //         const nonceError = new Error('invalid_nonce', 'You must provide a 12 character nonce for authentication');
-    //         if(!request.payload.hasOwnProperty('nonce')) return resolve({id:request, result:nonceError});
-    //         if(request.payload.nonce.length !== 12) return resolve({id:request, result:nonceError});
+            const nonceError = new Error('invalid_nonce', 'You must provide a 12 character nonce for authentication');
+            if(!request.payload.hasOwnProperty('nonce')) return resolve({id:request, result:nonceError});
+            if(request.payload.nonce.length !== 12) return resolve({id:request, result:nonceError});
 
-    //         // Prevention of origins being able to send data buffers to be
-    //         // signed by the identity which could change to a real balance holding
-    //         // key in the future.
-    //         const data = Hasher.unsaltedQuickHash(
-    //             Hasher.unsaltedQuickHash(request.payload.origin) +
-    //             Hasher.unsaltedQuickHash(request.payload.nonce)
-    //         );
+            // Prevention of origins being able to send data buffers to be
+            // signed by the identity which could change to a real balance holding
+            // key in the future.
+            const data = Hasher.unsaltedQuickHash(
+                Hasher.unsaltedQuickHash(request.payload.origin) +
+                Hasher.unsaltedQuickHash(request.payload.nonce)
+            );
 
-    //         const plugin = PluginRepository.plugin(Blockchains.EOSIO);
-    //         const signed = await plugin.signer({data}, identity.publicKey, true);
-    //         resolve({id:request.id, result:signed});
-    //     })
-    // }
+            const plugin = APIUtils.plugin;
+            const signed = await plugin.signer({data}, identity.publicKey, true);
+            resolve({id:request.id, result:signed});
+        });
+    }
 
     // /***
     //  * Removes the identity permission for an origin from the user's Scatter,
@@ -146,7 +136,7 @@ export default class ApiService {
     //             }
     //             else resolve({id:request.id, result:publicKey});
     //         }));
-    //     })
+    //     });
     // }
 
     // /***
@@ -213,20 +203,20 @@ export default class ApiService {
     //  * @param request
     //  * @returns {Promise.<void>}
     //  */
-    // static async [Actions.HAS_ACCOUNT_FOR](request){
-    //     return new Promise(resolve => {
-    //         request.payload.network = Network.fromJson(request.payload.network);
-    //         const {network} = request.payload;
-    //         const {blockchain} = network;
+    static async [Actions.HAS_ACCOUNT_FOR](request){
+        return new Promise(resolve => {
+            request.payload.network = Network.fromJson(request.payload.network);
+            const {network} = request.payload;
+            const {blockchain} = network;
 
-    //         if(!network.isValid()) return resolve({id:request.id, result:new Error("bad_network", "The network provided is invalid")});
+            if(!network.isValid()) return resolve({id:request.id, result:new Error("bad_network", "The network provided is invalid")});
 
-    //         const existingNetwork = store.state.scatter.settings.networks.find(x => x.unique() === network.unique());
-    //         if(!existingNetwork) return resolve({id:request.id, result:Error.noNetwork()});
+            const existingNetwork = this.apiHandler.getNetworks.find(x => x.unique() === network.unique());
+            if(!existingNetwork) return resolve({id:request.id, result:Error.noNetwork()});
 
-    //         resolve({id:request.id, result:!!store.state.scatter.keychain.accounts.find(x => x.blockchain() === blockchain && x.networkUnique === existingNetwork.unique())});
-    //     })
-    // }
+            resolve({id:request.id, result:!!this.apiHandler.getWallets().wallets.find(w => w.chainId === existingNetwork.chainId)});
+        })
+    }
 
     // static async [Actions.REQUEST_TRANSFER](request){
     //     return new Promise(resolve => {
@@ -356,7 +346,7 @@ export default class ApiService {
                 return await signAndReturn(identity.locations[0]);
             }
 
-            console.log(existingApp, !hasHardwareKeys, !needToSelectLocation, identity.locations, "got here ??? :/");
+            // console.log(existingApp, !hasHardwareKeys, !needToSelectLocation, identity.locations, "got here ??? :/");
             
             request.possibleId = possibleId;
             PopupService.popup(request, (result) => {
@@ -372,23 +362,23 @@ export default class ApiService {
         });
     }
 
-    // static async [Actions.CREATE_TRANSACTION](request){
-    //     return new Promise(async resolve => {
+    static async [Actions.CREATE_TRANSACTION](request){
+        return new Promise(async resolve => {
 
-    //         const {payload} = request;
-    //         const {blockchain, actions, account, network} = payload;
+            const {payload} = request;
+            const {blockchain, actions, account, network} = payload;
 
-    //         const plugin = PluginRepository.plugin(blockchain);
-    //         const transaction = await plugin.createTransaction(actions, Account.fromJson(account), Network.fromJson(network));
-    //         const result = Object.assign(transaction, {
-    //             network,
-    //             blockchain,
-    //             requiredFields:[],
-    //         });
+            const plugin = APIUtils.plugin; // PluginRepository.plugin(blockchain);
+            const transaction = await plugin.createTransaction(actions, Account.fromJson(account), Network.fromJson(network));
+            const result = Object.assign(transaction, {
+                network,
+                blockchain,
+                requiredFields:[],
+            });
 
-    //         resolve({id:request.id, result});
-    //     });
-    // }
+            resolve({id:request.id, result});
+        });
+    }
 
     // /***
     //  * Requests an arbitrary signature of data.
@@ -396,54 +386,56 @@ export default class ApiService {
     //  * @param identityKey
     //  * @returns {Promise.<void>}
     //  */
-    // static async [Actions.REQUEST_ARBITRARY_SIGNATURE](request, identityKey = null){
-    //     return new Promise(async resolve => {
+    static async [Actions.REQUEST_ARBITRARY_SIGNATURE](request, identityKey = null){
+        return new Promise(async resolve => {
 
-    //         const {payload} = request;
-    //         const {origin, publicKey, data, whatFor, isHash} = request.payload;
+            const {payload} = request;
+            const {origin, publicKey, data, whatFor, isHash} = request.payload;
 
-    //         if(identityKey) payload.identityKey = identityKey;
-    //         else {
-    //             const possibleId = PermissionService.identityFromPermissions(origin, false);
-    //             if (!possibleId) return resolve({id: request.id, result: Error.identityMissing()});
-    //             payload.identityKey = possibleId.publicKey;
-    //         }
+            if(identityKey) payload.identityKey = identityKey;
+            else {
+                const possibleId = this.apiHandler.identityFromPermissions(origin, false);
+                if (!possibleId) return resolve({id: request.id, result: Error.identityMissing()});
+                payload.identityKey = possibleId.publicKey;
+            }
 
-    //         const keypair = KeyPairService.getKeyPairFromPublicKey(publicKey);
-    //         if(!keypair) return resolve({id:request.id, result:Error.signatureError("signature_rejected", "User rejected the signature request")});
+            // const keypair = KeyPairService.getKeyPairFromPublicKey(publicKey);
+            // if(!keypair) return resolve({id:request.id, result:Error.signatureError("signature_rejected", "User rejected the signature request")});
 
-    //         const blockchain = keypair.publicKeys.find(x => x.key === publicKey).blockchain;
+            // const blockchain = keypair.publicKeys.find(x => x.key === publicKey).blockchain;
 
-    //         // Blockchain specific plugin
-    //         const plugin = PluginRepository.plugin(blockchain);
+            // Blockchain specific plugin
+            const plugin = APIUtils.plugin; //PluginRepository.plugin(blockchain);
 
-    //         // Convert buf and abi to messages
-    //         payload.messages = [{
-    //             code:`${blockchain.toUpperCase()} Blockchain`,
-    //             type:'Arbitrary Signature',
-    //             data:{
-    //                 signing:data
-    //             }
-    //         }];
+            // Convert buf and abi to messages
+            payload.messages = [{
+                // code:`${blockchain.toUpperCase()} Blockchain`,
+                code:`EOS Blockchain`,
+                type:'Arbitrary Signature',
+                data:{
+                    signing:data
+                }
+            }];
 
-    //         PopupService.push(Popup.popout(Object.assign(request, {}), async ({result}) => {
-    //             if(!result || (!result.accepted || false)) return resolve({id:request.id, result:Error.signatureError("signature_rejected", "User rejected the signature request")});
+            PopupService.popup(request, async (result) => {
+                if(!result) return resolve({id:request.id, result:Error.signatureError("signature_rejected", "User rejected the signature request")});
 
-    //             resolve({id:request.id, result:await plugin.signer(payload, publicKey, true, isHash)});
-    //         }));
-    //     });
-    // }
+                const signed = await plugin.signer(payload, publicKey, true, isHash);
+                resolve({id:request.id, result:signed});
+            });
+        });
+    }
 
     // /***
     //  * Gets the Scatter version
     //  * @param request
     //  * @returns {Promise.<void>}
     //  */
-    // static async [Actions.GET_VERSION](request){
-    //     return new Promise(resolve => {
-    //         resolve({id:request.id, result:store.state.scatter.meta.version});
-    //     })
-    // }
+    static async [Actions.GET_VERSION](request){
+        return new Promise(resolve => {
+            resolve({id:request.id, result:"0.1"});
+        })
+    }
 
 
 }

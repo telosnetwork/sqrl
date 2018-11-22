@@ -93,8 +93,12 @@ class APIIntegration extends Component<Props> {
       popupData
     } = this.state;
     const {
-      actions
+      actions,
+      wapii
     } = this.props;
+    const {
+      queueInfo
+    } = wapii;
     return ( 
       <I18n ns="wallet">
         {
@@ -105,7 +109,7 @@ class APIIntegration extends Component<Props> {
               onSubmit={this.onSubmit}
               open={open}
               data={popupData}
-              // validate={this.validate}
+              queueInfo={queueInfo}
             />
           )
         }
@@ -116,6 +120,7 @@ class APIIntegration extends Component<Props> {
   componentDidMount(){
     PopupService.connect( this.onOpen, this.props.actions );
     SocketService.initialize(this.props.actions);
+    APIUtils.plugin.setBlockchain(this.props.blockchain);
   }
 
   _extractAccounts(props){
@@ -139,16 +144,17 @@ class APIIntegration extends Component<Props> {
     if( (this.props.wapii.accounts || []).length !== accounts.length ){
       this.props.actions.updateAccounts(accounts);
     }
+    APIUtils.plugin.setBlockchain(nextProps.blockchain);
   } 
 }
 
-function mapStateToProps(state) {
-  console.log(state);
+const mapStateToProps = (state) => {
   return {
     account: state.settings.account,
     keys: state.keys,
     wallets: state.wallets,
-    wapii: state.wapii
+    wapii: state.wapii,
+    blockchain: state.settings.blockchain
   };
 }
 
