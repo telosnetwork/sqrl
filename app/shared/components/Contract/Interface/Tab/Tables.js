@@ -101,6 +101,17 @@ class ContractInterfaceTabTables extends Component<Props> {
       }
     }
 
+    if (rows && rows.length && fields && fields.length) {
+      const fieldsName = fields.map((field) => field.name);
+
+      rows = rows.map(row => {
+        return fieldsName.reduce((currentRow, col) => {
+          currentRow[col] = (typeof row[col] === 'string' || typeof row[col] === 'number' || typeof row[col] === 'boolean') ? row[col] : JSON.stringify(row[col]);
+          return currentRow;
+        }, {});
+      });
+    }
+
     return (
       <React.Fragment>
         <ContractInterfaceSelectorTable
