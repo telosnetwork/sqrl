@@ -90,7 +90,8 @@ export default class EOS{
     }
 
     setBlockchain(blockchain){
-        this.blockchain = Object.assign({chain: blockchain.tokenSymbol.toLowerCase()}, blockchain);
+        this.blockchain = Object.assign(this.blockchain, blockchain);
+        this.blockchain.chain = this.blockchain.tokenSymbol.toLowerCase();
     }
 
     explorers(){ return EXPLORERS; }
