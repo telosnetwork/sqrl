@@ -10,6 +10,10 @@ export const typeMap = {
 
 export default class EOSContract {
   constructor(abi, account = undefined) {
+    abi.actions = abi.actions.sort((a: IContractAction, b: IContractAction) => (a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0));
+    abi.tables = abi.tables.sort((a: IContractTable, b: IContractTable) => (a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0));
+    abi.structs = abi.structs.sort((a: IContractStruct, b: IContractStruct) => (a.name > b.name) ? 1 : ((a.name < b.name) ? -1 : 0));
+
     this.account = account;
     this.abi = abi;
     this.typeMap = typeMap;
