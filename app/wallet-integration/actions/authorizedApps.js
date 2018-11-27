@@ -23,12 +23,25 @@ export function removeApp(app){
         let _apps = APIUtils.mapAuthorizedApps(getState().wapii.authorizedApps);
         const idx = _apps.findIndex(x => x.origin === app.origin);
         if(idx > -1){
-            _apps.splice(idx,1);
+            _apps.splice(idx, 1);
         }
 
         dispatch({
             type: types.WAPII_SAVE_AUTHORIZED_APPS,
             payload: _apps
+        });
+    };
+}
+
+export function removeApps(){
+    return (dispatch: () => void, getState) => {
+        dispatch({
+            type: types.WAPII_SAVE_AUTHORIZED_APPS,
+            payload: []
+        });
+        dispatch({
+            type: types.WAPII_SAVE_PERMISSIONS,
+            payload: []
         });
     };
 }

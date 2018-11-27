@@ -24,8 +24,9 @@ const initialState = {
       chainId: 'd2954ab81fa1e45f244feb4287ae4db46607989034d7adbfdcd94e8cd50eada2'
     },
     {
-      blockchain:'Telos Testnet', 
+      blockchain:'Telos Testnet',
       tokenSymbol:'TLOS',
+      prefix:'EOS',
       node:'https://api.eos.miami:17441',
       chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
     },

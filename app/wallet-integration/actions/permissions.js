@@ -169,3 +169,28 @@ export function removeIdentityPermission(origin){
         });
     }
 }
+
+export function removePermissionsByOrigin(origin){
+    return (dispatch: () => void, getState) => {
+        let permissions = APIUtils.mapPermissions(getState().wapii.permissions);
+        
+        dispatch({
+            type: types.WAPII_SAVE_PERMISSIONS,
+            payload: permissions.filter(x => x.origin !== origin)
+        });
+    }
+}
+
+export function removePermission(permissionId) {
+    return (dispatch: () => void, getState) => {
+        let permissions = APIUtils.mapPermissions(getState().wapii.permissions);
+        const idPermissions = permissions.find(x => x.id === permissionId);
+        if(!idPermissions) return new Error('already_forgotten', "This permission no longer exists!");
+        permissions = permissions.filter(x => x.id !== idPermissions.id);
+        
+        dispatch({
+            type: types.WAPII_SAVE_PERMISSIONS,
+            payload: permissions
+        });
+    }
+}
