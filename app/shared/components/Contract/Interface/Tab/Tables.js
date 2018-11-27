@@ -112,6 +112,13 @@ class ContractInterfaceTabTables extends Component<Props> {
       });
     }
 
+    // This can be used to make the horizontal scrollbar appear on top instead of bottom = helpful for big tables
+    // const scrollStyle = {overflowX: 'auto', padding: '0em', transform:'scaleX(-1) rotate(180deg)' };
+    // const rotateStyle = {transform:'scaleX(-1) rotate(180deg)'};
+
+    const scrollStyle = {overflowX: 'auto', padding: '0em'};
+    const rotateStyle = {};
+
     return (
       <React.Fragment>
         <ContractInterfaceSelectorTable
@@ -131,25 +138,22 @@ class ContractInterfaceTabTables extends Component<Props> {
             >
               {(rows && rows.length > 0)
                 ? (
-                  <Segment basic style={{overflowX: 'auto', padding: '0em'}}>
-                    <Table>
+                  <Segment basic style={scrollStyle}>
+                    <Table style={rotateStyle}>
                       <Table.Header>
                         <Table.Row>
-                          {fields.map((field) => (
-                            <Table.HeaderCell>
-                              {(row[field.name] instanceof Object)
-                                ? JSON.stringify(row[field.name])
-                                : row[field.name]
-                              }
+                          {fields.map((field, index) => (
+                            <Table.HeaderCell key={'thc-'+index}>
+                              {field.name}
                             </Table.HeaderCell>
                           ))}
                         </Table.Row>
                       </Table.Header>
                       <Table.Body>
-                        {rows.map((row) => (
-                          <Table.Row>
-                            {fields.map((field) => (
-                              <Table.Cell>
+                        {rows.map((row, index) => (
+                          <Table.Row key={'tr-'+index}>
+                            {fields.map((field, idx) => (
+                              <Table.Cell key={'tc-'+index+'-'+idx}>
                                 {row[field.name]}
                               </Table.Cell>
                             ))}

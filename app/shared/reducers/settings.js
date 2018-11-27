@@ -24,21 +24,12 @@ const initialState = {
       chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
     }/*,
     {
-<<<<<<< HEAD
-      blockchain:'Telos Testnet',
-=======
       blockchain:'Telos Mainnet', 
->>>>>>> upstream/master
       tokenSymbol:'TLOS',
       prefix:'EOS',
       node:'https://api.eos.miami:17441',
-<<<<<<< HEAD
-      chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
-    },
-=======
       chainId: '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
     }*/,
->>>>>>> upstream/master
     {
       blockchain:'EOS Mainnet', 
       tokenSymbol:'EOS',

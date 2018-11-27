@@ -64,7 +64,7 @@ export class PopupService {
                     transformResult:(popupResult)=>{
                         return new Promise((resolve, reject)=>{
                             if(popupResult.changeWallet){
-                                this.actions.useWallet(wallet.account);
+                                this.actions.useWallet(wallet.account, wallet.chainId);
                             }
                             this.actions.unlockWallet({
                                 useWallet: wallet,
