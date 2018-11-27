@@ -101,6 +101,17 @@ class ContractInterfaceTabTables extends Component<Props> {
       }
     }
 
+    if (rows && rows.length && fields && fields.length) {
+      const fieldsName = fields.map((field) => field.name);
+
+      rows = rows.map(row => {
+        return fieldsName.reduce((currentRow, col) => {
+          currentRow[col] = (typeof row[col] === 'string' || typeof row[col] === 'number' || typeof row[col] === 'boolean') ? row[col] : JSON.stringify(row[col]);
+          return currentRow;
+        }, {});
+      });
+    }
+
     return (
       <React.Fragment>
         <ContractInterfaceSelectorTable
@@ -120,31 +131,33 @@ class ContractInterfaceTabTables extends Component<Props> {
             >
               {(rows && rows.length > 0)
                 ? (
-                  <Table>
-                    <Table.Header>
-                      <Table.Row>
-                        {fields.map((field) => (
-                          <Table.HeaderCell>
-                            {field.name}
-                          </Table.HeaderCell>
-                        ))}
-                      </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                      {rows.map((row) => (
+                  <Segment basic style={{overflowX: 'auto', padding: '0em'}}>
+                    <Table>
+                      <Table.Header>
                         <Table.Row>
                           {fields.map((field) => (
-                            <Table.Cell>
+                            <Table.HeaderCell>
                               {(row[field.name] instanceof Object)
                                 ? JSON.stringify(row[field.name])
                                 : row[field.name]
                               }
-                            </Table.Cell>
+                            </Table.HeaderCell>
                           ))}
                         </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table>
+                      </Table.Header>
+                      <Table.Body>
+                        {rows.map((row) => (
+                          <Table.Row>
+                            {fields.map((field) => (
+                              <Table.Cell>
+                                {row[field.name]}
+                              </Table.Cell>
+                            ))}
+                          </Table.Row>
+                        ))}
+                      </Table.Body>
+                    </Table>
+                  </Segment>
                 )
                 : (
                   <Segment color="orange" secondary stacked>
