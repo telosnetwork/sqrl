@@ -137,7 +137,10 @@ class ContractInterfaceTabTables extends Component<Props> {
                         <Table.Row>
                           {fields.map((field) => (
                             <Table.HeaderCell>
-                              {field.name}
+                              {(row[field.name] instanceof Object)
+                                ? JSON.stringify(row[field.name])
+                                : row[field.name]
+                              }
                             </Table.HeaderCell>
                           ))}
                         </Table.Row>

@@ -20,7 +20,7 @@ If you are concerned about revealing this information to any of these 3rd party 
 - [http://blindblocart.io:8888](http://blindblocart.io:8888/v1/chain/get_info) - operated by [BlindBlocArt](http://blindblocart.io/)
 - [http://telos.caleos.io:9888](http://telos.caleos.io:9888/v1/chain/get_info) - operated by [CalEOS](http://caleos.io)
 - [http://apitest1.kainosbp.com:8888](http://apitest1.kainosbp.com:8888/v1/chain/get_info) - operated by Kainos BP
-- [http://api.telosvancouver.io:8888](http://api.telosvancouver.io:8888/v1/chain/get_info) - operated by Telos Vancouver 
+- [http://api.telosvancouver.io:8888](http://api.telosvancouver.io:8888/v1/chain/get_info) - operated by [Telos Vancouver](https://www.telosvancouver.io/) 
 - [http://telos.eosbcn.com](http://telos.eosbcn.com/v1/chain/get_info) - operated by EOS BCN
 - [http://api.testnet.telos.eosindex.io](http://api.testnet.telos.eosindex.io/v1/chain/get_info) - operated by EOS Index
 - [http://api.telosmadrid.io](http://api.telosmadrid.io/v1/chain/get_info) - operated by Telos Madrid
@@ -31,6 +31,7 @@ If you are concerned about revealing this information to any of these 3rd party 
 - [http://api2.csx.io:443](http://api2.csx.io:443/v1/chain/get_info) - operated by CSX
 - [http://telos.ikuwara.com:8888](http://telos.ikuwara.com:8888/v1/chain/get_info) - operated by iKuwara
 - [https://testnet.telos.blockgenesys.com](https://testnet.telos.blockgenesys.com/v1/chain/get_info) - operated by [Block Genesys](https://www.blockgenesys.com/)
+
 ### Additions
 
 We will update this list as the community finds more reliable 3rd party nodes for usage with this tool.

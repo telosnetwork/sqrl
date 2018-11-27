@@ -10,6 +10,7 @@ import { Segment } from 'semantic-ui-react';
 import About from '../components/About';
 import Producers from '../components/Producers';
 import TabMenu from '../components/TabMenu';
+import APIIntegration from '../../wallet-integration/components/api.integration';
 import Tools from './Tools';
 import Wallet from '../components/Wallet';
 import ModalConstitution from '../components/Global/Modal/Constitution';
@@ -22,9 +23,11 @@ import * as CreateAccountActions from '../actions/createaccount';
 import * as ChainActions from '../actions/chain';
 import * as GlobalsActions from '../actions/globals';
 import * as ProducersActions from '../actions/producers';
+import * as ProposalsActions from '../actions/governance/proposals';
 import * as SellRamActions from '../actions/system/sellram';
 import * as SettingsActions from '../actions/settings';
 import * as StakeActions from '../actions/stake';
+import * as TableActions from '../actions/table';
 import * as TransactionActions from '../actions/transaction';
 import * as TransferActions from '../actions/transfer';
 import * as ValidateActions from '../actions/validate';
@@ -55,6 +58,35 @@ class BasicVoterContainer extends Component<Props> {
     activeItem: 'producers'
   };
 
+  componentWillReceiveProps() {
+    const { 
+      actions,
+      blockExplorers,
+      settings,
+      system
+    } = this.props;
+
+    if (system.BLOCKEXPLORERS === 'SUCCESS') {
+      system.BLOCKEXPLORERS = '';
+      
+       // look for compatible block explorer based on token, else use first
+      const blockExplorerKeys = Object.keys(blockExplorers);
+      let blockExplorer = blockExplorers[blockExplorerKeys[0]];
+      blockExplorerKeys.forEach( (blockExplorerKey) => {
+        const explorer = blockExplorers[blockExplorerKey];
+        if (explorer.tokenSymbol == settings.blockchain.tokenSymbol){
+          blockExplorer = Object.assign({ 
+            name: blockExplorerKey
+          }, explorer);
+          return;
+        }
+      });
+
+      if (blockExplorer)
+        actions.setSetting('blockExplorer', blockExplorer.name);
+    }
+  }
+  
   componentDidMount() {
     const {
       actions,
@@ -124,6 +156,7 @@ class BasicVoterContainer extends Component<Props> {
       actions,
       keys,
       settings,
+      system,
       validate,
       wallet
     } = this.props;
@@ -164,6 +197,7 @@ class BasicVoterContainer extends Component<Props> {
         >
           {activeTab}
         </Segment>
+        <APIIntegration actions={actions}/>
         <ModalConstitution
           actions={actions}
           isUser={(keys.account)}
@@ -185,8 +219,10 @@ function mapStateToProps(state) {
     globals: state.globals,
     keys: state.keys,
     producers: state.producers,
+    proposals: state.proposals,
     settings: state.settings,
     system: state.system,
+    tables: state.tables,
     transaction: state.transaction,
     validate: state.validate,
     wallet: state.wallet
@@ -204,10 +240,12 @@ function mapDispatchToProps(dispatch) {
       ...CreateAccountActions,
       ...GlobalsActions,
       ...ProducersActions,
+      ...ProposalsActions,
       ...SellRamActions,
       ...SettingsActions,
       ...StakeActions,
       ...SystemStateActions,
+      ...TableActions,
       ...TransactionActions,
       ...TransferActions,
       ...ValidateActions,

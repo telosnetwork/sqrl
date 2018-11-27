@@ -38,12 +38,21 @@ class WelcomeConnectionContainer extends Component<Props> {
 
   componentDidMount() {
     const { actions, settings } = this.props;
+    const { node } = this.state;
     if (settings.skipImport) {
-      if (settings.blockchain.node){
+      if (settings.blockchainSelected){
         actions.validateNode(settings.blockchain.node);
       }
       else{
         actions.validateNode(node);
+        // manually set to TLOS testnet by default
+        // user can go in to change later
+        actions.setSetting('blockchain',{
+          blockchain:'Telos Testnet', 
+          tokenSymbol:'TLOS',
+          node:node,
+          chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
+        });
       }
     }
   }
@@ -92,13 +101,12 @@ class WelcomeConnectionContainer extends Component<Props> {
       setSettingWithValidation,
       setWalletMode
     } = actions;
-    if (settings.blockchain.node){
+    if (settings.blockchainSelected){
       setSettingWithValidation('node', settings.blockchain.node);
     }
     else{
       setSettingWithValidation('node', node);
     }
-    
     if (onStageSelect) {
       onStageSelect(types.SETUP_STAGE_ACCOUNT_OPTIONS);
     }
@@ -192,13 +200,11 @@ class WelcomeConnectionContainer extends Component<Props> {
         );
       }
       checkbox = (
-        <p>
           <Checkbox
             label={t('welcome:welcome_ssl_warning_confirm')}
             onChange={this.onConfirm}
             checked={sslConfirm}
           />
-        </p>
       );
     }
     // safeish true and ssl or non-ssl confirmed
@@ -207,7 +213,9 @@ class WelcomeConnectionContainer extends Component<Props> {
       <Form>
         <Form.Field>
           <label>{t('welcome:welcome_connect_network')}</label>
-          <GlobalBlockchainDropdown isWelcomePage='true' />
+          <GlobalBlockchainDropdown 
+            isWelcomePage='true'
+            onChange={(name, value) => this.onChange(null, {name, value: value})} />
         </Form.Field>
 
         <Form.Field
