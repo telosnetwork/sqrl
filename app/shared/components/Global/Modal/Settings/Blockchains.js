@@ -66,8 +66,17 @@ class GlobalModalSettingsBlockchains extends Component<Props> {
     }
   }
   addBlockchain = () => {
-    const { actions, onClose } = this.props;
+    const { 
+      actions, 
+      onClose, 
+      settings 
+    } = this.props;
     const { blockchainInfo } = this.state;
+
+    // getChainInfo changes the current node...
+    // need to set back to what we are actually on
+    actions.validateNode(settings.blockchain.node);
+    
     actions.addBlockchain(
       blockchainInfo.blockchain, 
       blockchainInfo.tokenSymbol, 

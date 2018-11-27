@@ -23,6 +23,15 @@ a {     -webkit-transition: all 0.3s ease;-moz-transition: all 0.3s ease;-o-tran
   color: rgba(0,0,0,.6);
 }
 
+.break-word {
+  word-break: break-word;
+  -ms-word-break: break-all;
+}
+
+.list .list-item.-spacing-small:nth-last-child(n+2) {
+  margin-bottom: 14px;
+}
+
 .input-range__slider {
   appearance: none;
   background: #3f51b5;

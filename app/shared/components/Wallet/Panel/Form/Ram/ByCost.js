@@ -78,7 +78,7 @@ class WalletPanelFormRamBuyByCost extends Component<Props> {
           name="ram_to_buy"
           onChange={this.onChange}
           defaultValue={priceOfRam && priceOfRam.toFixed(4)}
-          connection={connection}
+          settings={settings}
         />
         {(amountOfRam && !formError) ? (
           <h4 style={{ textAlign: 'center', margin: '30px' }}>
