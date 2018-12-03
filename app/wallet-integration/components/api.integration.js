@@ -8,6 +8,7 @@ import Identity from '../API/models/Identity';
 import { IdentityRequiredFields } from '../API/models/Identity';
 import {Blockchains} from '../API/models/Blockchains';
 import APIUtils from '../API/util/APIUtils';
+import eos from '../../shared/actions/helpers/eos';// ./helpers/eos';
 
 import { I18n } from 'react-i18next';
 import { Button, Form, Header, Icon, Input, Menu, Message, Modal } from 'semantic-ui-react';
@@ -47,10 +48,7 @@ class APIIntegration extends Component<Props> {
     };
 
     if(this.props){
-      let accounts, identity;
-      if(this.props.wallets){
-        accounts = this._extractAccounts(this.props);
-      }
+      let identity;
       
       if(!this.props.wapii || !this.props.wapii.identity){
         identity = Identity.placeholder();
@@ -61,11 +59,14 @@ class APIIntegration extends Component<Props> {
           .catch((err) => console.error(err));
       }
 
-      accounts = accounts || [];
-      
-      if(!this.props.wapii || !this.props.wapii.accounts){
-        this.props.actions.updateAccounts(accounts);
+      if(this.props.wallets){
+        this._extractAccounts(this.props).then((accounts)=>{
+          if(!this.props.wapii || !this.props.wapii.accounts){
+            this.props.actions.updateAccounts(accounts);
+          }
+        });
       }
+      
     }
   }
 
@@ -118,20 +119,30 @@ class APIIntegration extends Component<Props> {
   }
 
   componentDidMount(){
-    PopupService.connect( this.onOpen, this.props.actions );
-    SocketService.initialize(this.props.actions);
-    APIUtils.plugin.setBlockchain(this.props.blockchain);
+    if(this.props.settings.walletMode === 'hot'){
+      PopupService.connect( this.onOpen, this.props.actions );
+      SocketService.initialize(this.props.actions);
+      APIUtils.plugin.setBlockchain(this.props.blockchain);
+    }
   }
 
-  _extractAccounts(props){
+  componentWillUnmount(){
+    SocketService.close();
+  }
+
+  async _extractAccounts(props){
     const accs = [];
     for(let i = 0; i < props.wallets.length; i++){
-      if(props.wallets[i].accountData){
-        for(let j = 0; j < props.wallets[i].accountData.permissions.length; j++){
+      let account = props.accounts[props.wallets[i].account];
+      if (props.settings.walletMode === 'hot' && !account) {
+        account = await eos(props.connection).getAccount(props.wallets[i].account);
+      }
+      if(account){
+        for(let j = 0; j < account.permissions.length; j++){
           accs.push({
             publicKey: props.wallets[i].pubkey,
             name: props.wallets[i].account,
-            authority: props.wallets[i].accountData.permissions[j].perm_name
+            authority: account.permissions[j].perm_name
           });
         }
       }
@@ -140,10 +151,11 @@ class APIIntegration extends Component<Props> {
   }
 
   componentWillReceiveProps(nextProps) {
-    const accounts = this._extractAccounts(nextProps);
-    if( (this.props.wapii.accounts || []).length !== accounts.length ){
-      this.props.actions.updateAccounts(accounts);
-    }
+    this._extractAccounts(nextProps).then((accounts)=>{
+      if( (this.props.wapii.accounts || []).length !== accounts.length ){
+        this.props.actions.updateAccounts(accounts);
+      }
+    })
     APIUtils.plugin.setBlockchain(nextProps.blockchain);
   } 
 }
@@ -154,7 +166,10 @@ const mapStateToProps = (state) => {
     keys: state.keys,
     wallets: state.wallets,
     wapii: state.wapii,
-    blockchain: state.settings.blockchain
+    blockchain: state.settings.blockchain,
+    settings: state.settings,
+    accounts: state.accounts,
+    connection: state.connection
   };
 }
 

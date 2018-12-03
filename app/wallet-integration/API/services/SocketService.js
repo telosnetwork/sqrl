@@ -10,6 +10,7 @@ import PopupService from './PopupService';
 import * as Actions from '../models/api/ApiActions';
 
 let io = null;
+let httpServer = null;
 
 
 let rekeyPromise;
@@ -143,13 +144,20 @@ export default class SocketService {
         io = window.require('socket.io')();
         const options = { pingTimeout:100000000000000000 };
 
+        if(httpServer){
+            httpServer.close(()=>{console.log("close old listener")});
+            setImmediate(function(){httpServer.emit('close')});
+            httpServer = null;
+        }
+        
         const http = window.require('http');
         // const https = window.require('https');
         const ip = '127.0.0.1';
 
         // HTTP protocol (port 50005)
-        const httpServer = http.createServer();
-        httpServer.listen(50005,ip);
+        httpServer = http.createServer();
+        httpServer.listen(50005,ip); 
+
         io.attach(httpServer,options);
 
         // HTTPS protocol (port 50006)
@@ -184,6 +192,8 @@ export default class SocketService {
         // Deleting the namespace from the array of
         // available namespaces for connections
         delete io.nsps[`/scatter`];
+
+        httpServer.close(()=>{console.log("close listener")});
 
         return true;
     }
