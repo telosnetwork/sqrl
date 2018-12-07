@@ -60,27 +60,26 @@ const socketHandler = (socket, actions) => {
 
     // All authenticated api requests pass through the 'api' route.
     socket.on('api', async request => {
+	    if(!request.plugin || request.plugin.length > 35) return socket.emit('api', {id:request.id, result:null});
+	    request.plugin = request.plugin.replace(/\s/g, "");
         
         console.log("API", request);
         // 2 way authentication
-        if(request.data.hasOwnProperty('appkey')){
-            const existingApp = findApp(request.data.payload.origin);
+        const existingApp = findApp(request.data.payload.origin);
 
-            const updateNonce = async () => {
-                existingApp.nextNonce = request.data.nextNonce;
-                updateOrPushApp(existingApp);
-            };
-
-            const removeAppPermissions = async () => {
-                removeApp(existingApp);
-            };
+        const updateNonce = async () => {
+            existingApp.nextNonce = request.data.nextNonce;
+            updateOrPushApp(existingApp);
+	    };
+ 	    const removeAppPermissions = async () => {
+            removeApp(existingApp);
+        };
 
 
-            if(!existingApp) return;
-            if(!existingApp.checkKey(request.data.appkey)) return;
-            if(existingApp.nextNonce.length && !existingApp.checkNonce(request.data.nonce)) removeAppPermissions();
-            else updateNonce();
-        }
+ 	    if(!existingApp) return;
+	    if(!existingApp.checkKey(request.data.appkey)) return;
+	    if(existingApp.nextNonce.length && !existingApp.checkNonce(request.data.nonce)) await removeAppPermissions();
+	    else await updateNonce();
 
         socket.emit('api', await ApiService.handler(Object.assign(request.data, {plugin:request.plugin}), actions));
     });
