@@ -1,10 +1,11 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Button, Popup, Table, Header } from 'semantic-ui-react';
+import { Button, Popup, Segment, Table, Header } from 'semantic-ui-react';
 import { isEqual } from 'lodash';
 
 import DangerLink from '../../../Global/Modal/DangerLink';
+import GlobalTransactionModal from '../../../Global/Transaction/Modal';
 
 class ProducersTableRow extends Component<Props> {
   shouldComponentUpdate = (nextProps) =>
@@ -12,15 +13,26 @@ class ProducersTableRow extends Component<Props> {
     || !isEqual(this.props.isValidUser, nextProps.isValidUser)
     || !isEqual(this.props.isSelected, nextProps.isSelected);
 
+  
+  deleteRegProxy = () => {
+    const { actions } = this.props;
+    actions.removeregproxyinfo();
+    actions.unregproxy();
+  }
+
+    
   render() {
     const {
+      actions,
       addProxy,
+      blockExplorers,
       getProxyInfo,
       isSelected,
       isValidUser,
       proxy,
       removeProxy,
       settings,
+      system,
       t
     } = this.props;
 
@@ -36,6 +48,41 @@ class ProducersTableRow extends Component<Props> {
             onClick={() => getProxyInfo(proxy.owner)}
             size="small"
           />
+
+          {
+            ( proxy.owner == settings.account) ?
+            <GlobalTransactionModal
+                actionName="REMOVE_REGPROXYINFO"
+                actions={actions}
+                blockExplorers={blockExplorers}
+                button={{
+                  color: 'red',
+                  icon: 'trash'
+                }}
+                content={(
+                  <Segment basic clearing>
+                    <p>
+                    This will delete your account <strong>{proxy.owner}</strong> as a voting proxy on the network. Are you sure you would like to continue?
+                    <Button
+                      color='red'
+                      content="Delete Registration"
+                      floated="right"
+                      icon="trash"
+                      loading={system.REMOVE_REGPROXYINFO === 'PENDING'}
+                      style={{ marginTop: 20 }}
+                      onClick={() => this.deleteRegProxy(proxy.owner)}
+                      primary
+                    />
+                    </p> 
+                  </Segment>
+                )}
+                icon="share square"
+                settings={settings}
+                system={system}
+                title="Delete Proxy Registration"
+              />
+            : ''
+          }
 
           <Popup
             content={t('producers_proxies_popup_content', { proxy: proxy.owner })}

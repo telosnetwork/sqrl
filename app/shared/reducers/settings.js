@@ -8,7 +8,7 @@ const initialState = {
   // If the wallet has ackknowledged understanding the smart contract tool
   acceptedContractInterface: false,
   // Enable advanced permissions management
-  advancedPermissions: false,
+  advancedPermissions: true,
   // The loaded account
   account: '',
   // The block explorer used
@@ -36,7 +36,7 @@ const initialState = {
       chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
     },
     {
-      blockchain:'Jungle Testnet',
+      blockchain:'EOS Testnet',
       tokenSymbol:'EOS',
       node:'http://jungle.cryptolions.io:18888',
       chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
@@ -56,6 +56,10 @@ const initialState = {
   filterSpamTransfersUnder: 0.0000,
   // Default Idle Timeout
   idleTimeout: 999999999,
+  // default IPFS settings
+  ipfsNode: 'https://ipfs.telos.miami',
+  ipfsPort: '5002',
+  ipfsProtocol: 'https',
   // Default language
   lang: '',
   // The node to connect to

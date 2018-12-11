@@ -8,28 +8,22 @@ const CryptoJS = require('crypto-js');
 import GlobalFormFieldAccount from '../../../../Global/Form/Field/Account';
 import GlobalFormFieldGeneric from '../../../../Global/Form/Field/Generic';
 import FormMessageError from '../../../../Global/Form/Message/Error';
-import GovernanceProposalsFormProposalConfirming from './Proposal/Confirming';
+import GovernanceArbitrationFormArbitrationConfirming from './Arbitration/Confirming';
 
 import ipfs from '../../../../../actions/helpers/ipfs';
 
-const formAttributes = ['title', 'ipfs_location', 'amount', 'send_to', 'cycles'];
+const formAttributes = ['creds_ipfs_url'];
 
-class GovernanceProposalsFormProposal extends Component<Props> {
+class GovernanceArbitrationFormArbitration extends Component<Props> {
   constructor(props) {
     super(props);
 
     const {
-      amount,
-      cycles,
-      ipfs_location,
-      send_to,
-      title
+      creds_ipfs_url
     } = props;
     
     this.state = {
-      amount,
       confirming: false,
-      cycles,
       fileBuffer:'',
       fileInfo: '',
       ipfsHash:null,
@@ -42,33 +36,28 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         syscall:'',
         message:''
       },
-      ipfs_location,
-      send_to,
-      title,
+      creds_ipfs_url,
       formErrors: {},
       submitDisabled: true
     };
   }
 
-  uploadWorkerProposal =(e) => {
+  uploadCreds =(e) => {
     e.stopPropagation();
     e.preventDefault();
 
-    console.log('reading file from system..')
-    const proposalFile = e.target.files[0];
+    const credsFile = e.target.files[0];
     let reader = new window.FileReader();
-    reader.readAsArrayBuffer(proposalFile);
+    reader.readAsArrayBuffer(credsFile);
     reader.onloadend = async () => {
       const fileBuffer = await Buffer.from(reader.result);
-      console.log('saving file to state..')
       this.setState({
         fileBuffer, 
-        fileInfo: proposalFile
+        fileInfo: credsFile
       });
-      console.log('calling on change..', proposalFile)
       this.onChange(e, {
-        name: 'ipfs_location', 
-        value: proposalFile, 
+        name: 'creds_ipfs_url', 
+        value: credsFile, 
         valid: true});
     };
   };
@@ -111,25 +100,13 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       } = this.state;
 
       const {
-        send_to
-      } = this.state;
-
-      const {
         actions
       } = this.props;
-
-      const {
-        checkAccountAvailability
-      } = actions;
-
-      if (name === 'send_to' && send_to.length !== 0) {
-        checkAccountAvailability(send_to);
-      }
 
       let submitDisabled = false;
 
       if (!valid) {
-        formErrors[name] = `invalid_proposal_${name}`;
+        formErrors[name] = `invalid_arbitration_${name}`;
       } else {
         formErrors[name] = null;
       }
@@ -145,10 +122,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
 
   errorsInForm = (errors) => {
     const {
-      amount,
-      cycles,
-      ipfs_location,
-      title
+      creds_ipfs_url
     } = this.state;
     const formErrors = errors;
     let submitDisabled = false;
@@ -157,23 +131,8 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       formErrors[attribute] = null;
     });
 
-    if ((!title || title.length < 10 || title.size > 256) && !submitDisabled) {
-      formErrors.title = 'invalid_proposal_title';
-      submitDisabled = true;
-    }
-
-    if ((!ipfs_location || ipfs_location.size < 1) && !submitDisabled) {
-      formErrors.ipfs_location = 'invalid_proposal_ipfs_location';
-      submitDisabled = true;
-    }
-
-    if ((Number(amount) < 1 || isNaN(amount)) && !submitDisabled) {
-      formErrors.amount = 'invalid_proposal_amount';
-      submitDisabled = true;
-    }
-
-    if ((Number(cycles) < 1 || isNaN(cycles)) && !submitDisabled) {
-      formErrors.cycles = 'invalid_proposal_cycles';
+    if ((!creds_ipfs_url || creds_ipfs_url.size < 1) && !submitDisabled) {
+      formErrors.creds_ipfs_url = 'invalid_arbitration_creds_ipfs_url';
       submitDisabled = true;
     }
 
@@ -199,36 +158,29 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     } = this.props;
 
     const {
-      createProposal
+      registerCandidate
     } = actions;
 
-    const {
-      amount,
-      cycles,
-      title,
-      send_to
-    } = this.state;
-    
     // save proposal to IPFS, return its hash#, and submit contract to chain
     await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
       if (error) {
         console.log('got error in IPFS..', error)
         this.setState({ ipfsError:error });
       }
-      console.log('other..', ipfsHash)
+
       // now we can finally add the proposal to the blockchain
       if (ipfsHash) {
-        console.log(ipfs);
-        const ipfsLocation = settings.ipfsProtocol + "://" + 
-          settings.ipfsNode + "/ipfs/" + ipfsHash[0].hash;
-        
-        // submit WP
-        createProposal(title, ipfsLocation, parseInt(cycles), 
-          amount + " " + settings.blockchain.tokenSymbol, send_to);
+        const hashPath = "/ipfs/" + ipfsHash[0].hash;
+        console.log('hash len:', hashPath.length)
+        const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
+
+        // submit candidate
+        console.log(" pushing '" + hashPath, "'");
+        registerCandidate(settings.account, hashPath);
 
         this.setState({
-          ipfsHash: ipfsHash[0].hash,
-          ipfs_location: ipfsLocation
+          ipfsHash: hashPath,
+          creds_ipfs_url: ipfsLocation
         });
       }
 
@@ -266,42 +218,24 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     } = this.props;
 
     const {
-      amount,
       confirming,
-      cycles,
+      creds_ipfs_url,
       fileInfo,
       formErrors,
       ipfsing,
       ipfsError,
-      ipfsHash,
-      ipfs_location,
-      title,
-      send_to
+      ipfsHash
     } = this.state;
     let {
       submitDisabled
     } = this.state;
-
-    let amountLabel = "Requested Amount (" + settings.blockchain.tokenSymbol + ")";
-
-    if (send_to &&
-        send_to.length !== 0 &&
-        system.ACCOUNT_AVAILABLE === 'SUCCESS' &&
-        system.ACCOUNT_AVAILABLE_LAST_ACCOUNT === send_to) {
-      formErrors.send_to = 'invalid_proposal_send_to';
-      submitDisabled = true;
-    }
-
-    if (system.ACCOUNT_AVAILABLE === 'SUCCESS' && !submitDisabled) { // account doesn't exist!
-      submitDisabled = true;
-    }
 
     const formErrorKeys = Object.keys(formErrors);
     const hasError = ipfsError.message && ipfsError.message.length > 0;
     return (
       <Form
         warning
-        loading={ipfsing === true || system.GOVERNANCE_CREATEPROPOSAL === 'PENDING'}
+        loading={ipfsing === true || system.GOVERNANCE_REGCANDIDATE === 'PENDING'}
         onKeyPress={this.onKeyPress}
         onSubmit={this.onSubmit}
       >
@@ -321,45 +255,19 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                     block
                     size="huge"
                   >
-                  {title}
+                  File {settings.account}'s Arbitration Application
                   <Header.Subheader>
-                    Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+                    Submission Fee: 100.0000 {settings.blockchain.tokenSymbol}
                   </Header.Subheader>
                 </Header>
                 }
               <Message
-                content="The Worker Proposal system is a smart contract that allows EOSIO stakeholders to be involved in the governance of the blockchain. When a proposal is entered into the Worker Proposal contract, all accounts staking tokens will be allowed to vote Yes, No, or Abstain within a timeframe of a set number of cycles (each cycle represents ~29 days) on the matters presented in the proposal."
+                content="Register your account to be an on-chain arbitrator candidate using this form. Simply upload your credentials to share with voters and we will attempt to register your candidacy for any open arbitration seat."
                 warning
-              />
-              <GlobalFormFieldGeneric
-                autoFocus
-                label="Proposal Title:"
-                name="title"
-                onChange={this.onChange}
-                value={title} 
               />
               <input 
                 type = "file"
-                onChange = {this.uploadWorkerProposal}
-              />
-              <GlobalFormFieldGeneric
-                label={amountLabel}
-                name="amount"
-                onChange={this.onChange}
-                value={amount}
-              />
-              <GlobalFormFieldAccount
-                contacts={settings.contacts}
-                label="Recipient:"
-                name="send_to"
-                onChange={this.onChange}
-                value={send_to}
-              />
-              <GlobalFormFieldGeneric
-                label="Cycles:"
-                name="cycles"
-                onChange={this.onChange}
-                value={cycles}
+                onChange = {this.uploadCreds}
               />
               <Divider />
               <FormMessageError
@@ -389,20 +297,16 @@ class GovernanceProposalsFormProposal extends Component<Props> {
           ) : ''}
         {(confirming)
           ? (
-            <GovernanceProposalsFormProposalConfirming
+            <GovernanceArbitrationFormArbitrationConfirming
               actions={actions}
-              amount={amount}
-              cycles={cycles}
+              creds_ipfs_url={creds_ipfs_url}
               fileInfo={fileInfo}
               ipfsHash={ipfsHash}
-              ipfs_location={ipfs_location}
               onBack={this.onBack}
               onClose={this.onClose}
               onConfirm={this.onConfirm}
               settings={settings}
-              send_to={send_to}
               system={system}
-              title={title}
               validate={validate}
               wallet={wallet}
             />
@@ -413,4 +317,4 @@ class GovernanceProposalsFormProposal extends Component<Props> {
   }
 }
 
-export default translate('producers')(GovernanceProposalsFormProposal);
+export default translate('producers')(GovernanceArbitrationFormArbitration);

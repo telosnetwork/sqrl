@@ -2,10 +2,10 @@
 import React, { Component } from 'react';
 import { Button, Divider, Icon, Segment, Table, Header, Message } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
-import GlobalButtonElevate from '../../../../../../containers/Global/Button/Elevate';
+import GlobalButtonElevate from '../../../../../containers/Global/Button/Elevate';
 const { shell } = require('electron');
 
-class GovernanceProposalsFormProposalConfirming extends Component<Props> {
+class ProxiesFormProxyConfirming extends Component<Props> {
   constructor(props) {
     super(props);
 
@@ -28,7 +28,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     this.setState({walletUnLockRequested: true});
 
     actions.unlockWallet(password);
-    system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR = null;
+    system.SET_REGPROXYINFO_LAST_ERROR = null;
   }
   openLink = (link) => shell.openExternal(link);
   render() {
@@ -36,24 +36,32 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       walletUnLockRequested 
     } = this.state;
     const {
-      amount,
-      cycles,
+      name,
+      website,
+      slogan,
+      philosophy,
+      background,
+      logo_256,
+      telegram,
+      steemit,
+      twitter,
+      wechat,
+      reserved_1,
+      reserved_2,
+      reserved_3,
+
       fileInfo,
-      ipfs_location,
       ipfsHash,
       onBack,
       onClose,
-      send_to,
       settings,
       system,
       t,
-      title,
       validate,
       wallet
     } = this.props;
     let ipfsSuccess = (ipfsHash && ipfsHash.length > 0);
-    let lastError = system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR;
-    const cycleDays = cycles * 29;
+    let lastError = system.SET_REGPROXYINFO_LAST_ERROR;
 
     if (walletUnLockRequested && validate.WALLET_PASSWORD === 'SUCCESS'){
       lastError = '';
@@ -66,8 +74,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Icon name="circle info" />
           <Header.Content>
             <Header.Subheader>
-              Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request. Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+              Please confirm your proxy's information below before proceeding. Once confirmed, please click <strong>Complete Registration</strong> to complete your registration.
             </Header.Subheader>
           </Header.Content>
         </Header>
@@ -75,49 +82,89 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Table.Body>
             <Table.Row>
               <Table.Cell width={4}>
-                Title:
+                Name:
               </Table.Cell>
               <Table.Cell>
-                {title}
+                {name}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Website:
+              </Table.Cell>
+              <Table.Cell>
+                {website}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Slogan:
+              </Table.Cell>
+              <Table.Cell>
+                {slogan}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Philosophy:
+              </Table.Cell>
+              <Table.Cell>
+                {philosophy}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Background:
+              </Table.Cell>
+              <Table.Cell>
+                {background}
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>
-                Proposal Details:
+                Logo:
               </Table.Cell>
               <Table.Cell>
                 Committing the contents of <strong>{fileInfo.name}</strong> to IPFS
               </Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>
-                Requested Amount:
+              <Table.Cell width={4}>
+                Telegram:
               </Table.Cell>
               <Table.Cell>
-                {amount} {settings.blockchain.tokenSymbol}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>
-                Recipient:
-              </Table.Cell>
-              <Table.Cell>
-                {send_to}
+                {telegram}
               </Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>
-                Number of Cycles:
+              <Table.Cell width={4}>
+                Steemit:
               </Table.Cell>
               <Table.Cell>
-                {cycles} (~ {cycleDays} Days)
+                {steemit}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Twitter:
+              </Table.Cell>
+              <Table.Cell>
+                {twitter}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                WeChat:
+              </Table.Cell>
+              <Table.Cell>
+                {wechat}
               </Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {(lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS')
+        {(lastError && system.SET_REGPROXYINFO !== 'SUCCESS')
           ? (
             <Message negative size="tiny">
               {(lastError.code)
@@ -160,24 +207,24 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           />
           : ''}
 
-        { (ipfsSuccess === true && system.GOVERNANCE_CREATEPROPOSAL === 'SUCCESS') ?
+        { (ipfsSuccess === true && system.SET_REGPROXYINFO === 'SUCCESS') ?
         <div>
             <Message
             positive
             content={(
               <p>
                 <a
-                  onClick={() => this.openLink(ipfs_location)}
+                  onClick={() => this.openLink(logo_256)}
                   role="link"
                   style={{ cursor: 'pointer', fontSize:'10pt' }}
                   tabIndex={0}
-                >{ipfs_location}
+                >{logo_256}
                 </a>
               </p>
             )}
             icon="inbox"
             info
-            header="Worker Proposal Submitted to IPFS"
+            header="Logo Submitted to IPFS"
           />
           <Button
             onClick={onClose}
@@ -191,7 +238,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           color="green"
           floated="right"
           onClick={this.onConfirm}
-          content='Submit Proposal'
+          content='Complete Registration'
         />
         <Button
           onClick={onBack}
@@ -205,4 +252,4 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
   }
 }
 
-export default translate('producers')(GovernanceProposalsFormProposalConfirming);
+export default translate('producers')(ProxiesFormProxyConfirming);

@@ -6,7 +6,7 @@ import { Segment } from 'semantic-ui-react';
 
 import GlobalTransactionModal from '../../../../Global/Transaction/Modal';
 
-class GovernanceProposalsProposalVote extends Component<Props> {
+class GovernanceArbitrationVote extends Component<Props> {
   render() {
     const {
       actionName,
@@ -16,10 +16,8 @@ class GovernanceProposalsProposalVote extends Component<Props> {
       confirm,
       isExpired,
       open,
-      proposal,
       pubkey,
       settings,
-      submission,
       system,
       t,
       vote
@@ -34,11 +32,11 @@ class GovernanceProposalsProposalVote extends Component<Props> {
           <Segment basic clearing>
             {(isExpired === true) ? 
             <p>
-            You can no longer vote <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong> because it is now expired.
+            You can no longer vote <strong>{vote}</strong> for this election because it is now expired.
             </p>
             : 
             <p>
-            Please confirm your vote of <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong>. 
+            Please confirm your vote of <strong>{vote}</strong> on this election. 
             {confirm}
             </p> 
             }
@@ -55,4 +53,4 @@ class GovernanceProposalsProposalVote extends Component<Props> {
   }
 }
 
-export default translate('tools')(GovernanceProposalsProposalVote);
+export default translate('tools')(GovernanceArbitrationVote);

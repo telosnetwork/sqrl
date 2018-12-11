@@ -4,15 +4,13 @@ import { translate } from 'react-i18next';
 import { debounce, filter, findIndex, sortBy } from 'lodash';
 import { Grid, Input, Segment, Transition, Table, Message } from 'semantic-ui-react';
 
-import ProducersModalProxyInfo from './Modal/ProxyInfo';
-import ProxiesTableRow from './Table/Row';
+import GovernanceArbitrationCandidatesTableRow from './Table/Row';
 
-class ProxiesTable extends Component<Props> {
+class GovernanceArbitrationCandidatesTable extends Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
-      query: false,
-      showProxyInfo: false
+      query: false
     };
   }
 
@@ -32,42 +30,41 @@ class ProxiesTable extends Component<Props> {
     return (query && query.length > 0);
   }
 
-  clearProxyInfo = () => this.setState({ showProxyInfo: false });
-
-  getProxyInfo = (proxyAccount) => {
-    const {
-      proxies
-    } = this.props;
-
-    const index = findIndex(proxies, { owner: proxyAccount });
-
-    this.setState({
-      showProxyInfo: proxies[index]
-    });
-  }
-
   render() {
+
     const {
-      accounts,
+      query
+    } = this.state;
+    const {
       actions,
-      addProxy,
       amount,
+      ballots,
       blockExplorers,
-      currentProxy,
-      isProxying,
       isValidUser,
-      proxies,
-      removeProxy,
+      leaderboard,
       settings,
       system,
-      t
+      t,
+      votes
     } = this.props;
     const {
-      query,
-      showProxyInfo
-    } = this.state;
+      board_id,
+      publisher,
+      info_url,
+      candidates,
+      unique_voters,
+      voting_symbol,
+      available_seats,
+      begin_time,
+      end_time,
+      status
+    } = leaderboard;
+    let ballot = ballots.filter((b) => b.reference_id === board_id)[0]; 
+    if (!ballot)
+      ballot = {};
 
-    const loading = (proxies.length < 1);
+    const isExpired = (end_time * 1000) < Date.now();
+    const loading = (candidates.length < 1);
     const querying = this.querying();
     let baseTable = <Table.Body />;
     let searchTable = (
@@ -79,27 +76,27 @@ class ProxiesTable extends Component<Props> {
         </Table.Row>
       </Table.Body>
     );
-    const sortedProxies = sortBy(proxies, 'name');
+    const sortedCandidates = sortBy(candidates, 'member');
     if (!loading) {
-      const fullResults = sortedProxies.slice(0, amount);
+      const fullResults = sortedCandidates.slice(0, amount);
       baseTable = (
         <Table.Body key="FullResults">
-          {fullResults.map((proxy) => {
-            const isSelected = (proxy.owner === currentProxy);
+          {fullResults.map((candidate) => {
+            const isSelected = (candidate.member === settings.account);
 
             return (
-              <ProxiesTableRow
+              <GovernanceArbitrationCandidatesTableRow
                 actions={actions}
-                addProxy={addProxy}
-                blockExplorers={blockExplorers}
-                key={proxy.owner}
+                candidate={candidate}
+                key={leaderboard.board_id}
                 isSelected={isSelected}
                 isValidUser={isValidUser}
-                getProxyInfo={this.getProxyInfo}
-                proxy={proxy}
-                removeProxy={removeProxy}
-                system={system}
+                ballots={ballots}
+                blockExplorers={blockExplorers}
+                leaderboard={leaderboard}
                 settings={settings}
+                system={system}
+                votes={votes}
               />
             );
           })}
@@ -107,32 +104,29 @@ class ProxiesTable extends Component<Props> {
       );
 
       if (querying) {
-        const partResults = filter(sortedProxies, (proxy) =>
-          proxy.owner.indexOf(query) > -1 ||
-          proxy.name.indexOf(query) > -1
+        const partResults = filter(sortedCandidates, (candidate) =>
+          candidate.member.indexOf(query) > -1
         ).slice(0, amount);
 
         if (partResults.length > 0) {
           searchTable = (
             <Table.Body key="PartResults">
-              {partResults.map((proxy) => {
-                const isSelected = (proxy.owner === currentProxy);
+              {partResults.map((candidate) => {
+                const isSelected = (candidate.member === settings.account);
 
                 return (
-                  <ProxiesTableRow
+                  <GovernanceArbitrationCandidatesTableRow
                     actions={actions}
-                    addProxy={addProxy}
-                    blockExplorers={blockExplorers}
-                    getProducerInfo={this.getProducerInfo}
-                    key={proxy.owner}
-                    isProxying={isProxying}
+                    candidate={cand}
+                    key={leaderboard.board_id}
                     isSelected={isSelected}
                     isValidUser={isValidUser}
-                    getProxyInfo={this.getProxyInfo}
-                    proxy={proxy}
-                    removeProxy={removeProxy}
-                    system={system}
+                    ballots={ballots}
+                    blockExplorers={blockExplorers}
+                    leaderboard={leaderboard}
                     settings={settings}
+                    system={system}
+                    votes={votes}
                   />
                 );
               })}
@@ -143,28 +137,12 @@ class ProxiesTable extends Component<Props> {
     }
     return (
       <Segment basic loading={loading} vertical>
-        {(showProxyInfo)
-          ? (
-            <ProducersModalProxyInfo
-              accounts={accounts}
-              actions={actions}
-              onClose={this.clearProxyInfo}
-              settings={settings}
-              viewingProxy={showProxyInfo}
-            />
-          ) : ''}
-        <Message
-          warning
-        >
-          {t('producers_form_proxy_message')}
-        </Message>
         <Grid>
-          <Grid.Column width={8} />
-          <Grid.Column width={8} key="ProxiesSearch" textAlign="right">
+          <Grid.Column width={1} key="ArbitrationCandidateSearch" textAlign="right">
             <Input
               icon="search"
               onChange={this.onSearchChange}
-              placeholder={t('search')}
+              placeholder="Search candidates..."
             />
           </Grid.Column>
         </Grid>
@@ -179,10 +157,10 @@ class ProxiesTable extends Component<Props> {
             <Table.Row>
               <Table.HeaderCell collapsing />
               <Table.HeaderCell>
-                {t('producers_proxies_table_header_name')}
+                Candidate Details
               </Table.HeaderCell>
               <Table.HeaderCell>
-                {t('producers_proxies_table_header_account')}
+                Votes
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -198,4 +176,4 @@ class ProxiesTable extends Component<Props> {
   }
 }
 
-export default translate('producers')(ProxiesTable);
+export default translate('producers')(GovernanceArbitrationCandidatesTable);

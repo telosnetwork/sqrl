@@ -5,6 +5,7 @@ import { translate } from 'react-i18next';
 
 import BlockProducers from './Producers/BlockProducers';
 import ProducersProxy from './Producers/Proxy';
+import GovernanceArbitration from './Producers/Arbitration';
 import GovernanceProposals from './Producers/Proposals';
 import GovernanceRatifyAmend from './Producers/RatifyAmend';
 import ProducersVotingPreview from './Producers/BlockProducers/Modal/Preview';
@@ -22,6 +23,9 @@ type Props = {
     voteproducers: () => void
   },
   accounts: {},
+  arbitration: {
+    leaderboards: {}
+  },
   balances: {},
   blockExplorers: {},
   globals: {},
@@ -47,7 +51,7 @@ class Producers extends Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
-      amount: 40,
+      amount: 50,
       lastError: false,
       lastTransaction: {},
       previewing: false,
@@ -108,7 +112,7 @@ class Producers extends Component<Props> {
           });
         } else {
           // otherwise notify users that they must stake before allowed voting
-          // and suggest several BPs as defaults
+          // and suggest several BPs as defaults (if they're registered)
           let suggestedBPs = [
             '21zephyr1111',
             'amplifiedtls',
@@ -125,7 +129,7 @@ class Producers extends Component<Props> {
             'telosmiamibp',
             'tlsvancouver'];
           this.setState({
-            selected:suggestedBPs
+            selected:suggestedBPs // TODO: .filter((p)=> {return p.active;})
           });
         }
       }
@@ -171,6 +175,24 @@ class Producers extends Component<Props> {
     });
   }
 
+  addArbCandidate = () => {
+    this.setState({
+      addArbCandidate: true
+    });
+  }
+
+  removeArbCandidate = () => {
+    this.setState({
+      removeArbCandidate: true
+    });
+  }
+
+  onCloseArbCandidate = () => {
+    this.setState({
+      addArbCandidate: false,
+      removeArbCandidate: false
+    });
+  }
 
   addProducer = (producer) => {
     const producers = [...this.state.selected];
@@ -375,6 +397,18 @@ class Producers extends Component<Props> {
                               {...this.props}
                               onCloseProposal={this.onCloseProposal.bind(this)}
                               isValidUser={isValidUser}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    },
+                    {
+                      menuItem: 'Arbitration',
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <GovernanceArbitration
+                              {...this.props}
                             />
                           </Tab.Pane>
                         );

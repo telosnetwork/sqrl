@@ -9,7 +9,7 @@ import GovernanceProposalsButtonProxy from './Governance/Proposals/Button/Propos
 
 class GovernanceProposals extends Component<Props> {
   state = {
-    scope: 'eosio.work'
+    scope: 'eosio.trail'
   }
   componentDidMount() {
     this.sync();
@@ -49,7 +49,9 @@ class GovernanceProposals extends Component<Props> {
       scope
     } = this.state;
     const {
+      ballots,
       list,
+      submissions,
       votes
     } = proposals;
     let recentOptions = [];
@@ -64,24 +66,19 @@ class GovernanceProposals extends Component<Props> {
         <Header floated="left">
           Worker Proposals
         </Header>
-        {(0==0)
-          ? (
-            <Container floated="right" style={{ marginBottom: '50px' }}>
-              <GovernanceProposalsButtonProxy
-                accounts={accounts}
-                actions={actions}
-                blockExplorers={blockExplorers}
-                onClose={this.onClose}
-                settings={settings}
-                system={system}
-                tables={tables}
-                validate={validate}
-                wallet={wallet}
-              />
-            </Container>
-          )
-          : ''
-        }
+          <Container floated="right" style={{ marginBottom: '50px' }}>
+            <GovernanceProposalsButtonProxy
+              accounts={accounts}
+              actions={actions}
+              blockExplorers={blockExplorers}
+              onClose={this.onClose}
+              settings={settings}
+              system={system}
+              tables={tables}
+              validate={validate}
+              wallet={wallet}
+            />
+          </Container>
           <Message 
             content={(
               <React.Fragment>
@@ -132,11 +129,13 @@ class GovernanceProposals extends Component<Props> {
             .map((proposal) => (
               <GovernanceProposalsProposal
                 actions={actions}
-                key={proposal.id}
+                key={proposal.prop_id}
+                ballots={ballots}
                 blockExplorers={blockExplorers}
                 proposal={proposal}
                 scope={scope}
                 settings={settings}
+                submissions={submissions}
                 system={system}
                 votes={votes}
               />

@@ -5,7 +5,7 @@ import { translate } from 'react-i18next';
 import GlobalButtonElevate from '../../../../../../containers/Global/Button/Elevate';
 const { shell } = require('electron');
 
-class GovernanceProposalsFormProposalConfirming extends Component<Props> {
+class GovernanceArbitrationFormArbitrationConfirming extends Component<Props> {
   constructor(props) {
     super(props);
 
@@ -28,7 +28,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     this.setState({walletUnLockRequested: true});
 
     actions.unlockWallet(password);
-    system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR = null;
+    system.GOVERNANCE_REGCANDIDATE_LAST_ERROR = null;
   }
   openLink = (link) => shell.openExternal(link);
   render() {
@@ -36,24 +36,19 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       walletUnLockRequested 
     } = this.state;
     const {
-      amount,
-      cycles,
+      creds_ipfs_url,
       fileInfo,
-      ipfs_location,
       ipfsHash,
       onBack,
       onClose,
-      send_to,
       settings,
       system,
       t,
-      title,
       validate,
       wallet
     } = this.props;
     let ipfsSuccess = (ipfsHash && ipfsHash.length > 0);
-    let lastError = system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR;
-    const cycleDays = cycles * 29;
+    let lastError = system.GOVERNANCE_REGCANDIDATE_LAST_ERROR;
 
     if (walletUnLockRequested && validate.WALLET_PASSWORD === 'SUCCESS'){
       lastError = '';
@@ -66,58 +61,25 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Icon name="circle info" />
           <Header.Content>
             <Header.Subheader>
-              Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request. Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+              This will submit your account <strong>{settings.account}</strong>'s arbitration candidacy. Submission Fee: 100.0000 {settings.blockchain.tokenSymbol}
             </Header.Subheader>
           </Header.Content>
         </Header>
         <Table definition>
           <Table.Body>
             <Table.Row>
-              <Table.Cell width={4}>
-                Title:
+              <Table.Cell>
+                Credentials Document:
               </Table.Cell>
               <Table.Cell>
-                {title}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>
-                Proposal Details:
-              </Table.Cell>
-              <Table.Cell>
-                Committing the contents of <strong>{fileInfo.name}</strong> to IPFS
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>
-                Requested Amount:
-              </Table.Cell>
-              <Table.Cell>
-                {amount} {settings.blockchain.tokenSymbol}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>
-                Recipient:
-              </Table.Cell>
-              <Table.Cell>
-                {send_to}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>
-                Number of Cycles:
-              </Table.Cell>
-              <Table.Cell>
-                {cycles} (~ {cycleDays} Days)
+                Committing the contents of <strong>{fileInfo.name}</strong> to IPFS.
               </Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {(lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS')
+        {(lastError && system.GOVERNANCE_REGCANDIDATE !== 'SUCCESS')
           ? (
             <Message negative size="tiny">
               {(lastError.code)
@@ -160,24 +122,24 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           />
           : ''}
 
-        { (ipfsSuccess === true && system.GOVERNANCE_CREATEPROPOSAL === 'SUCCESS') ?
+        { (ipfsSuccess === true && system.GOVERNANCE_REGCANDIDATE === 'SUCCESS') ?
         <div>
             <Message
             positive
             content={(
               <p>
                 <a
-                  onClick={() => this.openLink(ipfs_location)}
+                  onClick={() => this.openLink(creds_ipfs_url)}
                   role="link"
                   style={{ cursor: 'pointer', fontSize:'10pt' }}
                   tabIndex={0}
-                >{ipfs_location}
+                >{creds_ipfs_url}
                 </a>
               </p>
             )}
             icon="inbox"
             info
-            header="Worker Proposal Submitted to IPFS"
+            header="Credentials Details Submitted to IPFS"
           />
           <Button
             onClick={onClose}
@@ -191,7 +153,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           color="green"
           floated="right"
           onClick={this.onConfirm}
-          content='Submit Proposal'
+          content='Submit Candidacy'
         />
         <Button
           onClick={onBack}
@@ -205,4 +167,4 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
   }
 }
 
-export default translate('producers')(GovernanceProposalsFormProposalConfirming);
+export default translate('producers')(GovernanceArbitrationFormArbitrationConfirming);

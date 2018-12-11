@@ -167,12 +167,6 @@ const migrations = {
           tokenSymbol:'EOS',
           node:'http://jungle.cryptolions.io:18888',
           chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
-        },
-        {
-          blockchain:'EOSForce Testnet',
-          tokenSymbol:'EOS',
-          node:'https://w1.eosforce.cn',
-          chainId:'bd61ae3a031e8ef2f97ee3b0e62776d6d30d4833c8f7c1645c657b149151004b'
         }
       ];
     }
