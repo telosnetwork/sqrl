@@ -61,7 +61,7 @@ class GovernanceArbitrationFormArbitrationConfirming extends Component<Props> {
           <Icon name="circle info" />
           <Header.Content>
             <Header.Subheader>
-              This will submit your account <strong>{settings.account}</strong>'s arbitration candidacy. Submission Fee: 100.0000 {settings.blockchain.tokenSymbol}
+              This will submit your account <strong>{settings.account}</strong>'s arbitration candidacy.
             </Header.Subheader>
           </Header.Content>
         </Header>

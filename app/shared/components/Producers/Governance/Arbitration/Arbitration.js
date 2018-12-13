@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { find } from 'lodash';
 import Moment from 'react-moment';
 const { shell } = require('electron');
-import { Button, Header, Message, Segment, Visibility } from 'semantic-ui-react';
+import { Button, Container, Header, Message, Segment, Visibility } from 'semantic-ui-react';
 
 import GovernanceArbitrationCandidatesTable from './Table';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -45,8 +45,23 @@ class GovernanceArbitrationArbitration extends Component<Props> {
       //getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies');
     //}
   }
+
+  endElection = () => {
+    const { 
+      actions, 
+      settings, 
+      system 
+    } = this.props;
+
+    system.GOVERNANCE_ENDELECTION_LAST_ERROR = null;
+
+    actions.endElection(settings.account);
+  }
   
-  openLink = (link) => shell.openExternal(link);
+  openLink = (link) => {
+    const { settings } = this.props;
+    shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+  }
 
   render() {
     const {
@@ -55,13 +70,16 @@ class GovernanceArbitrationArbitration extends Component<Props> {
     } = this.state;
     const {
       actions,
+      arbitrators,
       ballots,
       blockExplorers,
       leaderboard,
       settings,
       system,
       t,
-      votes
+      votes,
+      validate,
+      wallet
     } = this.props;
     const {
       board_id,
@@ -86,10 +104,43 @@ class GovernanceArbitrationArbitration extends Component<Props> {
           block
           size="huge"
         >
-          Leader Board: (#{board_id})
-          <Header.Subheader>
-            
-          </Header.Subheader>
+          Arbitration Election: (#{board_id})
+          <Header.Subheader >
+          {
+            (isExpired && status != 3) ?
+              <GlobalTransactionModal
+                actionName="GOVERNANCE_ENDELECTION"
+                actions={actions}
+                blockExplorers={blockExplorers}
+                button={{
+                  color: 'green',
+                  content: "End Election",
+                  icon: 'close'
+                }}
+                content={(
+                  <Segment basic clearing>
+                    <p>
+                    This action will attempt to end this current election and allow a new one to begin. Are you sure you would like to proceed?
+                    <Button
+                      color='green'
+                      content="End Election"
+                      floated="right"
+                      icon="close"
+                      loading={system.GOVERNANCE_ENDELECTION === 'PENDING'}
+                      style={{ marginTop: 20 }}
+                      onClick={() => this.endElection()}
+                      primary
+                    />
+                    </p> 
+                  </Segment>
+                )}
+                icon="share square"
+                settings={settings}
+                system={system}
+                title="End Current Election"
+              />
+              : ''}
+            </Header.Subheader>
         </Header>
         <Segment attached>
           <React.Fragment><p><strong>Election Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
@@ -112,8 +163,10 @@ class GovernanceArbitrationArbitration extends Component<Props> {
           </React.Fragment>
 
           {
-            (isExpired) ?
-            <React.Fragment><p>Voting in this election is currently closed.</p></React.Fragment>
+            (status == 3) ?
+            <Message negative size="small">The ballot for this election has been closed.</Message>
+            : (isExpired) ?
+            <Message negative size="small">This election has expired.</Message>
             :''
           }
           {
@@ -126,6 +179,7 @@ class GovernanceArbitrationArbitration extends Component<Props> {
                 once={false}
               >
                 <GovernanceArbitrationCandidatesTable
+                  arbitrators={arbitrators}
                   amount={amount}
                   attached="top"
                   isQuerying={this.isQuerying}
@@ -139,6 +193,8 @@ class GovernanceArbitrationArbitration extends Component<Props> {
                   settings={settings}
                   system={system}
                   votes={votes}
+                  validate={validate}
+                  wallet={wallet}
                 />
               </Visibility>
             )]

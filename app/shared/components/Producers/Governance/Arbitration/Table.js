@@ -37,6 +37,7 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
     } = this.state;
     const {
       actions,
+      arbitrators,
       amount,
       ballots,
       blockExplorers,
@@ -45,7 +46,9 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
       settings,
       system,
       t,
-      votes
+      votes,
+      validate,
+      wallet
     } = this.props;
     const {
       board_id,
@@ -64,7 +67,6 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
       ballot = {};
 
     const isExpired = (end_time * 1000) < Date.now();
-    const loading = (candidates.length < 1);
     const querying = this.querying();
     let baseTable = <Table.Body />;
     let searchTable = (
@@ -77,16 +79,16 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
       </Table.Body>
     );
     const sortedCandidates = sortBy(candidates, 'member');
-    if (!loading) {
-      const fullResults = sortedCandidates.slice(0, amount);
+    const fullResults = sortedCandidates.slice(0, amount);
+    if (sortedCandidates.length > 0) {
       baseTable = (
         <Table.Body key="FullResults">
           {fullResults.map((candidate) => {
             const isSelected = (candidate.member === settings.account);
-
             return (
               <GovernanceArbitrationCandidatesTableRow
                 actions={actions}
+                arbitrators={arbitrators}
                 candidate={candidate}
                 key={leaderboard.board_id}
                 isSelected={isSelected}
@@ -97,46 +99,64 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
                 settings={settings}
                 system={system}
                 votes={votes}
+                validate={validate}
+                wallet={wallet}
               />
             );
           })}
         </Table.Body>
       );
+      } else {
+        baseTable = (
+          <Table.Body key="FullResults">
+            <Table.Row>
+              <Table.Cell colSpan={4}>
+                <Message negative size="tiny">
+                  <Message.Header>
+                    There are no candidates in this election.
+                  </Message.Header>
+                </Message>
+                </Table.Cell>
+              </Table.Row>
+          </Table.Body>
+        );
+      }
 
-      if (querying) {
-        const partResults = filter(sortedCandidates, (candidate) =>
-          candidate.member.indexOf(query) > -1
-        ).slice(0, amount);
+    if (querying) {
+      const partResults = filter(sortedCandidates, (candidate) =>
+        candidate.member.indexOf(query) > -1
+      ).slice(0, amount);
 
-        if (partResults.length > 0) {
-          searchTable = (
-            <Table.Body key="PartResults">
-              {partResults.map((candidate) => {
-                const isSelected = (candidate.member === settings.account);
-
-                return (
-                  <GovernanceArbitrationCandidatesTableRow
-                    actions={actions}
-                    candidate={cand}
-                    key={leaderboard.board_id}
-                    isSelected={isSelected}
-                    isValidUser={isValidUser}
-                    ballots={ballots}
-                    blockExplorers={blockExplorers}
-                    leaderboard={leaderboard}
-                    settings={settings}
-                    system={system}
-                    votes={votes}
-                  />
-                );
-              })}
-            </Table.Body>
-          );
-        }
+      if (partResults.length > 0) {
+        searchTable = (
+          <Table.Body key="PartResults">
+            {partResults.map((candidate) => {
+              const isSelected = (candidate.member === settings.account);
+              return (
+                <GovernanceArbitrationCandidatesTableRow
+                  actions={actions}
+                  arbitrators={arbitrators}
+                  candidate={candidate}
+                  key={leaderboard.board_id}
+                  isSelected={isSelected}
+                  isValidUser={isValidUser}
+                  ballots={ballots}
+                  blockExplorers={blockExplorers}
+                  leaderboard={leaderboard}
+                  settings={settings}
+                  system={system}
+                  votes={votes}
+                  validate={validate}
+                  wallet={wallet}
+                />
+              );
+            })}
+          </Table.Body>
+        );
       }
     }
     return (
-      <Segment basic loading={loading} vertical>
+      <Segment basic vertical>
         <Grid>
           <Grid.Column width={1} key="ArbitrationCandidateSearch" textAlign="right">
             <Input
@@ -157,10 +177,13 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
             <Table.Row>
               <Table.HeaderCell collapsing />
               <Table.HeaderCell>
-                Candidate Details
+                Candidate
               </Table.HeaderCell>
               <Table.HeaderCell>
                 Votes
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                Action
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>

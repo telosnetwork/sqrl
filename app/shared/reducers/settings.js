@@ -18,17 +18,16 @@ const initialState = {
   // Support multiple chains
   blockchains: [
     {
-      blockchain:'Telos Testnet', 
-      tokenSymbol:'TLOS',
-      node:'https://api.eos.miami:17441',
-      chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
-    }/*,
-    {
       blockchain:'Telos Mainnet', 
       tokenSymbol:'TLOS',
-      node:'https://api.eos.miami:17441',
-      chainId: '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
-    }*/,
+      node:'https://api.eos.miami',
+      chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
+    },{
+      blockchain:'Telos Testnet', 
+      tokenSymbol:'TLOS',
+      node:'https://testnet.eos.miami',
+      chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
+    },
     {
       blockchain:'EOS Mainnet', 
       tokenSymbol:'EOS',

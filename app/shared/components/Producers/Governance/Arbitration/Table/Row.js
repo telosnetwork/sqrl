@@ -1,39 +1,57 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Button, Popup, Segment, Table, Header } from 'semantic-ui-react';
+import { Button, Popup, Message, Table, Header } from 'semantic-ui-react';
 import { isEqual } from 'lodash';
-import Moment from 'react-moment';
+const { shell } = require('electron');
 
 import DangerLink from '../../../../Global/Modal/DangerLink';
-import GlobalTransactionModal from '../../../../Global/Transaction/Modal';
 
 class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
-  shouldComponentUpdate = (nextProps) =>
-    !isEqual(this.props.candidate.member, nextProps.candidate.member)
-    || !isEqual(this.props.isValidUser, nextProps.isValidUser)
-    || !isEqual(this.props.isSelected, nextProps.isSelected);
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      walletUnLockRequested: false
+    };
+  }
 
   approve = (ballot_id) => {
-    const { actions, candindex, settings } = this.props;
+    const { 
+      actions, 
+      candidate, 
+      settings, 
+      system 
+    } = this.props;
     const voter = settings.account;
+
+    system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR = null;
+
     actions.registerVoter(voter).then( (tx) => {
       actions.mirrorCast(voter).then( (tx) => {
-        actions.voteBallot(voter, ballot_id, candindex);
+        actions.voteBallot(voter, ballot_id, candidate.index);
       });
     });
   }
 
-  endElection = () => {
-    const { actions, settings } = this.props;
-    actions.endElection(settings.account);
+  unlockWallet = (password = false) => {
+    const { actions, system } = this.props;
+
+    this.setState({walletUnLockRequested: true});
+
+    system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR = null;
+    actions.unlockWallet(password);
   }
   
-  openLink = (link) => shell.openExternal(link);
+  openLink = (link) => {
+    const { settings } = this.props;
+    shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+  }
     
   render() {
     const {
       actions,
+      arbitrators,
       ballots,
       blockExplorers,
       candidate,
@@ -43,7 +61,9 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
       settings,
       system,
       t,
-      votes
+      votes,
+      validate,
+      wallet
     } = this.props;
     const {
       board_id,
@@ -61,70 +81,78 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
     if (!ballot)
       ballot = {};
     
-    const vote = find(votes, ['ballot_id', ballot.ballot_id]);
-    const voted = !!(vote);
-    const approved = (voted) ? (vote.directions[0]==candidate.index) : false;
-    const isVotePending = !!(system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_UNVOTE_PROPOSAL === 'PENDING')
-    const isSupporting = (voted && approved);
+    let vote = votes.filter((v) => v.ballot_id === ballot.ballot_id)[0]; 
+    if (!vote)
+      vote = {};
+    
+    let arbitrator = {};
+    if (arbitrators) {
+      arbitrator = arbitrators.filter((a) => a.arb === candidate.member)[0]; 
+      if (!arbitrator)
+        arbitrator = {};
+    }
+    
+    const voted = !!(vote.ballot_id >= 0);
     const isExpired = (end_time * 1000) < Date.now();
+    const isTooEarly = (begin_time * 1000) > Date.now();
+    const isArbitrator = arbitrator.arb && arbitrator.arb.length > 0;
 
-    return (
-      <Table.Row key={candidate.index}>
+    let lastError = '';
+    if (system.GOVERNANCE_VOTE_PROPOSAL === 'FAILURE') {
+      lastError = system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR;
+    }
+    return ([(<Table.Row key={candidate.index}>
         <Table.Cell
           singleLine
           textAlign="center"
         >
-          {
+
+          {/*
             (candidate.member === settings.account && status === 0 && isExpired) ?
-            <GlobalTransactionModal
-              actionName="GOVERNANCE_ENDELECTION"
-              actions={actions}
-              blockExplorers={blockExplorers}
-              button={{
-                color: 'purple',
-                icon: 'close',
-                size: 'small'
-              }}
-              content={(
-                <Segment basic clearing>
-                  <p>
-                  This election period ended <strong><Moment>{end_time*1000}</Moment></strong>. You may attempt to close the election and begin vote counting now. Would you like to proceed?
-                  <Button
-                    color='purple'
-                    content="End Election"
-                    floated="right"
-                    icon="close"
-                    loading={system.GOVERNANCE_ENDELECTION === 'PENDING'}
-                    style={{ marginTop: 20 }}
-                    onClick={() => this.endElection()}
-                    primary
-                  />
-                  </p> 
-                </Segment>
+            <Popup
+              content={"The ballot for this election has ended. Click here to attempt to end the election and tally votes"}
+              header={"End Election"}
+              hoverable
+              position="right center"
+              trigger={(
+                <Button
+                  color={isSelected ? 'blue' : 'grey'}
+                  icon='close'
+                  onClick={() => this.endElection()}
+                  size="small"
+                />
               )}
-              icon="share square"
-              settings={settings}
-              floated="right"
-              system={system}
-              title="End Arbitration Election"
-            />
-          : ''}
+            /> :<p></p>
+            */
+          }
 
           <Popup
-            content={t('producers_proxies_popup_content', { proxy: candidate.member })}
-            header={t('producers_proxies_popup_header')}
+            content={"Click here to learn more about this candidate"}
+            header={"Candidate Details"}
             hoverable
             position="right center"
             trigger={(
               <Button
                 color={isSelected ? 'blue' : 'grey'}
-                icon={isSelected ? 'circle' : 'circle outline'}
-                //disabled={!isValidUser}
-                onClick={
-                  (isSelected)
-                  ? () => removeProxy(candidate.member)
-                  : () => addProxy(candidate.member)
-                }
+                icon='info'
+                //disabled={!(candidate.member === settings.account && status === 0 && isExpired)}
+                onClick={() => this.openLink(candidate.info_link)}
+                size="small"
+              />
+            )}
+          />
+
+          <Popup
+            content={"If you would like to vote for this candidate as an arbitrator, click here."}
+            header={"Vote for Candidate"}
+            hoverable
+            position="right center"
+            trigger={(
+              <Button
+                color={isSelected ? 'green' : 'grey'}
+                icon='checkmark'
+                disabled={voted || isExpired || isTooEarly}
+                onClick={() => this.approve(ballot.ballot_id)}
                 size="small"
               />
             )}
@@ -137,21 +165,72 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
             <span styles={{ fontFamily: '"Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace' }}>
               {candidate.member}
             </span>
-            <Header.Subheader>
-              <DangerLink
-                content={candidate.info_link.substring(0, 30).replace(/(^\w+:|^)\/\//, '')}
-                link={candidate.info_link}
-                settings={settings}
-              />
-            </Header.Subheader>
           </Header>
         </Table.Cell>
         <Table.Cell
           singleLine
         >
-          <b>{ candidate.member }</b>
+          <b>{ candidate.votes }</b>
+        </Table.Cell>
+        <Table.Cell
+          singleLine
+        >
+          {(voted)
+            ? 
+            <Message positive size="tiny">
+              You supported this candidate.
+            </Message>
+            : 
+            <Message negative size="tiny">
+            You did not support this candidate.
+            </Message>
+          }
+          {(isArbitrator)
+            ? 
+            <Message positive size="tiny">
+              Candidate elected as an arbitrator.
+            </Message>
+            : 
+            ''
+          }
         </Table.Cell>
       </Table.Row>
+    ),(
+      (lastError && lastError.error)
+        ? (
+          <Table.Row key={candidate.index+10000}>
+          <Table.Cell colSpan={4}>
+            <Message negative size="tiny">
+              {(lastError.code)
+                ? (
+                  <div>
+                    <Message.Header>
+                      {lastError.code}: {lastError.name}
+                    </Message.Header>
+                    {(lastError.error.details) ? 
+                    <code>{lastError.error.details[0].message}</code> :
+                    <code>{lastError.message}</code>}
+                  </div>
+                )
+                : (
+                  <div>
+                    <Message.Header>
+                      {t(['producer_voter_preview_error_title'])}
+                    </Message.Header>
+                    <code>{new String(lastError)}</code>
+                  </div>
+                )
+              }
+            </Message>
+            </Table.Cell>
+          </Table.Row>
+        )
+        : 
+        <Table.Row key={candidate.index+10000}>
+          <Table.Cell colSpan={4}>
+          </Table.Cell>
+        </Table.Row>
+    )]
     );
   }
 }

@@ -54,18 +54,15 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     e.stopPropagation();
     e.preventDefault();
 
-    console.log('reading file from system..')
     const proposalFile = e.target.files[0];
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(proposalFile);
     reader.onloadend = async () => {
       const fileBuffer = await Buffer.from(reader.result);
-      console.log('saving file to state..')
       this.setState({
         fileBuffer, 
         fileInfo: proposalFile
       });
-      console.log('calling on change..', proposalFile)
       this.onChange(e, {
         name: 'ipfs_location', 
         value: proposalFile, 
@@ -215,19 +212,18 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         console.log('got error in IPFS..', error)
         this.setState({ ipfsError:error });
       }
-      console.log('other..', ipfsHash)
+      
       // now we can finally add the proposal to the blockchain
       if (ipfsHash) {
-        console.log(ipfs);
-        const ipfsLocation = settings.ipfsProtocol + "://" + 
-          settings.ipfsNode + "/ipfs/" + ipfsHash[0].hash;
+        const hashPath = "/ipfs/" + ipfsHash[0].hash + "/";
+        const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
         
         // submit WP
-        createProposal(title, ipfsLocation, parseInt(cycles), 
+        createProposal(title, hashPath, parseInt(cycles), 
           amount + " " + settings.blockchain.tokenSymbol, send_to);
 
         this.setState({
-          ipfsHash: ipfsHash[0].hash,
+          ipfsHash: hashPath,
           ipfs_location: ipfsLocation
         });
       }

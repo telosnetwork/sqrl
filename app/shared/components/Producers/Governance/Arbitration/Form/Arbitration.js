@@ -170,12 +170,10 @@ class GovernanceArbitrationFormArbitration extends Component<Props> {
 
       // now we can finally add the proposal to the blockchain
       if (ipfsHash) {
-        const hashPath = "/ipfs/" + ipfsHash[0].hash;
-        console.log('hash len:', hashPath.length)
+        const hashPath = "/ipfs/" + ipfsHash[0].hash + "/";
         const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
 
         // submit candidate
-        console.log(" pushing '" + hashPath, "'");
         registerCandidate(settings.account, hashPath);
 
         this.setState({
@@ -257,7 +255,7 @@ class GovernanceArbitrationFormArbitration extends Component<Props> {
                   >
                   File {settings.account}'s Arbitration Application
                   <Header.Subheader>
-                    Submission Fee: 100.0000 {settings.blockchain.tokenSymbol}
+                    
                   </Header.Subheader>
                 </Header>
                 }

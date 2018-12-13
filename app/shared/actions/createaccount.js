@@ -69,7 +69,7 @@ export function createAccount(
 }
 
 export function createFreeAccount(
-  new_account,
+  account_name,
   owner_key,
   active_key
   ) {
@@ -89,7 +89,8 @@ export function createFreeAccount(
             permission: 'active'
           }],
           data: {
-            new_account,
+            account_creator: 'freesqlracct',
+            account_name,
             owner_key,
             active_key,
             key_prefix: 'EOS'

@@ -1,12 +1,23 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Segment } from 'semantic-ui-react';
+import { Button, Message, Segment } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
 
 import GlobalTransactionModal from '../../../../Global/Transaction/Modal';
 import GovernanceArbitrationFormArbitration from '../Form/Arbitration';
 
 class GovernanceArbitrationButtonArbitration extends Component<Props> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      applying: false
+    };
+  }
+
+  applicationSubmitted = () => {
+    this.setState({ applying: true });
+  }
+
   removeCandidacy = () => {
     const { actions, settings } = this.props;
     actions.unRegisterCandidate(settings.account);
@@ -16,6 +27,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
     const {
       accounts,
       actions,
+      arbitrators,
       blockExplorers,
       leaderboards,
       onClose,
@@ -26,19 +38,47 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
       validate,
       wallet
     } = this.props;
+    const {
+      applying
+    } = this.state;
 
     let candidate = {};
+    let candidateLeaderboard = {};
     leaderboards.forEach((leaderboard) => {
-      candidate = leaderboard.candidates.filter ((c) => c.member === settings.account)[0];
+      if (leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
+      {
+        candidate = leaderboard.candidates.filter ((c) => c.member === settings.account)[0];
+      }
 
-      if (candidate){
+      if (candidate && leaderboard.status == 0){ // candidate is an applicant in active election
+        candidateLeaderboard = leaderboard;
         return;
       }
     });
+
+    let arbitrator = {};
+    if (arbitrators) {
+      arbitrator = arbitrators.filter((a) => a.arb === candidate.member)[0]; 
+      if (!arbitrator)
+        arbitrator = {};
+    }
+    const isArbitrator = arbitrator.arb && arbitrator.arb.length > 0;
+
+    let isExpired = false;
+    let isTooEarly = false;
+
+    if (candidateLeaderboard.begin_time && candidateLeaderboard.end_time) {
+      isExpired = (candidateLeaderboard.end_time * 1000) < Date.now();
+      isTooEarly = (candidateLeaderboard.begin_time * 1000) > Date.now();
+    }
     
-    return (
-      (candidate && candidate.member) ?
-        /*
+    return ( 
+      (isArbitrator) ? <Message positive size="small">You are an elected arbitrator. Congratulations!</Message>
+      :
+      // only remove if we aren't over or havent' started and board isn't closed
+      (candidate && candidate.member && candidateLeaderboard.board_id >=0 && candidateLeaderboard.status != 3) ?
+        
+        (!isExpired && isTooEarly && !applying) ?
         <GlobalTransactionModal
           actionName="GOVERNANCE_UNREGCANDIDATE"
           actions={actions}
@@ -72,7 +112,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
           settings={settings}
           system={system}
           title="Remove Candidacy as Arbitrator"
-        />*/''
+        /> : <Message negative size="small">Application Pending</Message>
         :
         <GlobalTransactionModal
           actionName="GOVERNANCE_REGCANDIDATE"
@@ -89,6 +129,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
             <GovernanceArbitrationFormArbitration
               accounts={accounts}
               actions={actions}
+              applicationSubmitted={this.applicationSubmitted}
               key="ArbitratorForm"
               settings={settings}
               system={system}

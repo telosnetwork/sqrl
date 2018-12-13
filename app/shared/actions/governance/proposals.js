@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 
 import * as types from '../types';
 import eos from '../helpers/eos';
+import { getLeaderBoards } from './arbitration';
 
 const defaultContract = 'eosio.saving';
 
@@ -451,7 +452,8 @@ export function voteBallot(voter, ballot_id, direction) {
       sign: connection.sign
     }).then((tx) => {
       setTimeout(() => {
-        dispatch(getVoteInfo(account));
+        //dispatch(getVoteInfo(account));
+        dispatch(getLeaderBoards());
       }, 500);
       return dispatch({
         payload: { tx },

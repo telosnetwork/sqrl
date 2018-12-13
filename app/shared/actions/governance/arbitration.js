@@ -46,6 +46,7 @@ export function registerCandidate(candidate, creds_ipfs_url) {
       expireInSeconds: connection.expireInSeconds,
       sign: connection.sign
     }).then((tx) => {
+      dispatch(getLeaderBoards());
       return dispatch({
         payload: { tx },
         type: types.SYSTEM_GOVERNANCE_REGCANDIDATE_SUCCESS
@@ -94,6 +95,7 @@ export function unRegisterCandidate(candidate) {
       expireInSeconds: connection.expireInSeconds,
       sign: connection.sign
     }).then((tx) => {
+      dispatch(getLeaderBoards());
       return dispatch({
         payload: { tx },
         type: types.SYSTEM_GOVERNANCE_UNREGCANDIDATE_SUCCESS
@@ -131,6 +133,7 @@ export function endElection(candidate) {
       expireInSeconds: connection.expireInSeconds,
       sign: connection.sign
     }).then((tx) => {
+      dispatch(getLeaderBoards());
       return dispatch({
         payload: { tx },
         type: types.SYSTEM_GOVERNANCE_ENDELECTION_SUCCESS
@@ -138,6 +141,73 @@ export function endElection(candidate) {
     }).catch((err) => dispatch({
       payload: { err },
       type: types.SYSTEM_GOVERNANCE_ENDELECTION_FAILURE
+    }));
+  };
+}
+
+export function getArbitrators(scope = 'eosio.arb', previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETARBITRATORS_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: scope,
+      scope,
+      table: 'arbitrators',
+      limit: 100000,
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].board_id;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getArbitrators(scope, rows));
+      }
+      const data = rows
+        .map((arbitrator) => {
+          const {
+            arb,
+            arb_status,
+            open_case_ids,
+            closed_case_ids,
+            credential_link,
+            elected_time,
+            term_length,
+            languages
+          } = arbitrator;
+          return {
+            arb,
+            arb_status,
+            open_case_ids,
+            closed_case_ids,
+            credential_link,
+            elected_time,
+            term_length,
+            languages
+          };
+        });
+      const arbitrators = sortBy(data, 'arb').reverse();
+      return dispatch({
+        type: types.SYSTEM_GOVERNANCE_GETARBITRATORS_SUCCESS,
+        payload: {
+          arbitrators,
+          scope
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETARBITRATORS_FAILURE,
+      payload: { err },
     }));
   };
 }
@@ -167,12 +237,13 @@ export function getLeaderBoards(scope = 'eosio.trail', previous = false) {
         // merge arrays
         rows = concat(previous, rows);
       }
+      dispatch(getVoteInfo(settings.account));
+      dispatch(getBallots());
+      dispatch(getArbitrators());
       // if there are missing results
       if (results.more) {
         return dispatch(getLeaderBoards(scope, rows));
       }
-      dispatch(getVoteInfo(settings.account));
-      dispatch(getBallots());
       const data = rows
         .map((leaderboard) => {
           const {
@@ -237,6 +308,7 @@ export function getLeaderBoards(scope = 'eosio.trail', previous = false) {
 
 export default {
   endElection,
+  getArbitrators,
   getLeaderBoards,
   registerCandidate,
   unRegisterCandidate

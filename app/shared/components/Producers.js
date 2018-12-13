@@ -24,6 +24,7 @@ type Props = {
   },
   accounts: {},
   arbitration: {
+    arbitrators: {},
     leaderboards: {}
   },
   balances: {},
@@ -415,7 +416,7 @@ class Producers extends Component<Props> {
                       }
                     },
                     {
-                      menuItem: 'Ratify/Amend',
+                      menuItem: 'TF Voting',
                       render: () => {
                         return (
                           <Tab.Pane>

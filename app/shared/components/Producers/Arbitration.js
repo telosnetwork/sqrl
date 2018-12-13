@@ -9,8 +9,27 @@ import GovernanceArbitrationButtonArbitration from './Governance/Arbitration/But
 
 class GovernanceArbitration extends Component<Props> {
   componentDidMount() {
-    this.sync();
+    this.tick();
+    this.interval = setInterval(this.tick.bind(this), 5000);
   }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  tick() {
+    const {
+      actions,
+      validate
+    } = this.props;
+    const {
+      getLeaderBoards
+    } = actions;
+    if (validate && validate.NODE) {
+      getLeaderBoards();
+    }
+  }
+
   onChange = (e, { name, selection, value }) => {
     this.setState({ [name]: value }, () => {
       // If this is the dropdown, fire the submit
@@ -20,13 +39,7 @@ class GovernanceArbitration extends Component<Props> {
     });
   }
   onClose = () => {
-    const { onCloseArbCandidate } = this.props;
-    this.sync();
-    //onCloseArbCandidate();
-  }
-  sync = () => {
-    const { actions } = this.props;
-    actions.getLeaderBoards();
+    
   }
   render() {
     const {
@@ -43,6 +56,7 @@ class GovernanceArbitration extends Component<Props> {
       wallet
     } = this.props;
     const {
+      arbitrators,
       leaderboards
     } = arbitration;
     const {
@@ -59,6 +73,7 @@ class GovernanceArbitration extends Component<Props> {
             <GovernanceArbitrationButtonArbitration
               accounts={accounts}
               actions={actions}
+              arbitrators={arbitrators}
               blockExplorers={blockExplorers}
               leaderboards={leaderboards}
               onClose={this.onClose}
@@ -83,6 +98,7 @@ class GovernanceArbitration extends Component<Props> {
             .map((leaderboard) => (
               <GovernanceArbitrationArbitration
                 actions={actions}
+                arbitrators={arbitrators}
                 key={leaderboard.board_id}
                 ballots={ballots}
                 blockExplorers={blockExplorers}
@@ -90,6 +106,8 @@ class GovernanceArbitration extends Component<Props> {
                 settings={settings}
                 system={system}
                 votes={votes}
+                validate={validate}
+                wallet={wallet}
               />
             ))
           )}

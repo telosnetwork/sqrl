@@ -1,37 +1,37 @@
 ## API Node Recommendations
 
-`Sqrl` is a fully functional wallet created by [Telos Miami](https://eos.miami/), which means it relies on an external API node connected to the TELOS blockchain network in order to function.
+`Sqrl` is a fully functional wallet created by [EOS/Telos Miami](https://eos.miami/), which means it relies on an external API node `(with the history plugin enabled)` connected to the Telos Blockchain Network in order to function.
 
-The list below contains TELOS API nodes run by members of the TELOS community that you can choose from.
+The list below contains Telos API nodes run by members of the Telos community that you can choose from.
 
 ### Privacy
 
-Even though your keys never leave the `Sqrl` applications, the API node you connect to can still reveal personally identifiable information about you. This information may include:
+Even though your keys never leave the `Sqrl` application, the API node you connect to can still reveal personally identifiable information about you. This information may include:
 
 - Account Names
 - IP Addresses
 
 If you are concerned about revealing this information to any of these 3rd party API nodes, it is recommended you run your own API Node and connect to that.
 
-# TELOS Nodes
-## Note: You may click on the URL of a node to verify it's working prior to use
-- [http://testnet.telosfoundation.io:8888](http://testnet.telosfoundation.io:8888/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
-- [https://api.eos.miami:17441](https://api.eos.miami:17441/v1/chain/get_info) - operated by [EOS Miami](https://eos.miami/)
-- [http://blindblocart.io:8888](http://blindblocart.io:8888/v1/chain/get_info) - operated by [BlindBlocArt](http://blindblocart.io/)
-- [http://telos.caleos.io:9888](http://telos.caleos.io:9888/v1/chain/get_info) - operated by [CalEOS](http://caleos.io)
-- [http://apitest1.kainosbp.com:8888](http://apitest1.kainosbp.com:8888/v1/chain/get_info) - operated by Kainos BP
-- [http://api.telosvancouver.io:8888](http://api.telosvancouver.io:8888/v1/chain/get_info) - operated by [Telos Vancouver](https://www.telosvancouver.io/) 
-- [http://telos.eosbcn.com](http://telos.eosbcn.com/v1/chain/get_info) - operated by EOS BCN
-- [http://api.testnet.telos.eosindex.io](http://api.testnet.telos.eosindex.io/v1/chain/get_info) - operated by EOS Index
-- [http://api.telosmadrid.io](http://api.telosmadrid.io/v1/chain/get_info) - operated by Telos Madrid
-- [http://telos.eossweden.eu](http://telos.eossweden.eu/v1/chain/get_info) - operated by EOS Sweden
-- [http://testnode.infinitybloc.io:2888](http://testnode.infinitybloc.io:2888/v1/chain/get_info) - operated by InfinityBloc
-- [http://testnode.blindblocart.io:2888](http://testnode.blindblocart.io:2888/v1/chain/get_info) - operated by BlindBlocArt
-- [http://testnode.telosvoyager.io:4888](http://testnode.telosvoyager.io:4888/v1/chain/get_info) - operated by Telos Voyager
-- [http://api2.csx.io:443](http://api2.csx.io:443/v1/chain/get_info) - operated by CSX
-- [http://telos.ikuwara.com:8888](http://telos.ikuwara.com:8888/v1/chain/get_info) - operated by iKuwara
-- [https://testnet.telos.blockgenesys.com](https://testnet.telos.blockgenesys.com/v1/chain/get_info) - operated by [Block Genesys](https://www.blockgenesys.com/)
+# Telos API Nodes
+### Note: You may click on the URL of a node to verify it's working prior to use
 
-### Additions
+## Verified MainNet Nodes
+- [https://api.telosfoundation.io](https://api.telosfoundation.io/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
+- [https://api.eos.miami](https://api.eos.miami/v1/chain/get_info) - operated by [EOS/Telos Miami](https://eos.miami/)
+- [https://api.tlos.goodblock.io](https://api.tlos.goodblock.io/v1/chain/get_info) - operated by [GoodBlock](https://goodblock.io)
+- [https://api.blindblocart.io](https://api.blindblocart.io/v1/chain/get_info) - operated by [BlindBlocArt](http://blindblocart.io/)
+- [https://telos.caleos.io](https://telos.caleos.io/v1/chain/get_info) - operated by [CalEOS](http://caleos.io)
+- [https://api.telosvancouver.io:7777](https://api.telosvancouver.io:7777/v1/chain/get_info) - operated by [Telos Vancouver](https://www.telosvancouver.io/) 
+- [https://api.telosvenezuela.com](https://api.telosvenezuela.com/v1/chain/get_info) - operated by [Telos Venezuela](https://telosvenezuela.com)
+- [https://telos.eos.barcelona](https://telos.eos.barcelona/v1/chain/get_info) - operated by [EOS Barcelona](https://eos.barcelona)
+- [https://telos.eosdetroit.io](https://telos.eosdetroit.io/v1/chain/get_info) - operated by [EOS Detroit](https://eosdetroit.io)
+
+## Verified TestNet Nodes
+- [http://testnet.telosfoundation.io:8888](http://testnet.telosfoundation.io:8888/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
+- [https://testnet.eos.miami](https://testnet.eos.miami/v1/chain/get_info) - operated by [EOS/Telos Miami](https://eos.miami/)
+- [http://api.testnet.telos.eosindex.io](http://api.testnet.telos.eosindex.io/v1/chain/get_info) - operated by EOS Index
+
+## Additions
 
 We will update this list as the community finds more reliable 3rd party nodes for usage with this tool.
