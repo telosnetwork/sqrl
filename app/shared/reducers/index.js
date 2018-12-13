@@ -5,6 +5,7 @@ import { routerReducer as router } from 'react-router-redux';
 import accounts from './accounts';
 import actions from './actions';
 import app from './app';
+import arbitration from './arbitration';
 import balances from './balances';
 import blockexplorers from './blockexplorers';
 import chain from './chain';
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   accounts,
   actions,
   app,
+  arbitration,
   balances,
   blockexplorers,
   chain,

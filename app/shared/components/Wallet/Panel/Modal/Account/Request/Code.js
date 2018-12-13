@@ -31,7 +31,7 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
     // hash/key for 'freesqrlacct'
     const hash = "95f3e6bb635fe2e3447d8f6b5086be9f4a0621a3ce608e70d3272c7d6bb720e5V11u/hhPO0HK57YkUY6RpXNFO7q07ACCxwKgVFU+dcG+Ff5VLj/KOjv4LWLFiAFGAK6OWmuuRAcSXF84ieb5sA==";
     const key = "95c6bb575ab3d10745e670d34ebb6b676ec3d3feb8171cd8415589d0b277d9e2gz3mRhyPvxSQQN7u2aS5eNYHVBoLytS9eOrE3CaygDu/Ff67C5MFS8w+Ww8rvzLhr+nPH/NGtd7a5UQrhOY2MA==";
-    actions.setSetting('account', 'freesqrlacct');
+    //actions.setSetting('account', 'freesqrlacct');
 
     connection.keyProviderObfuscated = Object.assign({}, {
       hash: hash,
@@ -39,12 +39,11 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
     });
     
     if (settings.freeAccountCreated !== true){
-      actions.createAccount(values.accountName, 
-        values.active,
-        '1 ' + settings.blockchain.tokenSymbol, 
-        '1 ' + settings.blockchain.tokenSymbol, 
-        values.owner, 
-        4000, 0);
+      actions.createFreeAccount(values.accountName, 
+        values.owner,
+        values.active);
+        //'1 ' + settings.blockchain.tokenSymbol, 
+        //'1 ' + settings.blockchain.tokenSymbol, 
     }
   }
   render() {

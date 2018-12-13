@@ -4,9 +4,9 @@ import sortBy from 'lodash/sortBy';
 import * as types from '../types';
 import eos from '../helpers/eos';
 
-const defaultContract = 'eosforumrcpp';
+const defaultContract = 'eosio.amend';
 
-export function getRatifyAmends(scope = 'eosforumrcpp', previous = false) {
+export function getRatifyAmends(scope = 'eosio.amend', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_GET_PROPOSALS_PENDING

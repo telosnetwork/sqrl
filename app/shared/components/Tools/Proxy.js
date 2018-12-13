@@ -13,7 +13,7 @@ import GlobalTransactionHandler from '../Global/Transaction/Handler';
 class ToolsProxy extends Component<Props> {
   componentDidMount = () => {
     const { actions } = this.props;
-     actions.getTable('regproxyinfo', 'regproxyinfo', 'proxies');
+     actions.getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies');
   }
 
   render() {

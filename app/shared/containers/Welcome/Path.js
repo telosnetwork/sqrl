@@ -44,13 +44,15 @@ class WelcomePathContainer extends Component<Props> {
               onClick={() => onStageSelect(types.SETUP_STAGE_ACCOUNT_LOOKUP)}
             />
           </Container>
+          {
+            /*
           <Divider />
           <Header>
             {t('welcome_path_generate_keys_header')}
             <Header.Subheader>
               {t('welcome_path_generate_keys_subheader')}
             </Header.Subheader>
-          </Header>
+          </Header>  
           <Container textAlign="center">
             <WalletPanelButtonAccountRequest
               actions={actions}
@@ -60,6 +62,8 @@ class WelcomePathContainer extends Component<Props> {
               system={system}
             />
           </Container>
+          */
+        }
         </Segment>
         <Button
           content={t('back')}

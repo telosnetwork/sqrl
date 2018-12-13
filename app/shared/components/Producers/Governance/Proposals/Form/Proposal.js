@@ -7,7 +7,6 @@ const CryptoJS = require('crypto-js');
 
 import GlobalFormFieldAccount from '../../../../Global/Form/Field/Account';
 import GlobalFormFieldGeneric from '../../../../Global/Form/Field/Generic';
-import GlobalFormFieldToken from '../../../../Global/Form/Field/Token';
 import FormMessageError from '../../../../Global/Form/Message/Error';
 import GovernanceProposalsFormProposalConfirming from './Proposal/Confirming';
 
@@ -155,8 +154,8 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       formErrors[attribute] = null;
     });
 
-    if ((!title || title.length < 10) && !submitDisabled) {
-      formErrors.cycles = 'invalid_proposal_title';
+    if ((!title || title.length < 10 || title.size > 256) && !submitDisabled) {
+      formErrors.title = 'invalid_proposal_title';
       submitDisabled = true;
     }
 
@@ -206,22 +205,25 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       title,
       send_to
     } = this.state;
-
+    
     // save proposal to IPFS, return its hash#, and submit contract to chain
-    await ipfs.add(this.state.fileBuffer, (error, ipfsHash) => {
+    await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
       if (error) {
+        console.log('got error in IPFS..', error)
         this.setState({ ipfsError:error });
       }
       
       // now we can finally add the proposal to the blockchain
       if (ipfsHash) {
-        const ipfsLocation = "https://ipfs.telos.miami/ipfs/" + ipfsHash[0].hash;
-
-        createProposal(title, ipfsLocation, parseInt(cycles), 
+        const hashPath = "/ipfs/" + ipfsHash[0].hash + "/";
+        const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
+        
+        // submit WP
+        createProposal(title, hashPath, parseInt(cycles), 
           amount + " " + settings.blockchain.tokenSymbol, send_to);
 
         this.setState({
-          ipfsHash: ipfsHash[0].hash,
+          ipfsHash: hashPath,
           ipfs_location: ipfsLocation
         });
       }

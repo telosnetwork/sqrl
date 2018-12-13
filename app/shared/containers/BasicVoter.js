@@ -15,6 +15,7 @@ import Wallet from '../components/Wallet';
 import ModalConstitution from '../components/Global/Modal/Constitution';
 
 import * as AccountsActions from '../actions/accounts';
+import * as ArbitrationActions from '../actions/governance/arbitration';
 import * as BlockExplorersActions from '../actions/blockexplorers';
 import * as BuyRamBytesActions from '../actions/system/buyrambytes';
 import * as BuyRamActions from '../actions/system/buyram';
@@ -23,6 +24,7 @@ import * as ChainActions from '../actions/chain';
 import * as GlobalsActions from '../actions/globals';
 import * as ProducersActions from '../actions/producers';
 import * as ProposalsActions from '../actions/governance/proposals';
+import * as ProxyActions from '../actions/system/community/regproxyinfo';
 import * as SellRamActions from '../actions/system/sellram';
 import * as SettingsActions from '../actions/settings';
 import * as StakeActions from '../actions/stake';
@@ -210,6 +212,7 @@ function mapStateToProps(state) {
   return {
     accounts: state.accounts,
     actionHistories: state.actions,
+    arbitration: state.arbitration,
     balances: state.balances,
     blockExplorers: state.blockexplorers,
     chain: state.chain,
@@ -231,6 +234,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...AccountsActions,
+      ...ArbitrationActions,
       ...BlockExplorersActions,
       ...BuyRamActions,
       ...BuyRamBytesActions,
@@ -239,6 +243,7 @@ function mapDispatchToProps(dispatch) {
       ...GlobalsActions,
       ...ProducersActions,
       ...ProposalsActions,
+      ...ProxyActions,
       ...SellRamActions,
       ...SettingsActions,
       ...StakeActions,
