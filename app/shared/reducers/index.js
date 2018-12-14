@@ -19,6 +19,7 @@ import proposals from './proposals';
 import settings from './settings';
 import system from './system';
 import tables from './tables';
+import tfvoting from './tfvoting';
 import transaction from './transaction';
 import validate from './validate';
 import wallet from './wallet';
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
   settings,
   system,
   tables,
+  tfvoting,
   transaction,
   validate,
   wallet,

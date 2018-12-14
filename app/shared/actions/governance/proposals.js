@@ -111,7 +111,7 @@ export function getProposals(scope = 'eosio.trail', previous = false) {
       code: scope,
       scope,
       table: 'proposals',
-      limit: 100000,
+      limit: 1000,
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].prop_id;
@@ -187,7 +187,7 @@ export function getBallots(scope = 'eosio.trail', previous = false) {
       code: scope,
       scope,
       table: 'ballots',
-      limit: 100000,
+      limit: 1000,
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].ballot_id;
@@ -245,7 +245,7 @@ export function getProposalSubmissions(scope = 'eosio.saving', previous = false)
       code: scope,
       scope,
       table: 'submissions',
-      limit: 100000,
+      limit: 1000,
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].ballot_id;

@@ -92,7 +92,7 @@ class Tools extends Component<Props> {
               <label>{t('tools_change_resource_display_format')}</label>
               <GlobalSettingsResourceDisplayFormat
                 actions={actions}
-                defaultValue={settings.displayResourcesAvailable || false}
+                defaultValue={settings.displayResourcesAvailable}
                 selection
               />
             </Form.Field>

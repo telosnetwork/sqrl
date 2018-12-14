@@ -45,7 +45,11 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
   
   openLink = (link) => {
     const { settings } = this.props;
-    shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
   }
     
   render() {
@@ -127,7 +131,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
           }
 
           <Popup
-            content={"Click here to learn more about this candidate"}
+            content={"Click here to learn more about this candidate at " + candidate.info_link}
             header={"Candidate Details"}
             hoverable
             position="right center"
@@ -178,17 +182,17 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
           {(voted)
             ? 
             <Message positive size="tiny">
-              You supported this candidate.
+              You voted for this candidate.
             </Message>
             : 
             <Message negative size="tiny">
-            You did not support this candidate.
+            You did not vote for this candidate.
             </Message>
           }
           {(isArbitrator)
             ? 
             <Message positive size="tiny">
-              Candidate elected as an arbitrator.
+              Elected as an Arbitrator.
             </Message>
             : 
             ''

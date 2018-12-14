@@ -56,7 +56,7 @@ const initialState = {
   // Default Idle Timeout
   idleTimeout: 999999999,
   // default IPFS settings
-  ipfsNode: 'https://ipfs.telos.miami',
+  ipfsNode: 'ipfs.telos.miami',
   ipfsPort: '5002',
   ipfsProtocol: 'https',
   // Default language
