@@ -155,7 +155,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
               <Button
                 color={isSelected ? 'green' : 'grey'}
                 icon='checkmark'
-                disabled={voted || isExpired || isTooEarly}
+                disabled={voted || isExpired || isTooEarly || candidate.member === settings.account}
                 onClick={() => this.approve(ballot.ballot_id)}
                 size="small"
               />

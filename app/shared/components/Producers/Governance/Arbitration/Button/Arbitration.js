@@ -45,7 +45,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
     let candidate = {};
     let candidateLeaderboard = {};
     leaderboards.forEach((leaderboard) => {
-      if (leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
+      if (leaderboard.voting_symbol.indexOf('VOTE') != -1 && leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
       {
         candidate = leaderboard.candidates.filter ((c) => c.member === settings.account)[0];
       }
