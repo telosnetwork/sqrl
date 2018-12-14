@@ -67,7 +67,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Header.Content>
             <Header.Subheader>
               Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request.
+              and a new proposal must be created to replace this request. Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
             </Header.Subheader>
           </Header.Content>
         </Header>
@@ -117,7 +117,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {(lastError)
+        {(lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS')
           ? (
             <Message negative size="tiny">
               {(lastError.code)

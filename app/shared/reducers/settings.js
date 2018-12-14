@@ -8,7 +8,7 @@ const initialState = {
   // If the wallet has ackknowledged understanding the smart contract tool
   acceptedContractInterface: false,
   // Enable advanced permissions management
-  advancedPermissions: false,
+  advancedPermissions: true,
   // The loaded account
   account: '',
   // The block explorer used
@@ -18,18 +18,16 @@ const initialState = {
   // Support multiple chains
   blockchains: [
     {
-      blockchain:'Telos Testnet', 
-      tokenSymbol:'TLOS',
-      node:'https://api.eos.miami:17441',
-      chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
-    }/*,
-    {
       blockchain:'Telos Mainnet', 
       tokenSymbol:'TLOS',
-      prefix:'EOS',
-      node:'https://api.eos.miami:17441',
-      chainId: '6c8aacc339bf1567743eb9c8ab4d933173aa6dca4ae6b6180a849c422f5bb207'
-    }*/,
+      node:'https://api.eos.miami',
+      chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
+    },{
+      blockchain:'Telos Testnet', 
+      tokenSymbol:'TLOS',
+      node:'https://testnet.eos.miami',
+      chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
+    },
     {
       blockchain:'EOS Mainnet', 
       tokenSymbol:'EOS',
@@ -37,7 +35,7 @@ const initialState = {
       chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
     },
     {
-      blockchain:'Jungle Testnet',
+      blockchain:'EOS Testnet',
       tokenSymbol:'EOS',
       node:'http://jungle.cryptolions.io:18888',
       chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
@@ -57,6 +55,10 @@ const initialState = {
   filterSpamTransfersUnder: 0.0000,
   // Default Idle Timeout
   idleTimeout: 999999999,
+  // default IPFS settings
+  ipfsNode: 'https://ipfs.telos.miami',
+  ipfsPort: '5002',
+  ipfsProtocol: 'https',
   // Default language
   lang: '',
   // The node to connect to

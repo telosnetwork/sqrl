@@ -55,12 +55,12 @@ const paneMapping = [
     modes: ['cold', 'hot', 'watch', 'skip'],
     name: 'index',
   },
-  {
+  /*{
     header: true,
     modes: ['hot', 'watch', 'skip'],
     name: 'governance',
   },
-  /*{
+  {
     element: ToolsGovernanceProposals,
     modes: ['hot', 'watch', 'skip'],
     name: 'governance_proposals_test'

@@ -68,6 +68,52 @@ export function createAccount(
   };
 }
 
+export function createFreeAccount(
+  account_name,
+  owner_key,
+  active_key
+  ) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_CREATEACCOUNT_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+    return eos(connection, true).transaction({
+      actions: [
+        {
+          account: 'telos.free',
+          name: 'create',
+          authorization: [{
+            actor: account,
+            permission: 'active'
+          }],
+          data: {
+            account_creator: 'freesqlracct',
+            account_name,
+            owner_key,
+            active_key,
+            key_prefix: 'EOS'
+          }
+        }
+      ]
+    }, {
+      broadcast: connection.broadcast,
+      expireInSeconds: connection.expireInSeconds,
+      sign: connection.sign
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_CREATEACCOUNT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_CREATEACCOUNT_FAILURE
+    }));
+  };
+}
+
 export default {
-  createAccount
+  createAccount,
+  createFreeAccount
 };

@@ -1,9 +1,81 @@
 import * as types from '../../types';
 
 import { getTable } from '../../table';
+import { getAccount } from '../../accounts';
 import eos from '../../helpers/eos';
 
-export function setregproxyinfo(data) {
+export function regproxy() {
+  return (dispatch: () => void, getState) => {
+    const {
+      connection,
+      settings
+    } = getState();
+
+    const { account } = settings;
+
+    dispatch({
+      type: types.SYSTEM_REGPROXY_PENDING
+    });
+
+    return eos(connection, true).regproxy({
+      proxy: account,
+      isproxy: 1
+    }).then((tx) => {
+      // Refresh the account
+      setTimeout(dispatch(getAccount(account)), 500);
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_REGPROXY_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_REGPROXY_FAILURE
+    }));
+  };
+}
+
+export function unregproxy() {
+  return (dispatch: () => void, getState) => {
+    const {
+      connection,
+      settings
+    } = getState();
+    const { account } = settings;
+
+    dispatch({
+      type: types.SYSTEM_UNREGPROXY_PENDING
+    });
+    return eos(connection, true).regproxy({
+      proxy: account,
+      isproxy: 0
+    }).then((tx) => {
+      // Refresh the account
+      setTimeout(dispatch(getAccount(account)), 500);
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_UNREGPROXY_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_UNREGPROXY_FAILURE
+    }));
+  };
+}
+
+export function setregproxyinfo(
+  name,
+  website,
+  slogan,
+  philosophy,
+  background,
+  logo_256,
+  telegram,
+  steemit,
+  twitter,
+  wechat,
+  reserved_1,
+  reserved_2,
+  reserved_3) {
   return (dispatch: () => void, getState) => {
     const {
       settings,
@@ -19,19 +91,34 @@ export function setregproxyinfo(data) {
     return eos(connection, true).transaction({
       actions: [
         {
-          account: 'regproxyinfo',
+          account: 'tlsproxyinfo',
           name: 'set',
           authorization: [{
             actor: account,
             permission: 'active'
           }],
-          data
+          data: {
+            proxy:account,
+            name,
+            website,
+            slogan,
+            philosophy,
+            background,
+            logo_256,
+            telegram,
+            steemit,
+            twitter,
+            wechat,
+            reserved_1: reserved_1 || '',
+            reserved_2: reserved_2 || '',
+            reserved_3: reserved_3 || ''
+          }
         }
       ]
     }).then((tx) => {
       setTimeout(() => {
-        dispatch(getTable('regproxyinfo', 'regproxyinfo', 'proxies'));
-      }, 5000);
+        dispatch(getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies'));
+      }, 1000);
 
       return dispatch({
         payload: { tx },
@@ -50,7 +137,7 @@ export function removeregproxyinfo() {
       settings,
       connection
     } = getState();
-
+    
     dispatch({
       type: types.SYSTEM_REMOVE_REGPROXYINFO_PENDING
     });
@@ -60,7 +147,7 @@ export function removeregproxyinfo() {
     return eos(connection, true).transaction({
       actions: [
         {
-          account: 'regproxyinfo',
+          account: 'tlsproxyinfo',
           name: 'remove',
           authorization: [{
             actor: account,
@@ -71,10 +158,16 @@ export function removeregproxyinfo() {
           }
         }
       ]
-    }).then((tx) => dispatch({
-      payload: { tx },
-      type: types.SYSTEM_REMOVE_REGPROXYINFO_SUCCESS
-    })).catch((err) => dispatch({
+    }).then((tx) => {
+      setTimeout(() => {
+        dispatch(getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies'));
+      }, 1000);
+
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_REMOVE_REGPROXYINFO_SUCCESS
+      });
+  }).catch((err) => dispatch({
       payload: { err },
       type: types.SYSTEM_REMOVE_REGPROXYINFO_FAILURE
     }));
@@ -82,6 +175,8 @@ export function removeregproxyinfo() {
 }
 
 export default {
+  regproxy,
   removeregproxyinfo,
-  setregproxyinfo
+  setregproxyinfo,
+  unregproxy
 };

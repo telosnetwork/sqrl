@@ -7,36 +7,43 @@
 
 [![Sqrl screenshot](https://raw.githubusercontent.com/Telos-Foundation/Sqrl/master/app/renderer/assets/images/sqrl.png)](https://raw.githubusercontent.com/Telos-Foundation/Sqrl/master/app/renderer/assets/images/sqrl.png)
 
-# Sqrl - TELOS Block Producer Voting & Wallet
+# Sqrl - Telos Full Wallet & Governance dApp
 
-`Sqrl` is a fully functional release of a light wallet being designed for the TELOS blockchain, and supports any EOSIO blockchain. This application can be used to connect to a remote EOSIO API endpoint to perform producer voting actions and common wallet commands.
+`Sqrl` is a fully functional wallet created by [Telos Miami](https://eos.miami/) for the Telos blockchain that supports any EOS.IO blockchain. This application can be used to connect to a remote EOS.IO API endpoint to securely perform numerous wallet and governance functions.
 
 [![Sqrl screenshot](https://raw.githubusercontent.com/Telos-Foundation/Sqrl/master/Sqrl.png)](https://raw.githubusercontent.com/Telos-Foundation/Sqrl/master/Sqrl.png)
 
 ### Features
 
-- **New User Account Creation**: Sqrl provides a simple wizard that allows new users to create their first TELOS account on their own.
-- **Works Across Chains**: Sqrl is the only wallet that can be used to manage any EOSIO blockchain in a single interface, such as TELOS or EOS Mainnet.
-- **New TLOS Key Generation**: You can use Sqrl to generate new TLOS public and private key pairs.
-- **Block Producer/Proxy Voting**: Select which block producers to support and cast your vote. You can also register/unregister your account as a Proxy. Please note that the block producer voting UI is not a research tool; it is a simple interface that provides a secure way to vote.
-- **Token Transfers**: Transfer TLOS or any other token you may have a balance for to another user or exchanges.
-- **CPU/Bandwidth Staking**: Stake your TLOS as either Bandwidth or CPU. This grants rights to resource usage on the network, in addition to conveying weight while voting for block producers.
-- **Buy/Sell RAM**: Use your TLOS tokens to buy or sell RAM at the then market price. RAM allows you to reserve or release storage space on the TELOS blockchain.
-- **Create Accounts**: Sqrl allows you to create new user accounts in TELOS and allocate RAM, Bandwidth or CPU.
-- **Simple Contact Management**: You can create a contact database for the TELOS accounts you interact with frequently, which simplifies the process of sending / receiving of TLOS on the network.
+**NEW FEATURES**:
+- **IPFS Storage for Key Documents**: All interactions with key documents in Sqrl, such as the Telos Blockchain Network Operating Agreement, are uploaded and retrieved from the InterPlanetary File System (IPFS).
+- **Create Worker Proposals**: Sqrl allows you to create new worker proposal requests on the Telos blockchain. You can also participate in voting on existing worker proposals.
+- **Register and Vote on Arbitration**: As the first EOS.IO chain with real on-chain governance support, Sqrl allows anyone to apply to be an arbitrator and voters to elect arbitrators. You can also submit claims and go through the arbitration process using Sqrl.
+- **Ratify / Amend Governance Docs**: Sqrl allows you, the voter, to participate in ratifying and amending the Telos governance documents. Let your voice be heard!
+- **Free User Account Creation (coming to mainnet soon)**: Sqrl provides a simple wizard that allows new users to create their first Telos account on their own.
+- **Works Across Chains**: Sqrl is the first wallet to add support for managing any EOS.IO blockchain in a single interface, such as Telos or EOS.
+
+**CORE FEATURES**:
+- **New Key Generation**: You can use Sqrl to generate new EOS.IO public and private key pairs.
+- **Block Producer/Proxy Voting**: Select which block producers to support and cast your vote. You can also register/unregister your account as a Proxy.
+- **Token Transfers**: Transfer TLOS, EOS or any other token you may have a balance for to another user or exchanges.
+- **CPU/Bandwidth Staking**: Stake your TLOS or EOS as either Bandwidth or CPU. This grants rights to resource usage on the network, in addition to conveying weight while voting for block producers.
+- **Buy/Sell RAM**: Use your TLOS or EOS tokens to buy or sell RAM at the then market price. RAM allows you to reserve or release storage space on the Telos blockchain.
+- **Create Accounts**: Sqrl allows you to create new user accounts in Telos and allocate RAM, Bandwidth or CPU.
+- **Simple Contact Management**: You can create a contact database for the Telos accounts you interact with frequently, simplifying the process of sending/receiving tokens on the network.
 - **Interact w/ Smart Contracts**: If you would like to interact with smart contracts directly, Sqrl allows you to lookup contracts and call methods defined in the contract's abi.
 - **Local Wallet**: Set a password while importing your private key to create a local wallet. Your key will be encrypted locally using this password. This password will be required each time you need to unlock the wallet.
-- **Temporary Usage**: If you prefer not to store your keys within the application, simply choose not to set a password. When the application quits, your key will be forgotten.
+- **Cold Wallet Mode**: If you prefer not to store your keys within the application, simply choose not to set a password. When the application quits, your key will be forgotten.
 
 ## Get Sqrl
 
 ### Releases
 
-Current 0.5.3 release downloads:
+Current 0.5.4 release downloads:
 
-- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/0.5.3/win-Sqrl-0.5.3.exe)
-- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/0.5.3/mac-Sqrl-0.5.3.dmg)
-- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/0.5.3.tar.gz)
+- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/0.5.4/win-Sqrl-0.5.4.exe)
+- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/0.5.4/mac-Sqrl-0.5.4.dmg)
+- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/0.5.4.tar.gz)
 
 The latest release will always be available on the releases page of this repository:
 
@@ -50,7 +57,7 @@ To determine which file you need, if you are a...
 
 ### Security: Private Keys
 
-When using `Sqrl`, all transactions are signed within the application and your key is never transmitted. If a local wallet password is specified, the application will also save and encrypt your key for future use, using AES-256 encryption. The current password/key encryption scheme can [currently be found here](https://github.com/aaroncox/eos-voter/blob/master/app/shared/actions/wallet.js#L71-L86).
+When using `Sqrl`, all transactions are signed within the application and your key is never transmitted. If a local wallet password is specified, the application will also save and encrypt your key for future use, using AES-256 encryption. The current password/key encryption scheme can [currently be found here](https://github.com/Telos-Foundation/Sqrl/blob/master/app/shared/actions/wallet.js#L8).
 
 ### Endpoints
 
@@ -92,7 +99,7 @@ yarn dev
 
 ### Credits
 
-The development of this application is being led by members of the [EOS Miami](https://eos.miami) team for the [Telos Foundation](https://telosfoundation.io) in an effort to let stakeholders securely manage their EOSIO-based tokens (TLOS, EOS, etc) and participate in the governance of any EOSIO chains.
+The development of this application is being led by members of the [Telos Miami](https://eos.miami) team for the [Telos Foundation](https://telosfoundation.io) in an effort to let stakeholders securely manage their EOS.IO-based tokens (TLOS, EOS, etc) and participate in the governance of the Telos blockchain.
 
 `Sqrl` naming credit goes to [Douglas Horn at Goodblock](https://goodblock.io/).
 
@@ -108,41 +115,40 @@ Signed by [eosmiami on keybase](https://keybase.io/eosmiami)
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-shasum -b -a 512 linux-Sqrl-0.5.3-amd64.deb
-9be57abcfbd4a50198269258e4c595055fa287a4863e2b9164f9f1c5fa72d76ac37b3ddf1f979d71cdb32b67e468f5b8f3c61ae9fc553fb84353cdcd23507764 *linux-Sqrl-0.5.3-amd64.deb
-shasum -b -a 512 linux-Sqrl-0.5.3-amd64.snap
-841b424819381c884374e6f56ac2a696bd1cb6e4ed452c2739ec520e2e2b870f13326c036d17f93dfaee04b7ca2d2666850e007f93a7eba742b46f687ff7af1f *linux-Sqrl-0.5.3-amd64.snap
-shasum -b -a 512 linux-Sqrl-0.5.3-arm64.deb
-026ad43496bf8b207c82e85eb547721dba9b9e98ec427c866a582ffd842138347dfc48a6fc2922216455574e48caf3de88b02360a216e0ccc98782d15219b761 *linux-Sqrl-0.5.3-arm64.deb
-shasum -b -a 512 linux-Sqrl-0.5.3-armv7l.deb
-c97164b9b62a0a44954541b79d139e81e81942115325c7770c91a8531cd152e02765cac6b1f3940e1f3c435cf74ca48269d64923f45c0620040b19dcd858d501 *linux-Sqrl-0.5.3-armv7l.deb
-shasum -b -a 512 linux-Sqrl-0.5.3-i386.deb
-6cd597f018c59b617287da89b5ccaf31d5300644970fe2a0a6c4be18130bf84c5986aa3c48e30c67c3657abbb34591c6b36e5bce5794be625f506b018030261f *linux-Sqrl-0.5.3-i386.deb
-shasum -b -a 512 linux-Sqrl-0.5.3-x86_64.AppImage
-ca2fce8e72ad657fb94b2c2c07e24576ac8244bab1e494fa754f3740bac4a8662c1e8437f6d580155fb25ec04474e1c0e6ddc301cd954a684909a35076b7f7e3 *linux-Sqrl-0.5.3-x86_64.AppImage
-shasum -b -a 512 mac-Sqrl-0.5.3.dmg
-60080660efaf163315732e9c3395a8f3c82c5b9d0e7471ced83e3ea4fa8b226dfe1b52a3381759ed6069d235a6959b6cf2bf731d38931fa605ed7ecc48a26b37 *mac-Sqrl-0.5.3.dmg
-shasum -b -a 512 mac-Sqrl-0.5.3.zip
-5714ccd90b39408f6c8d9abe44b63fe9f3ca3b0e65f966dcfa1211c4f5ac2149a0b5b9a5f8391c51c3f44438ba9d6eb5992f8671b4395dc6ddf6c25a1a08836c *mac-Sqrl-0.5.3.zip
-shasum -b -a 512 win-Sqrl-0.5.3.exe
-938e1cc73669aba72b55ea21e06eaa6f4c6792ee14fdc3b3fba874a960fa5bfdbf8e43a2aeb7183a44d027fbc8dbe284253e007566c7d0d8210f1d9875e84c1c *win-Sqrl-0.5.3.exe
-
+shasum -b -a 512 linux-Sqrl-0.5.4-amd64.deb
+b3772febf228fe69ba47b3144a20ec61d7183e3e32456ac05d7edb859f1132f8292aed72fc208531c4819d3b64cf892d581817f2b34549066443b6ac410a4d78 *linux-Sqrl-0.5.4-amd64.deb
+shasum -b -a 512 linux-Sqrl-0.5.4-amd64.snap
+b51aec9a61a0ea8578f60bbe1d8599c2b6cab76f6dfa47b83841c2f2059c90893d7e0454535ff46935d22807359fe4b719186e1d8715081e018c3f680735f4c8 *linux-Sqrl-0.5.4-amd64.snap
+shasum -b -a 512 linux-Sqrl-0.5.4-arm64.deb
+646c0960c4af7f7336a861dca76ccb8be68754ae9724bbadfa39161c5768c019e69730c362e048fda86258af96db6507b536e2b4f79be3f66ea200c9f06b305b *linux-Sqrl-0.5.4-arm64.deb
+shasum -b -a 512 linux-Sqrl-0.5.4-armv7l.deb
+6ca5c780d1c21d030ecb4fb588ac026f7f4eaf38aede48ca986932d6ddb4d0d10d9d4e36626d8c8d3272365e7626dfb0796963a8f7a1489e8936cf00664c4f1f *linux-Sqrl-0.5.4-armv7l.deb
+shasum -b -a 512 linux-Sqrl-0.5.4-i386.deb
+8e4fff9506c21902b6f50847f4a49f703513c4ad9f2d0ceb8424d561a8e891fa1bcbd29389a71401cbbfc9de1aa31e2c2caf824c45fe28e03eeb164be955b711 *linux-Sqrl-0.5.4-i386.deb
+shasum -b -a 512 linux-Sqrl-0.5.4-x86_64.AppImage
+97e15f57dc24833724961eb648a744942c1a0d8918d776f64b6d80dc918b4a60ea2b24c31c8570039de081dba02fef54992efcb62e823790c3ff827d5981824c *linux-Sqrl-0.5.4-x86_64.AppImage
+shasum -b -a 512 mac-Sqrl-0.5.4.dmg
+bd541a7b83725afc1a635612bc5e5d6ccf43cd62fa930bfb532a4339e63573512c0f77570d8d7de66e90e3d55c1188cd2bb34b92dc726384fd366a652c170ee4 *mac-Sqrl-0.5.4.dmg
+shasum -b -a 512 mac-Sqrl-0.5.4.zip
+917445692bb387c5ca84ff8339b363efdc447eac3ce4be1bcfa80f7b6588fdc6f2dd59c7dac46d04ba24c0a05dcff63084cb6498ad5decd2eb8d75bc0254e66f *mac-Sqrl-0.5.4.zip
+shasum -b -a 512 win-Sqrl-0.5.4.exe
+0f7b17783c805414e0ca30285b449a4ccac2a120c3fd9d0355fac2cc930619f81150f9713f4ee846487bb02d8621a934154e6352e0306a0a649a90b607d36198 *win-Sqrl-0.5.4.exe
 -----BEGIN PGP SIGNATURE-----
 Version: Keybase OpenPGP v2.0.80
 Comment: https://keybase.io/crypto
 
-wsFcBAABCgAGBQJb4h72AAoJEDT4ke1a0TzTylsP/1U31dWVUR/T2uiB/h/TiuzE
-6HXZZBLdnAS/OmnnlF/oN4MWgUhrBV96Z4t3w/Upr1jQ/IbsLC3wI+lov0yG5B4C
-Nl79D5Uq2+TTwFO8RwBDvdRK3R+Oom7vbx8tuxj6fABwNcSySxKTcjgBemYtLdl5
-yPzJY8UAFnbpMkBu6M9AgU8PJiGOkSyxJOH5tfipirHaMWShjJYkQMThH4o89bbR
-SH7LruECCozmjt53GPMSvlNKG32Rp8COOioOgtZrJkuwzunzAI5UFFVFTR7XdIie
-mSOZOEpJOcpyodfjVdWknkYGaJnyMe8Hsh/hbLm5alTJ2DhedUM14jHiCubO8hXT
-aYm8blY6yjq9y51fFZUZWqRXPjZv3AWRnuTvnYbe7jqC2CL7oHr4dYPzv9ruAi4n
-psMrxWgmpQf0LbKwBcEQczgRGt8BKBfpyixj2a92+kp00dqbfRWv5kWLZ5SNNeGV
-RLMfNQY/juVCDEdYnFjJOLLq0oFQDnS7vE/UgD0/8MrrWyHRsyHN/0FVWW1TCCcV
-P/NM+GUh7PlzAP08sly4NldbBDt8Q74fNtxDuXT9BqPpXWoNdtK58DR/5bP7JmdZ
-YfupBpqvb8O1Vljli+CKosj2D6Pmm7yR/j2t1wredtYbOucBZgGUdyahKEVCK55+
-JWafGutrh5ICOXdlejGD
-=+rvo
+wsFcBAABCgAGBQJcEebyAAoJEDT4ke1a0TzToyAP/0X+I5w109qF5y2YFa7Br2UD
+Uw/bCePAsmMeULt//afQM2LP2Q6mLeTB/u9+h70K3LxtVgsnDqWg6FwOD1GgD1jb
+CaLpdmemMfyH8jZUwuashkO/iZ5QfRbr0R/aKW2NejRbUuwO0SBXKF4ROzQC9BT7
+V5JI0m6eo18pI28KKFASvysMC2HdOnv7yexEPFtVoFkmC2CPzmQpwKKvbgWQHPuR
+eZidWvEfVc+Xw1/J4VkxYWzr9/M9Mmu/4Q5NGBLhMuD5aBkusYhLb9I6H55lIGw7
+/CTroHlqdE/rXD/Ig17MoSbxpL8biUm067EoDx6FIe4BX97DwvN/MI9otSSS+bGN
+ONiLM9Egh5HtLcR7W0e0FTXuJjZfsgy1dMB+b07eLzQq5PTknZI7jdtzv6UV+4yw
+ZQZQieQ2muWImjQssfTP+2LPbxOkfQsSRJ+hEb0r+pg3dr02ZP6SOxbgwLaG5wlH
+WlBFIf6bcd5bBK5LSVVMbcb3H/3cnRijAE4yfx1b4EsXMZfosgG6Cgf3a9g1pFhw
+tuHZaxonfAKH5LSeGg9o4cTvuROMR6oHLLmPA7nPIGc+xK1cfTbtLg6gdMUDSD5i
+VIQXVgtiuueXDmdI7/QYbGtIh8+RfO6uCd4GZqGUdyx1lTqidHsb1EpQlvdEXHy2
+xt2SU3Z2f9yF8rgCLwP4
+=EDTR
 -----END PGP SIGNATURE-----
 ```

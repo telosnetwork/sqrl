@@ -8,7 +8,7 @@ import GovernanceRatifyAmendRatify from './Governance/RatifyAmend/Ratify';
 
 class GovernanceRatifyAmend extends Component<Props> {
   state = {
-    scope: 'eosforumrcpp'
+    scope: 'eosio.amend'
   }
   componentDidMount() {
     this.sync();
@@ -52,7 +52,7 @@ class GovernanceRatifyAmend extends Component<Props> {
     return (
       <Segment basic>
         <Header>
-          Ratify / Amend
+          Telos Foundation Voting
           <Header.Subheader>
             Coming soon!
           </Header.Subheader>

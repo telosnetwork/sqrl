@@ -56,7 +56,8 @@ class ProducersProxiesModalProxyInfo extends Component<Props> {
                             {(urlKeys.includes(key))
                               ? (
                                 <DangerLink
-                                  content={viewingProxy[key].substring(0, 30).replace(/(^\w+:|^)\/\//, '')}
+                                  //content={viewingProxy[key].substring(0, 30).replace(/(^\w+:|^)\/\//, '')}
+                                  content={viewingProxy[key]}
                                   link={viewingProxy[key]}
                                   settings={settings}
                                 />
