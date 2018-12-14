@@ -58,7 +58,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
 
     let arbitrator = {};
     if (arbitrators) {
-      arbitrator = arbitrators.filter((a) => a.arb === candidate.member)[0]; 
+      arbitrator = arbitrators.filter((a) => a.arb === settings.account)[0]; 
       if (!arbitrator)
         arbitrator = {};
     }

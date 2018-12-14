@@ -17,14 +17,26 @@ export function transfer(from, to, quantity, memo, symbol) {
       symbol = symbol ? symbol : settings.blockchain.tokenSymbol;
       const contracts = balances.__contracts;
       const account = contracts[symbol].contract;
-      return eos(connection, true).transaction(account, contract => {
-        contract.transfer(
-          from,
-          to,
-          quantity,
-          memo
-        );
-      }, {
+      return eos(connection, true).transaction(
+        {
+          actions: [
+            {
+              account: account,
+              name: 'transfer',
+              authorization: [{
+                actor: from,
+                permission: 'active',
+              }],
+              data: {
+                from,
+                to,
+                quantity,
+                memo,
+              },
+            }
+          ]
+        }, 
+       {
         broadcast: connection.broadcast,
         expireInSeconds: connection.expireInSeconds,
         sign: connection.sign

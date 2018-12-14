@@ -156,7 +156,7 @@ export function getArbitrators(scope = 'eosio.arb', previous = false) {
       code: scope,
       scope,
       table: 'arbitrators',
-      limit: 100000,
+      limit: 1000,
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].board_id;
@@ -223,7 +223,7 @@ export function getLeaderBoards(scope = 'eosio.trail', previous = false) {
       code: scope,
       scope,
       table: 'leaderboards',
-      limit: 100000,
+      limit: 1000,
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].board_id;
