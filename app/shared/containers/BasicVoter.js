@@ -30,6 +30,7 @@ import * as SellRamActions from '../actions/system/sellram';
 import * as SettingsActions from '../actions/settings';
 import * as StakeActions from '../actions/stake';
 import * as TableActions from '../actions/table';
+import * as TFVotingActions from '../actions/governance/tfvoting';
 import * as TransactionActions from '../actions/transaction';
 import * as TransferActions from '../actions/transfer';
 import * as ValidateActions from '../actions/validate';
@@ -226,6 +227,7 @@ function mapStateToProps(state) {
     settings: state.settings,
     system: state.system,
     tables: state.tables,
+    tfvoting: state.tfvoting,
     transaction: state.transaction,
     validate: state.validate,
     wallet: state.wallet
@@ -251,6 +253,7 @@ function mapDispatchToProps(dispatch) {
       ...StakeActions,
       ...SystemStateActions,
       ...TableActions,
+      ...TFVotingActions,
       ...TransactionActions,
       ...TransferActions,
       ...ValidateActions,

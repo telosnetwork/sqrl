@@ -95,6 +95,7 @@ class GovernanceArbitration extends Component<Props> {
             info
           />
           {([].concat(leaderboards)
+            .filter((board) => { return board.voting_symbol && board.voting_symbol.indexOf('VOTE') != -1;})
             .map((leaderboard) => (
               <GovernanceArbitrationArbitration
                 actions={actions}

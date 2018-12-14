@@ -60,7 +60,11 @@ class GovernanceArbitrationArbitration extends Component<Props> {
   
   openLink = (link) => {
     const { settings } = this.props;
-    shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
   }
 
   render() {
