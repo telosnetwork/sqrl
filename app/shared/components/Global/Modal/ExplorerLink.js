@@ -13,7 +13,6 @@ export default class GlobalModalExplorerLink extends Component<Props> {
       linkType,
       settings
     } = this.props;
-
     // look for compatible block explorer based on token, else use first
     const blockExplorerKeys = Object.keys(blockExplorers);
     let blockExplorer = blockExplorers[blockExplorerKeys[0]];

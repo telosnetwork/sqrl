@@ -452,8 +452,8 @@ export function voteBallot(voter, ballot_id, direction) {
       sign: connection.sign
     }).then((tx) => {
       setTimeout(() => {
-        //dispatch(getVoteInfo(account));
-        dispatch(getLeaderBoards());
+        dispatch(getVoteInfo(account));
+        //dispatch(getLeaderBoards());
       }, 500);
       return dispatch({
         payload: { tx },

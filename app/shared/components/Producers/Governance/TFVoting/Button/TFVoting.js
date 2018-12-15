@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Message, Segment } from 'semantic-ui-react';
+import { Button, Grid, HeartIcon, Message, Segment } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
 
 import GlobalTransactionModal from '../../../../Global/Transaction/Modal';
@@ -82,116 +82,143 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
       isTooEarly = (candidateLeaderboard.begin_time * 1000) > Date.now();
     }
     return ( 
-      [(
-        (isNominee) ? <Message positive size="tiny">You have been nominated to be a TF Board Member - Congratulations!</Message> : ''
-      ),(
-        (isBoardMember) ? <Message positive size="tiny">You have been elected as a TF Board Member - Congrats!</Message> : ''
-      ), (
-        <GlobalTransactionModal
-          actionName="GOVERNANCE_NOMINATEBOARDMEMBER"
-          actions={actions}
-          blockExplorers={blockExplorers}
-          button={{
-            color: 'blue',
-            content: 'Nominate',
-            icon: "circle user",
-            floated: 'right',
-            size: 'small'
-          }}
-          content={(
-            <GovernanceTFNominateFormTFNominate
-              accounts={accounts}
-              actions={actions}
-              applicationSubmitted={this.applicationSubmitted}
-              key="TFNominationForm"
-              settings={settings}
-              system={system}
-              tables={tables}
-              tfvoting={tfvoting}
-              validate={validate}
-              wallet={wallet}
-            />
-          )}
-          icon="inbox"
-          key="TFNominationContainer"
-          onClose={onClose}
-          settings={settings}
-          system={system}
-          title="Nominate"
-          />
-      ),(
+      <Grid container>
+      
+      {(isNominee) ? 
+      <Grid.Row><Grid.Column>
+        <Message positive size="small">
+        You have been nominated to be a TF Board Member - Congratulations!
+        </Message>
+        </Grid.Column>
+      </Grid.Row>
+      :''}
+
+      {(isBoardMember) ? 
+      <Grid.Row><Grid.Column>
+        <Message positive size="small">
+        You have been elected as a TF Board Member - Congrats!
+        </Message>
+        </Grid.Column>
+      </Grid.Row>
+      :''}
+
+      {(candidate && candidate.member && candidateLeaderboard.board_id >=0 && candidateLeaderboard.status != 3) ?
         // only remove if we aren't over or havent' started and board isn't closed
-      (candidate && candidate.member && candidateLeaderboard.board_id >=0 && candidateLeaderboard.status != 3) ?
         (!isExpired && isTooEarly && !applying) ?
-        <GlobalTransactionModal
-          actionName="GOVERNANCE_DECLINENOMINATION"
-          actions={actions}
-          blockExplorers={blockExplorers}
-          button={{
-            color: 'blue',
-            content: 'Remove Nomination',
-            icon: "circle minus",
-            floated: 'right',
-            size: 'small'
-          }}
-          content={(
-            <Segment basic clearing>
-              <p>
-              This will remove your candidacy to become a Telos Foundation Board Member. Are you sure you would like to proceed?
-              <Button
-                color='green'
-                content="Remove Nomination"
-                floated="right"
-                icon="folder"
-                loading={system.GOVERNANCE_DECLINENOMINATION === 'PENDING'}
-                style={{ marginTop: 20 }}
-                onClick={() => this.removeCandidacy()}
-                primary
+        <Grid.Row><Grid.Column>
+          <GlobalTransactionModal
+            actionName="GOVERNANCE_DECLINENOMINATION"
+            actions={actions}
+            blockExplorers={blockExplorers}
+            button={{
+              color: 'blue',
+              content: 'Remove Nomination',
+              icon: "circle minus",
+              floated: 'right',
+              size: 'small'
+            }}
+            content={(
+              <Segment basic clearing>
+                <p>
+                This will remove your candidacy to become a Telos Foundation Board Member. Are you sure you would like to proceed?
+                <Button
+                  color='green'
+                  content="Remove Nomination"
+                  floated="right"
+                  icon="folder"
+                  loading={system.GOVERNANCE_DECLINENOMINATION === 'PENDING'}
+                  style={{ marginTop: 20 }}
+                  onClick={() => this.removeCandidacy()}
+                  primary
+                />
+                </p> 
+              </Segment>
+            )}
+            icon="inbox"
+            onClose={onClose}
+            settings={settings}
+            system={system}
+            title="Remove Nomination for TF Board"
+          />
+          </Grid.Column>
+        </Grid.Row> : <Grid.Row><Grid.Column><Message negative size="small">Voting On Nominations In Progress</Message></Grid.Column></Grid.Row>
+      :''}
+      
+      { (isNominee && !(candidate && candidate.member) ) ?
+        <Grid.Row><Grid.Column>
+          <GlobalTransactionModal
+            actionName="GOVERNANCE_ACCEPTNOMINATION"
+            actions={actions}
+            blockExplorers={blockExplorers}
+            button={{
+              color: 'blue',
+              content: 'Accept Nomination',
+              icon: "circle plus",
+              floated: 'right',
+              size: 'small'
+            }}
+            content={(
+              <GovernanceTFVotingFormTFVoting
+                accounts={accounts}
+                actions={actions}
+                applicationSubmitted={this.applicationSubmitted}
+                key="TFVotingForm"
+                settings={settings}
+                system={system}
+                tables={tables}
+                tfvoting={tfvoting}
+                validate={validate}
+                wallet={wallet}
               />
-              </p> 
-            </Segment>
-          )}
-          icon="inbox"
-          onClose={onClose}
-          settings={settings}
-          system={system}
-          title="Remove Nomination for TF Board"
-        /> : <Message negative size="small">Voting On Nominations In Progress</Message>
-      :''
-      ), ( (isNominee && !(candidate && candidate.member) ) ?
-        <GlobalTransactionModal
-          actionName="GOVERNANCE_ACCEPTNOMINATION"
-          actions={actions}
-          blockExplorers={blockExplorers}
-          button={{
-            color: 'blue',
-            content: 'Accept Nomination',
-            icon: "circle plus",
-            floated: 'right',
-            size: 'small'
-          }}
-          content={(
-            <GovernanceTFVotingFormTFVoting
-              accounts={accounts}
-              actions={actions}
-              applicationSubmitted={this.applicationSubmitted}
-              key="TFVotingForm"
-              settings={settings}
-              system={system}
-              tables={tables}
-              tfvoting={tfvoting}
-              validate={validate}
-              wallet={wallet}
+            )}
+            icon="inbox"
+            onClose={onClose}
+            settings={settings}
+            system={system}
+            title="Accept Board Nomination"
             />
-          )}
-          icon="inbox"
-          onClose={onClose}
-          settings={settings}
-          system={system}
-          title="Accept Board Nomination"
-          /> : ''
-      )
-      ]
+            </Grid.Column>
+        </Grid.Row>
+      :''}
+
+      <Grid.Row><Grid.Column>
+        <GlobalTransactionModal
+            actionName="GOVERNANCE_NOMINATEBOARDMEMBER"
+            actions={actions}
+            blockExplorers={blockExplorers}
+            button={{
+              color: 'blue',
+              content: 'Nominate',
+              icon: "circle user",
+              floated: 'right',
+              size: 'small'
+            }}
+            content={(
+              <GovernanceTFNominateFormTFNominate
+                accounts={accounts}
+                actions={actions}
+                applicationSubmitted={this.applicationSubmitted}
+                key="TFNominationForm"
+                settings={settings}
+                system={system}
+                tables={tables}
+                tfvoting={tfvoting}
+                validate={validate}
+                wallet={wallet}
+              />
+            )}
+            icon="inbox"
+            key="TFNominationContainer"
+            onClose={onClose}
+            settings={settings}
+            system={system}
+            title="Nominate"
+            />
+            </Grid.Column>
+      </Grid.Row>
+
+    </Grid>
+
     );
   }
 }
