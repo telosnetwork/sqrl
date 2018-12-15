@@ -30,7 +30,14 @@ class GovernanceArbitrationFormArbitrationConfirming extends Component<Props> {
     actions.unlockWallet(password);
     system.GOVERNANCE_REGCANDIDATE_LAST_ERROR = null;
   }
-  openLink = (link) => shell.openExternal(link);
+  openLink = (link) => {
+    const { settings } = this.props;
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
+  }
   render() {
     const { 
       walletUnLockRequested 
