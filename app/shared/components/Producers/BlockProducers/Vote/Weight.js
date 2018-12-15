@@ -25,7 +25,7 @@ export default class ProducersVoteWeight extends Component<Props> {
         break;
       }
     }
-    return (num / notation[i].value).toFixed(digits).replace(rx, '$1') + notation[i].symbol;
+    return (num / notation[i].value).toFixed(digits).replace(rx, '$1'); //+ notation[i].symbol;
   }
 
   render() {

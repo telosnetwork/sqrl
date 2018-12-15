@@ -153,7 +153,7 @@ export function getProducersInfo(previous = false) {
 }
 
 export function getProducerInfo(producer) {
-  return (dispatch: () => void, getState) => {
+  /*return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_PRODUCERJSON_PENDING,
       payload: { producer }
@@ -190,6 +190,7 @@ export function getProducerInfo(producer) {
       payload: { err, producer },
     }));
   };
+  */
 }
 
 export default {

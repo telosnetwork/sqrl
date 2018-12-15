@@ -209,7 +209,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     // save proposal to IPFS, return its hash#, and submit contract to chain
     await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
       if (error) {
-        console.log('got error in IPFS..', error)
+        console.log('IPFS error occurred...', error)
         this.setState({ ipfsError:error });
       }
       

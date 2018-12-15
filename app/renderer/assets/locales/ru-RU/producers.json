@@ -56,7 +56,7 @@
   "producers_form_proxy_cancel": "Cancel",
   "producers_form_proxy_confirm": "Confirm",
   "producers_form_proxy_confirming_change_text_one": "This action will proxy your votes to",
-  "producers_form_proxy_confirming_change_text_two": "All producer votes cast by the proxy above will now gain the benefit and weight of this accounts staked EOS. You will no longer be able to cast votes on your own.",
+  "producers_form_proxy_confirming_change_text_two": "All producer votes cast by the proxy above will now gain the benefit and weight of this accounts staked tokens. You will no longer be able to cast votes on your own.",
   "producers_form_proxy_confirming_remove_text_one": "You are about to remove",
   "producers_form_proxy_confirming_remove_text_two": "as your proxy voter. Afterwards you will be able to cast your own votes again or set a different proxy account.",
   "producers_form_proxy_current_votes": "Current Votes",

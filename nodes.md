@@ -27,13 +27,16 @@ If you are concerned about revealing this information to any of these 3rd party 
 - [https://telos.eos.barcelona](https://telos.eos.barcelona/v1/chain/get_info) - operated by [EOS Barcelona](https://eos.barcelona)
 - [https://telos.eosdetroit.io](https://telos.eosdetroit.io/v1/chain/get_info) - operated by [EOS Detroit](https://eosdetroit.io)
 - [https://api.telosunlimited.io](https://api.telosunlimited.io/v1/chain/get_info) - operated by [Telos Unlimited](http://telosunlimited.io)
-
+- [http://api.apac.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
+- [http://api.emea.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
+- [http://api.na.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
 
 ## Verified TestNet Nodes
 - [http://testnet.telosfoundation.io:8888](http://testnet.telosfoundation.io:8888/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
 - [https://testnet.eos.miami](https://testnet.eos.miami/v1/chain/get_info) - operated by [EOS/Telos Miami](https://eos.miami/)
 - [http://api.testnet.telos.eosindex.io](http://api.testnet.telos.eosindex.io/v1/chain/get_info) - operated by EOS Index
 - [https://api.testnet.telosunlimited.io](https://api.testnet.telosunlimited.io/v1/chain/get_info) - operated by [Telos Unlimited](http://telosunlimited.io)
+- [http://node1.testnet.telosglobal.io:8888](http://node1.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
 
 ## Additions
 

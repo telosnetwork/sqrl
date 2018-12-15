@@ -75,7 +75,14 @@ class WelcomeConnectionContainer extends Component<Props> {
     return false;
   }
 
-  openLink = (link) => shell.openExternal(link);
+  openLink = (link) => {
+    const { settings } = this.props;
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
+  }
 
   isSafeish = (url) => url.startsWith('http:') || url.startsWith('https:')
 

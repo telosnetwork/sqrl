@@ -8,6 +8,7 @@ import ProducersProxy from './Producers/Proxy';
 import GovernanceArbitration from './Producers/Arbitration';
 import GovernanceProposals from './Producers/Proposals';
 import GovernanceRatifyAmend from './Producers/RatifyAmend';
+import GovernanceTFVoting from './Producers/TFVoting';
 import ProducersVotingPreview from './Producers/BlockProducers/Modal/Preview';
 import Proxies from './Producers/Proxies';
 import ProducersSelector from './Producers/BlockProducers/Selector';
@@ -38,6 +39,11 @@ type Props = {
   proposals: {
     list: {},
     votes: {}
+  },
+  tfvoting: {
+    tfvtbalances: {},
+    tfvtboardmembers: {},
+    tfvtnominees: {}
   },
   settings: {},
   system: {},
@@ -417,6 +423,18 @@ class Producers extends Component<Props> {
                     },
                     {
                       menuItem: 'TF Voting',
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <GovernanceTFVoting
+                              {...this.props}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    },
+                    {
+                      menuItem: 'Docs',
                       render: () => {
                         return (
                           <Tab.Pane>

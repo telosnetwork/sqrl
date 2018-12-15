@@ -90,7 +90,7 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
                 actions={actions}
                 arbitrators={arbitrators}
                 candidate={candidate}
-                key={leaderboard.board_id}
+                key={candidate.member}
                 isSelected={isSelected}
                 isValidUser={isValidUser}
                 ballots={ballots}
@@ -137,7 +137,7 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
                   actions={actions}
                   arbitrators={arbitrators}
                   candidate={candidate}
-                  key={leaderboard.board_id}
+                  key={candidate.member}
                   isSelected={isSelected}
                   isValidUser={isValidUser}
                   ballots={ballots}
@@ -177,7 +177,7 @@ class GovernanceArbitrationCandidatesTable extends Component<Props> {
             <Table.Row>
               <Table.HeaderCell collapsing />
               <Table.HeaderCell>
-                Candidate
+                Candidate (#)
               </Table.HeaderCell>
               <Table.HeaderCell>
                 Votes
