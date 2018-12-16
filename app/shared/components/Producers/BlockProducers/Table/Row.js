@@ -97,9 +97,9 @@ class ProducersTableRow extends Component<Props> {
             color="teal"
             label={(
               <div className="label">
-                {votePercent}%
+                {votePercent}%&nbsp;
                 <Responsive as="span" minWidth={800}>
-                  - {voteFormatted}
+                   - {voteFormatted}
                 </Responsive>
               </div>
             )}

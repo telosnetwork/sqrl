@@ -72,7 +72,10 @@ class Proxies extends Component<Props> {
     const currentProxyReg = (proxies && proxies.length > 0) ? proxies.filter( (p)=> { return p.owner == settings.account;})[0] : null;
     
     return (proxies.length > 0)
-      ? [(
+      ? [(<Header floated="left">
+      Voting Proxies
+      </Header>),
+    (
         <Container floated="right" style={{ marginBottom: '50px' }}>
             <ProxiesButtonProxy
               accounts={accounts}
