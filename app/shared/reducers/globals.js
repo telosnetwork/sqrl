@@ -2,7 +2,8 @@ import * as types from '../actions/types';
 
 const initialState = {
   current: {},
-  contract: {}
+  contract: {},
+  currencyStats: {}
 };
 
 export default function globals(state = initialState, action) {
@@ -35,6 +36,7 @@ export default function globals(state = initialState, action) {
     }
     case types.GET_CURRENCYSTATS_SUCCESS: {
       return Object.assign({}, state, {
+        currencyStats: action.payload.results,
         contract: Object.assign({}, state.contract, {
           [action.payload.account]: Object.assign({}, state.contract[action.payload.account], {
             [action.payload.symbol]: action.payload.results[action.payload.symbol]

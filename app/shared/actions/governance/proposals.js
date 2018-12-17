@@ -3,45 +3,9 @@ import sortBy from 'lodash/sortBy';
 
 import * as types from '../types';
 import eos from '../helpers/eos';
+import { getLeaderBoards } from './arbitration';
 
-const defaultContract = 'eosio.work';
-
-export function claimProposal(proposal_id) {
-  return (dispatch: () => void, getState) => {
-    dispatch({
-      type: types.SYSTEM_GOVERNANCE_CLAIMPROPOSAL_PENDING
-    });
-    const { connection, settings } = getState();
-    const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: defaultContract,
-          name: 'claim',
-          authorization: [{
-            actor: account,
-            permission: 'active'
-          }],
-          data: {
-            proposal_id
-          }
-        }
-      ]
-    }, {
-      broadcast: connection.broadcast,
-      expireInSeconds: connection.expireInSeconds,
-      sign: connection.sign
-    }).then((tx) => {
-      return dispatch({
-        payload: { tx },
-        type: types.SYSTEM_GOVERNANCE_CLAIMPROPOSAL_SUCCESS
-      });
-    }).catch((err) => dispatch({
-      payload: { err },
-      type: types.SYSTEM_GOVERNANCE_CLAIMPROPOSAL_FAILURE
-    }));
-  };
-}
+const defaultContract = 'eosio.saving';
 
 export function createProposal(title, ipfs_location, cycles, amount, send_to) {
   return (dispatch: () => void, getState) => {
@@ -53,8 +17,21 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
     return eos(connection, true).transaction({
       actions: [
         {
+          account: 'eosio.token',
+          name: 'transfer',
+          authorization: [{
+            actor: account,
+            permission: 'active'
+          }],
+          data: {
+            from: account,
+            to:'eosio.saving',
+            quantity: '50.0000 ' + settings.blockchain.tokenSymbol,
+            memo: "WPS deposit ("+title+")"
+          }
+        },{
           account: defaultContract,
-          name: 'submission',
+          name: 'submit',
           authorization: [{
             actor: account,
             permission: 'active'
@@ -62,11 +39,10 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
           data: {
             proposer: account,
             title,
-            text: '',
             cycles,
             ipfs_location,
             amount,
-            send_to
+            receiver:send_to
           }
         }
       ]
@@ -86,7 +62,45 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
   };
 }
 
-export function getProposals(scope = 'eosio.work', previous = false) {
+export function actOnProposal(submission_id, actionName) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+    return eos(connection, true).transaction({
+      actions: [
+        {
+          account: defaultContract,
+          name: actionName,
+          authorization: [{
+            actor: account,
+            permission: 'active'
+          }],
+          data: {
+            sub_id: submission_id
+          }
+        }
+      ]
+    }, {
+      broadcast: connection.broadcast,
+      expireInSeconds: connection.expireInSeconds,
+      sign: connection.sign
+    }).then((tx) => {
+      dispatch(getProposals());
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_FAILURE
+    }));
+  };
+}
+
+export function getProposals(scope = 'eosio.trail', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_GET_PROPOSALS_PENDING
@@ -94,13 +108,13 @@ export function getProposals(scope = 'eosio.work', previous = false) {
     const { connection, settings } = getState();
     const query = {
       json: true,
-      code: defaultContract,
+      code: scope,
       scope,
       table: 'proposals',
       limit: 1000,
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].proposal_name;
+      query.lower_bound = previous[previous.length - 1].prop_id;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
@@ -116,44 +130,38 @@ export function getProposals(scope = 'eosio.work', previous = false) {
         return dispatch(getProposals(scope, rows));
       }
       dispatch(getVoteInfo(settings.account));
+      dispatch(getBallots());
+      dispatch(getProposalSubmissions());
       const data = rows
         .map((proposal) => {
           const {
-            id,
-            title,
-            ipfs_location,
-            text_hash,
-            cycles,
-            amount,
-            send_to,
-            fee,
-            proposer,
-            yes_count,
+            prop_id,
+            publisher,
+            info_url,
             no_count,
-            last_cycle_check,
-            last_cycle_status,
-            created,
-            outstanding
+            yes_count,
+            abstain_count,
+            unique_voters,
+            begin_time,
+            end_time,
+            cycle_count,
+            status
           } = proposal;
           return {
-            id,
-            title,
-            ipfs_location,
-            text_hash,
-            cycles,
-            amount,
-            send_to,
-            fee,
-            proposer,
-            yes_count,
+            prop_id,
+            publisher,
+            info_url,
             no_count,
-            last_cycle_check,
-            last_cycle_status,
-            created,
-            outstanding
+            yes_count,
+            abstain_count,
+            unique_voters,
+            begin_time,
+            end_time,
+            cycle_count,
+            status
           };
         });
-      const proposals = sortBy(data, 'id').reverse();
+      const proposals = sortBy(data, 'prop_id').reverse();
       return dispatch({
         type: types.SYSTEM_GOVERNANCE_GET_PROPOSALS_SUCCESS,
         payload: {
@@ -168,6 +176,133 @@ export function getProposals(scope = 'eosio.work', previous = false) {
   };
 }
 
+export function getBallots(scope = 'eosio.trail', previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_BALLOTS_PENDING
+    });
+    const { connection } = getState();
+    const query = {
+      json: true,
+      code: scope,
+      scope,
+      table: 'ballots',
+      limit: 1000,
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].ballot_id;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getBallots(scope, rows));
+      }
+      const data = rows
+        //.filter((ballot) => (ballot.table_id === 0 || ballot.table_id === 2)) // only ballots for proposals&arbs
+        .map((ballot) => {
+          const {
+            ballot_id,
+            table_id,
+            reference_id
+          } = ballot;
+          return {
+            ballot_id,
+            table_id,
+            reference_id
+          };
+        });
+      const ballots = sortBy(data, 'ballot_id').reverse();
+      return dispatch({
+        type: types.SYSTEM_GOVERNANCE_GET_BALLOTS_SUCCESS,
+        payload: {
+          ballots,
+          scope
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_BALLOTS_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function getProposalSubmissions(scope = 'eosio.saving', previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_SUBMISSIONS_PENDING
+    });
+    const { connection } = getState();
+    const query = {
+      json: true,
+      code: scope,
+      scope,
+      table: 'submissions',
+      limit: 1000,
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].ballot_id;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getProposalSubmissions(scope, rows));
+      }
+      const data = rows
+        .map((submission) => {
+          const {
+            id,
+            ballot_id,
+            proposer,
+            receiver,
+            title,
+            ipfs_location,
+            cycles,
+            amount,
+            fee
+          } = submission;
+          return {
+            id,
+            ballot_id,
+            proposer,
+            receiver,
+            title,
+            ipfs_location,
+            cycles,
+            amount,
+            fee
+          };
+        });
+      const submissions = sortBy(data, 'id').reverse();
+      return dispatch({
+        type: types.SYSTEM_GOVERNANCE_GET_SUBMISSIONS_SUCCESS,
+        payload: {
+          submissions,
+          scope
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_SUBMISSIONS_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
 export function getVoteInfo(account) {
   return (dispatch: () => void, getState) => {
     dispatch({
@@ -176,29 +311,24 @@ export function getVoteInfo(account) {
     const { connection } = getState();
     const query = {
       json: true,
-      code: 'trailservice',
+      code: 'eosio.trail',
       scope: account,
-      table: 'voters',
-      limit: 1000
+      table: 'votereceipts',
+      limit: 10000
     };
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
-      let { receipt_list } = rows[0];
-      const votes = receipt_list
+      const votes = rows
         .map((data) => {
           const {
-            vote_code,
-            vote_scope,
-            vote_key, // proposal id
-            direction, // vote 0=NO, 1=YES, 2=ABSTAIN
+            ballot_id,
+            directions,// vote 0=NO, 1=YES, 2=ABSTAIN
             weight,
             expiration
           } = data;
           return {
-            vote_code,
-            vote_scope,
-            vote_key,
-            direction,
+            ballot_id,
+            directions,// vote 0=NO, 1=YES, 2=ABSTAIN
             weight,
             expiration
           };
@@ -227,14 +357,15 @@ export function registerVoter(voter) {
     return eos(connection, true).transaction({
       actions: [
         {
-          account: 'trailservice',
+          account: 'eosio.trail',
           name: 'regvoter',
           authorization: [{
             actor: account,
             permission: 'active'
           }],
           data: {
-            voter
+            voter,
+            token_symbol:'0.0000 VOTE'
           }
         }
       ]
@@ -254,7 +385,45 @@ export function registerVoter(voter) {
   };
 }
 
-export function voteProposal(voter, proposal_id, direction) {
+export function mirrorCast(voter) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_MIRRORCAST_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+    return eos(connection, true).transaction({
+      actions: [
+        {
+          account: 'eosio.trail',
+          name: 'mirrorcast',
+          authorization: [{
+            actor: account,
+            permission: 'active'
+          }],
+          data: {
+            voter,
+            token_symbol: '0.0000 ' + settings.blockchain.tokenSymbol
+          }
+        }
+      ]
+    }, {
+      broadcast: connection.broadcast,
+      expireInSeconds: connection.expireInSeconds,
+      sign: connection.sign
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_GOVERNANCE_MIRRORCAST_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_GOVERNANCE_MIRRORCAST_FAILURE
+    }));
+  };
+}
+
+export function voteBallot(voter, ballot_id, direction) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_VOTE_PROPOSAL_PENDING
@@ -264,16 +433,16 @@ export function voteProposal(voter, proposal_id, direction) {
     return eos(connection, true).transaction({
       actions: [
         {
-          account: defaultContract,
-          name: 'vote',
+          account: 'eosio.trail',
+          name: 'castvote',
           authorization: [{
             actor: account,
             permission: 'active'
           }],
           data: {
-            proposal_id,
-            direction,
-            voter
+            voter,
+            ballot_id,
+            direction
           }
         }
       ]
@@ -284,6 +453,7 @@ export function voteProposal(voter, proposal_id, direction) {
     }).then((tx) => {
       setTimeout(() => {
         dispatch(getVoteInfo(account));
+        //dispatch(getLeaderBoards());
       }, 500);
       return dispatch({
         payload: { tx },
@@ -297,9 +467,10 @@ export function voteProposal(voter, proposal_id, direction) {
 }
 
 export default {
-  claimProposal,
+  actOnProposal,
   createProposal,
   getProposals,
+  mirrorCast,
   registerVoter,
-  voteProposal
+  voteBallot
 };

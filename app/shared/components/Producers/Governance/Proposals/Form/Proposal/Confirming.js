@@ -30,7 +30,14 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     actions.unlockWallet(password);
     system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR = null;
   }
-  openLink = (link) => shell.openExternal(link);
+  openLink = (link) => {
+    const { settings } = this.props;
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
+  }
   render() {
     const { 
       walletUnLockRequested 
@@ -67,7 +74,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Header.Content>
             <Header.Subheader>
               Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request.
+              and a new proposal must be created to replace this request. Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
             </Header.Subheader>
           </Header.Content>
         </Header>
@@ -117,7 +124,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {(lastError)
+        {(lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS')
           ? (
             <Message negative size="tiny">
               {(lastError.code)

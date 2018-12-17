@@ -19,6 +19,7 @@ class GovernanceProposalsProposalVote extends Component<Props> {
       proposal,
       pubkey,
       settings,
+      submission,
       system,
       t,
       vote
@@ -33,11 +34,11 @@ class GovernanceProposalsProposalVote extends Component<Props> {
           <Segment basic clearing>
             {(isExpired === true) ? 
             <p>
-            You can no longer vote <strong>{vote}</strong> on worker proposal <strong>{proposal.title} (# {proposal.id})</strong> because it is now expired.
+            You can no longer vote <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong> because it is now expired.
             </p>
             : 
             <p>
-            Please confirm your vote of <strong>{vote}</strong> on worker proposal <strong>{proposal.title} (# {proposal.id})</strong>. 
+            Please confirm your vote of <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong>. 
             {confirm}
             </p> 
             }

@@ -65,6 +65,7 @@ crashReporter.start({
 // main exceptions to electron-log
 app.on('uncaughtException', (error) => {
   log.error(error);
+  app.exit(1);
 });
 
 // main start

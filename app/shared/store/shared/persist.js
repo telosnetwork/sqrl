@@ -145,16 +145,15 @@ const migrations = {
     ) {
       newSettings.blockchains = [
         {
-          blockchain:'Telos StageNet', 
+          blockchain:'Telos Mainnet', 
           tokenSymbol:'TLOS',
-          node:'http://testnet.eos.miami:8888',
-          chainId: 'd2954ab81fa1e45f244feb4287ae4db46607989034d7adbfdcd94e8cd50eada2'
-        },
-        {
+          node:'https://api.eos.miami',
+          chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
+        },{
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
-          node:'https://api.eos.miami:17441',
-          chainId: '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
+          node:'https://testnet.eos.miami',
+          chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
         },
         {
           blockchain:'EOS Mainnet', 
@@ -167,24 +166,90 @@ const migrations = {
           tokenSymbol:'EOS',
           node:'http://jungle.cryptolions.io:18888',
           chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
-        },
-        {
-          blockchain:'EOSForce Testnet',
-          tokenSymbol:'EOS',
-          node:'https://w1.eosforce.cn',
-          chainId:'bd61ae3a031e8ef2f97ee3b0e62776d6d30d4833c8f7c1645c657b149151004b'
         }
       ];
     }
     return Object.assign({}, state, {
       settings: newSettings
     });
+  },
+  /*
+    8 - Chain Migration
+
+      - Support for multi blockchains/ipfs
+
+  */
+ 8: (state) => {
+    const {
+      settings,
+      wallet
+    } = state;
+    const newSettings = Object.assign({}, settings);
+
+    if (!newSettings.blockchain || !newSettings.blockchain.node) {
+      // The current blockchain
+      newSettings.blockchain = {};
+    }
+
+    if (
+      !newSettings.blockchains
+      || !newSettings.blockchains.length
+    ) {
+      // Support multiple chains
+      newSettings.blockchains = [
+        {
+          blockchain:'Telos Mainnet', 
+          tokenSymbol:'TLOS',
+          node:'https://api.eos.miami',
+          chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
+        },{
+          blockchain:'Telos Testnet', 
+          tokenSymbol:'TLOS',
+          node:'https://testnet.eos.miami',
+          chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
+        },
+        {
+          blockchain:'EOS Mainnet', 
+          tokenSymbol:'EOS',
+          node:'https://eos.greymass.com',
+          chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+        },
+        {
+          blockchain:'EOS Testnet',
+          tokenSymbol:'EOS',
+          node:'http://jungle.cryptolions.io:18888',
+          chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
+        }
+      ];
+    }
+    
+    newSettings.ipfsNode = 'ipfs.telos.miami';
+    if (!newSettings.ipfsPort) {
+      // default IPFS settings
+      newSettings.ipfsPort = '5002';
+      newSettings.ipfsProtocol = 'https';
+    }
+
+    // Create a copy of the existing wallet
+    const existingWallet = Object.assign({}, wallet);
+    // Replicate the wallet account and mode from settings onto the wallet
+    existingWallet.account = settings.account;
+    existingWallet.mode = settings.walletMode;
+    // Update this individual wallets version
+    existingWallet.version = 2;
+
+    return Object.assign({}, state, {
+      settings: newSettings,
+      wallet: existingWallet,
+      // Create the new wallets state and inject the first wallet
+      wallets: [existingWallet]
+    });
   }
 };
 
 const persistConfig = {
   key: 'Sqrl-config',
-  version: 7,
+  version: 8,
   migrate: createMigrate(migrations, { debug: true }),
   storage: createElectronStorage(),
   whitelist: [

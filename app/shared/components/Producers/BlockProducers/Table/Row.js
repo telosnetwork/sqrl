@@ -49,30 +49,6 @@ class ProducersTableRow extends Component<Props> {
           singleLine
           textAlign="center"
         >
-          {(hasInfo)
-            ? (
-              <Button
-                color="purple"
-                icon="magnify"
-                onClick={() => getProducerInfo(producer.owner)}
-                size="small"
-              />
-            )
-            : (
-              <Popup
-                content={t('producer_json_unavailable_content')}
-                header={t('producer_json_unavailable_header')}
-                hoverable
-                inverted
-                position="left center"
-                trigger={
-                  (isMainnet)
-                  ? <Button icon="magnify" size="small" />
-                  : false
-                }
-              />
-            )
-          }
           <Popup
             content={t('producer_vote_content')}
             header={t('producer_vote_header', { producer: producer.owner })}
@@ -121,9 +97,9 @@ class ProducersTableRow extends Component<Props> {
             color="teal"
             label={(
               <div className="label">
-                {votePercent}%
+                {votePercent}%&nbsp;
                 <Responsive as="span" minWidth={800}>
-                  - {voteFormatted}
+                   - {voteFormatted}
                 </Responsive>
               </div>
             )}

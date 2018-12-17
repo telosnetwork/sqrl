@@ -52,6 +52,7 @@ class ProxiesTable extends Component<Props> {
       actions,
       addProxy,
       amount,
+      blockExplorers,
       currentProxy,
       isProxying,
       isValidUser,
@@ -88,7 +89,9 @@ class ProxiesTable extends Component<Props> {
 
             return (
               <ProxiesTableRow
+                actions={actions}
                 addProxy={addProxy}
+                blockExplorers={blockExplorers}
                 key={proxy.owner}
                 isSelected={isSelected}
                 isValidUser={isValidUser}
@@ -117,7 +120,9 @@ class ProxiesTable extends Component<Props> {
 
                 return (
                   <ProxiesTableRow
+                    actions={actions}
                     addProxy={addProxy}
+                    blockExplorers={blockExplorers}
                     getProducerInfo={this.getProducerInfo}
                     key={proxy.owner}
                     isProxying={isProxying}

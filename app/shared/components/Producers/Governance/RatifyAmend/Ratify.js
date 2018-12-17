@@ -14,7 +14,7 @@ class GovernanceRatifyAmendRatify extends Component<Props> {
     const voter = settings.account;
     const vote = 1;
     const json = JSON.stringify({});
-    actions.voteProposal(scope, voter, proposal, vote, json);
+    actions.voteBallot(scope, voter, proposal, vote, json);
   }
   oppose = (proposal) => {
     const { actions, settings } = this.props;
@@ -22,7 +22,7 @@ class GovernanceRatifyAmendRatify extends Component<Props> {
     const voter = settings.account;
     const vote = 0;
     const json = JSON.stringify({});
-    actions.voteProposal(scope, voter, proposal, vote, json);
+    actions.voteBallot(scope, voter, proposal, vote, json);
   }
   unvote = (proposal) => {
     const { actions, settings } = this.props;

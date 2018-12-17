@@ -16,6 +16,7 @@ import Wallet from '../components/Wallet';
 import ModalConstitution from '../components/Global/Modal/Constitution';
 
 import * as AccountsActions from '../actions/accounts';
+import * as ArbitrationActions from '../actions/governance/arbitration';
 import * as BlockExplorersActions from '../actions/blockexplorers';
 import * as BuyRamBytesActions from '../actions/system/buyrambytes';
 import * as BuyRamActions from '../actions/system/buyram';
@@ -24,10 +25,12 @@ import * as ChainActions from '../actions/chain';
 import * as GlobalsActions from '../actions/globals';
 import * as ProducersActions from '../actions/producers';
 import * as ProposalsActions from '../actions/governance/proposals';
+import * as ProxyActions from '../actions/system/community/regproxyinfo';
 import * as SellRamActions from '../actions/system/sellram';
 import * as SettingsActions from '../actions/settings';
 import * as StakeActions from '../actions/stake';
 import * as TableActions from '../actions/table';
+import * as TFVotingActions from '../actions/governance/tfvoting';
 import * as TransactionActions from '../actions/transaction';
 import * as TransferActions from '../actions/transfer';
 import * as ValidateActions from '../actions/validate';
@@ -212,6 +215,7 @@ function mapStateToProps(state) {
   return {
     accounts: state.accounts,
     actionHistories: state.actions,
+    arbitration: state.arbitration,
     balances: state.balances,
     blockExplorers: state.blockexplorers,
     chain: state.chain,
@@ -223,6 +227,7 @@ function mapStateToProps(state) {
     settings: state.settings,
     system: state.system,
     tables: state.tables,
+    tfvoting: state.tfvoting,
     transaction: state.transaction,
     validate: state.validate,
     wallet: state.wallet
@@ -233,6 +238,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
       ...AccountsActions,
+      ...ArbitrationActions,
       ...BlockExplorersActions,
       ...BuyRamActions,
       ...BuyRamBytesActions,
@@ -241,11 +247,13 @@ function mapDispatchToProps(dispatch) {
       ...GlobalsActions,
       ...ProducersActions,
       ...ProposalsActions,
+      ...ProxyActions,
       ...SellRamActions,
       ...SettingsActions,
       ...StakeActions,
       ...SystemStateActions,
       ...TableActions,
+      ...TFVotingActions,
       ...TransactionActions,
       ...TransferActions,
       ...ValidateActions,

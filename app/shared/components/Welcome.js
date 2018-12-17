@@ -25,7 +25,14 @@ class Welcome extends Component<Props> {
     stageSelect: false
   };
 
-  openLink = (url) => shell.openExternal(url);
+  openLink = (link) => {
+    const { settings } = this.props;
+    if (link.match(/^\/(ip(f|n)s)\/((\w+).*)/)) {
+      shell.openExternal(settings.ipfsProtocol + "://" + settings.ipfsNode + "/" + link);
+    } else {
+      shell.openExternal(link);
+    }
+  }
 
   onStageSelect = (stage) => {
     this.setState({ stageSelect: stage });

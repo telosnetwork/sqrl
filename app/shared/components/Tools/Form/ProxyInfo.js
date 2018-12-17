@@ -165,8 +165,8 @@ class ToolsFormProxyInfo extends Component<Props> {
 
     const displayProxyInfoForm =
       isProxy &&
-      tables.regproxyinfo &&
-      findIndex(tables.regproxyinfo.regproxyinfo.proxies.rows, { owner: account.account_name }) === -1;
+      tables.tlsproxyinfo &&
+      findIndex(tables.tlsproxyinfo.tlsproxyinfo.proxies.rows, { owner: account.account_name }) === -1;
 
     return (
       (displayProxyInfoForm)

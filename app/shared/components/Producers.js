@@ -5,8 +5,10 @@ import { translate } from 'react-i18next';
 
 import BlockProducers from './Producers/BlockProducers';
 import ProducersProxy from './Producers/Proxy';
+import GovernanceArbitration from './Producers/Arbitration';
 import GovernanceProposals from './Producers/Proposals';
 import GovernanceRatifyAmend from './Producers/RatifyAmend';
+import GovernanceTFVoting from './Producers/TFVoting';
 import ProducersVotingPreview from './Producers/BlockProducers/Modal/Preview';
 import Proxies from './Producers/Proxies';
 import ProducersSelector from './Producers/BlockProducers/Selector';
@@ -22,6 +24,10 @@ type Props = {
     voteproducers: () => void
   },
   accounts: {},
+  arbitration: {
+    arbitrators: {},
+    leaderboards: {}
+  },
   balances: {},
   blockExplorers: {},
   globals: {},
@@ -33,6 +39,11 @@ type Props = {
   proposals: {
     list: {},
     votes: {}
+  },
+  tfvoting: {
+    tfvtbalances: {},
+    tfvtboardmembers: {},
+    tfvtnominees: {}
   },
   settings: {},
   system: {},
@@ -47,7 +58,7 @@ class Producers extends Component<Props> {
   constructor(props) {
     super(props);
     this.state = {
-      amount: 40,
+      amount: 50,
       lastError: false,
       lastTransaction: {},
       previewing: false,
@@ -108,7 +119,7 @@ class Producers extends Component<Props> {
           });
         } else {
           // otherwise notify users that they must stake before allowed voting
-          // and suggest several BPs as defaults
+          // and suggest several BPs as defaults (if they're registered)
           let suggestedBPs = [
             '21zephyr1111',
             'amplifiedtls',
@@ -117,16 +128,13 @@ class Producers extends Component<Props> {
             'caleosblocks',
             'eosbarcelona',
             'eosiodetroit',
-            'eosiomiamibp',
             'goodblocktls',
             'infinitybloc',
             'kainosblkpro',
             'telosdacnode',
             'telosmiamibp',
             'tlsvancouver'];
-          this.setState({
-            selected:suggestedBPs
-          });
+          //this.setState({selected:suggestedBPs // TODO: .filter((p)=> {return p.active;})});
         }
       }
     }
@@ -171,6 +179,24 @@ class Producers extends Component<Props> {
     });
   }
 
+  addArbCandidate = () => {
+    this.setState({
+      addArbCandidate: true
+    });
+  }
+
+  removeArbCandidate = () => {
+    this.setState({
+      removeArbCandidate: true
+    });
+  }
+
+  onCloseArbCandidate = () => {
+    this.setState({
+      addArbCandidate: false,
+      removeArbCandidate: false
+    });
+  }
 
   addProducer = (producer) => {
     const producers = [...this.state.selected];
@@ -315,6 +341,7 @@ class Producers extends Component<Props> {
             producers={producers}
             removeProducer={this.removeProducer.bind(this)}
             selected={selected}
+            settings={settings}
             submitProducerVotes={() => this.previewProducerVotes(true)}
             submitting={submitting}
           />
@@ -336,6 +363,7 @@ class Producers extends Component<Props> {
             <Grid.Column width={10}>
               <Tab
                 panes={
+                  (settings.blockchain.tokenSymbol==='TLOS') ?
                   [
                     {
                       menuItem: t('producers_block_producers'),
@@ -381,7 +409,31 @@ class Producers extends Component<Props> {
                       }
                     },
                     {
-                      menuItem: 'Ratify/Amend',
+                      menuItem: 'Arbitration',
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <GovernanceArbitration
+                              {...this.props}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    },
+                    {
+                      menuItem: 'TF Voting',
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <GovernanceTFVoting
+                              {...this.props}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    },
+                    {
+                      menuItem: 'Docs',
                       render: () => {
                         return (
                           <Tab.Pane>
@@ -392,7 +444,21 @@ class Producers extends Component<Props> {
                         );
                       }
                     }
-                  ]
+                  ] : [{
+                    menuItem: t('producers_block_producers'),
+                    render: () => {
+                      return (
+                        <Tab.Pane>
+                          <BlockProducers
+                            {...this.props}
+                            addProducer={this.addProducer.bind(this)}
+                            removeProducer={this.removeProducer.bind(this)}
+                            selected={selected}
+                          />
+                        </Tab.Pane>
+                      );
+                    }
+                  }]
                 }
               />
             </Grid.Column>

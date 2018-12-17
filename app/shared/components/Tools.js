@@ -7,6 +7,7 @@ import WelcomeConnectionContainer from '../containers/Welcome/Connection';
 import GlobalSettingsLanguage from './Global/Settings/Language';
 import GlobalSettingsBlockExplorer from './Global/Settings/BlockExplorer';
 import GlobalSettingsIdleTimeout from './Global/Settings/IdleTimeout';
+import GlobalSettingsIPFSNode from './Global/Settings/IPFSNode';
 import GlobalSettingsSkipLinkModal from './Global/Settings/SkipLinkModal';
 import GlobalSettingsResourceDisplayFormat from './Global/Settings/ResourceDisplayFormat';
 import GlobalSettingsFilterSpamTransfers from './Global/Settings/FilterSpamTransfers';
@@ -56,6 +57,13 @@ class Tools extends Component<Props> {
               ) : false
             }
             <Form.Field>
+              <label>Default IPFS Node:</label>
+              <GlobalSettingsIPFSNode
+                actions={actions}
+                settings={settings}
+              />
+            </Form.Field>
+            <Form.Field>
               <label>{t('tools_change_language2')}</label>
               <GlobalSettingsLanguage
                 actions={actions}
@@ -84,7 +92,7 @@ class Tools extends Component<Props> {
               <label>{t('tools_change_resource_display_format')}</label>
               <GlobalSettingsResourceDisplayFormat
                 actions={actions}
-                defaultValue={settings.displayResourcesAvailable || false}
+                defaultValue={settings.displayResourcesAvailable}
                 selection
               />
             </Form.Field>
