@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Button, Popup, Message, Table, Header } from 'semantic-ui-react';
-import { isEqual } from 'lodash';
+import { find, isEqual, trim } from 'lodash';
 const { shell } = require('electron');
 
 import DangerLink from '../../../../Global/Modal/DangerLink';
@@ -82,28 +82,27 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
       end_time,
       status
     } = leaderboard;
-    let ballot = ballots.filter((b) => b.reference_id === board_id)[0]; 
+    let ballot = ballots.find(b => b.reference_id === board_id); 
     if (!ballot)
       ballot = {};
     
-    let vote = votes.filter((v) => v.ballot_id === ballot.ballot_id)[0]; 
+    let vote = votes.find(v => v.ballot_id === ballot.ballot_id); 
     if (!vote)
       vote = {};
 
     let votedCandidate = {};
     if (vote.directions) {
-      votedCandidate = vote.directions.filter((d) => d == candidate.index)[0]; 
+      votedCandidate = vote.directions.find(d => d === candidate.index);
     }
-    if (!votedCandidate)
+    if (!(votedCandidate >=0))
       votedCandidate = {};
     
     let boardMember = {};
     if (tfvoting && tfvoting.tfvtboardmembers) {
-      boardMember = tfvoting.tfvtboardmembers.filter((a) => a.member === settings.account)[0]; 
+      boardMember = tfvoting.tfvtboardmembers.find(a => a.member === settings.account); 
       if (!boardMember)
       boardMember = {};
     }
-
     const isBoardMember = boardMember.member && boardMember.member.length > 0;
     const voted = !!(vote.ballot_id >= 0 && candidate.index===votedCandidate);
     const isExpired = (end_time * 1000) < Date.now();
@@ -164,7 +163,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
                 icon='checkmark'
                 disabled={voted || isExpired || isTooEarly || settings.account == candidate.member}
                 onClick={() => this.approve(ballot.ballot_id)}
-                loading={system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING'}
+                loading={system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_MIRRORCAST_PENDING === 'PENDING' || system.GOVERNANCE_REGVOTER_PENDING === 'PENDING'}
                 size="small"
               />
             )}
@@ -175,7 +174,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
         >
           <Header size="small">
             <span styles={{ fontFamily: '"Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace' }}>
-              {candidate.member}
+              {candidate.member} {candidate.index}
             </span>
           </Header>
         </Table.Cell>

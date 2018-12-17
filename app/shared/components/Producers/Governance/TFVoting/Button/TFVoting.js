@@ -47,7 +47,7 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
     let candidate = {};
     let candidateLeaderboard = {};
     leaderboards.forEach((leaderboard) => {
-      if (leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
+      if (leaderboard.voting_symbol.indexOf('TFVT') != -1 && leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
       {
         candidate = leaderboard.candidates.filter ((c) => c.member === settings.account)[0];
       }
@@ -61,10 +61,17 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
     let nominee = {};
     if (tfvoting && tfvoting.tfvtnominees) {
       nominee = tfvoting.tfvtnominees.filter((a) => a.nominee === settings.account)[0]; 
-      if (!nominee)
-      nominee = {};
+      if (!nominee) nominee = {};
     }
     const isNominee = nominee.nominee && nominee.nominee.length > 0;
+
+    //tfvoting.tfvtbalances
+    let tfvtHolder = {};
+    if (tfvtHolder && tfvoting.tfvtbalances) {
+      tfvtHolder = tfvoting.tfvtbalances.filter((a) => a.owner === settings.account)[0]; 
+      if (!tfvtHolder) tfvtHolder = {};
+    }
+    const isTfvtHolder = tfvtHolder.tokens && tfvtHolder.tokens.split(' ')[0] > 0;
 
     let boardMember = {};
     if (tfvoting && tfvoting.tfvtboardmembers) {
@@ -76,10 +83,12 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
 
     let isExpired = false;
     let isTooEarly = false;
+    let isStarted = false;
 
     if (candidateLeaderboard.begin_time && candidateLeaderboard.end_time) {
       isExpired = (candidateLeaderboard.end_time * 1000) < Date.now();
       isTooEarly = (candidateLeaderboard.begin_time * 1000) > Date.now();
+      isStarted = (candidateLeaderboard.begin_time * 1000) <= Date.now();
     }
     return ( 
       <Grid container>
@@ -181,6 +190,7 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
         </Grid.Row>
       :''}
 
+      {(!isStarted && isTfvtHolder) ?
       <Grid.Row><Grid.Column>
         <GlobalTransactionModal
             actionName="GOVERNANCE_NOMINATEBOARDMEMBER"
@@ -214,8 +224,9 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
             system={system}
             title="Nominate"
             />
-            </Grid.Column>
+          </Grid.Column>
       </Grid.Row>
+      :''}
 
     </Grid>
 
