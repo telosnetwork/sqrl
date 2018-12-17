@@ -23,6 +23,7 @@ import ToolsStateChain from '../components/Tools/State/Chain';
 import ToolsStateGlobals from '../components/Tools/State/Globals';
 import ToolsStateWallet from '../components/Tools/State/Wallet';
 import ToolsPermissions from '../components/Tools/Permissions';
+import ToolsPermissionsApp from '../components/Tools/PermissionsApp';
 import ToolsProxy from '../components/Tools/Proxy';
 import ToolsWallets from '../components/Tools/Wallets';
 import ToolsReset from '../components/Tools/Reset';
@@ -45,6 +46,8 @@ import * as UnregProxyActions from '../actions/system/unregproxy';
 import * as WalletActions from '../actions/wallet';
 import * as WalletsActions from '../actions/wallets';
 import * as ValidateActions from '../actions/validate';
+import * as WAPIIAuthorizedApps from '../../wallet-integration/actions/authorizedApps';
+import * as WAPIIPermissions from '../../wallet-integration/actions/permissions';
 
 const paneMapping = [
   {
@@ -91,6 +94,11 @@ const paneMapping = [
     element: ToolsPermissions,
     modes: ['hot', 'watch'],
     name: 'permissions',
+  },
+  {
+    element: ToolsPermissionsApp,
+    modes: ['hot', 'watch'],
+    name: 'permissions_app',
   },
   {
     element: ContractInterface,
@@ -229,6 +237,7 @@ function mapStateToProps(state) {
     system: state.system,
     transaction: state.transaction,
     validate: state.validate,
+    wapii: state.wapii,
     wallet: state.wallet,
     wallets: state.wallets,
   };
@@ -255,6 +264,8 @@ function mapDispatchToProps(dispatch) {
       ...WalletActions,
       ...WalletsActions,
       ...ValidateActions,
+      ...WAPIIPermissions,
+      ...WAPIIAuthorizedApps
     }, dispatch)
   };
 }

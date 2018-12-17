@@ -10,6 +10,7 @@ import { Segment } from 'semantic-ui-react';
 import About from '../components/About';
 import Producers from '../components/Producers';
 import TabMenu from '../components/TabMenu';
+import APIIntegration from '../../wallet-integration/components/api.integration';
 import Tools from './Tools';
 import Wallet from '../components/Wallet';
 import ModalConstitution from '../components/Global/Modal/Constitution';
@@ -196,6 +197,7 @@ class BasicVoterContainer extends Component<Props> {
         >
           {activeTab}
         </Segment>
+        <APIIntegration actions={actions}/>
         <ModalConstitution
           actions={actions}
           isUser={(keys.account)}
