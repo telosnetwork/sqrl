@@ -101,6 +101,24 @@ class ContractInterfaceTabTables extends Component<Props> {
       }
     }
 
+    if (rows && rows.length && fields && fields.length) {
+      const fieldsName = fields.map((field) => field.name);
+
+      rows = rows.map(row => {
+        return fieldsName.reduce((currentRow, col) => {
+          currentRow[col] = (typeof row[col] === 'string' || typeof row[col] === 'number' || typeof row[col] === 'boolean') ? row[col] : JSON.stringify(row[col]);
+          return currentRow;
+        }, {});
+      });
+    }
+
+    // This can be used to make the horizontal scrollbar appear on top instead of bottom = helpful for big tables
+    // const scrollStyle = {overflowX: 'auto', padding: '0em', transform:'scaleX(-1) rotate(180deg)' };
+    // const rotateStyle = {transform:'scaleX(-1) rotate(180deg)'};
+
+    const scrollStyle = {overflowX: 'auto', padding: '0em'};
+    const rotateStyle = {};
+
     return (
       <React.Fragment>
         <ContractInterfaceSelectorTable
@@ -120,31 +138,30 @@ class ContractInterfaceTabTables extends Component<Props> {
             >
               {(rows && rows.length > 0)
                 ? (
-                  <Table>
-                    <Table.Header>
-                      <Table.Row>
-                        {fields.map((field) => (
-                          <Table.HeaderCell>
-                            {field.name}
-                          </Table.HeaderCell>
-                        ))}
-                      </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                      {rows.map((row) => (
+                  <Segment basic style={scrollStyle}>
+                    <Table style={rotateStyle}>
+                      <Table.Header>
                         <Table.Row>
-                          {fields.map((field) => (
-                            <Table.Cell>
-                              {(row[field.name] instanceof Object)
-                                ? JSON.stringify(row[field.name])
-                                : row[field.name]
-                              }
-                            </Table.Cell>
+                          {fields.map((field, index) => (
+                            <Table.HeaderCell key={'thc-'+index}>
+                              {field.name}
+                            </Table.HeaderCell>
                           ))}
                         </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table>
+                      </Table.Header>
+                      <Table.Body>
+                        {rows.map((row, index) => (
+                          <Table.Row key={'tr-'+index}>
+                            {fields.map((field, idx) => (
+                              <Table.Cell key={'tc-'+index+'-'+idx}>
+                                {row[field.name]}
+                              </Table.Cell>
+                            ))}
+                          </Table.Row>
+                        ))}
+                      </Table.Body>
+                    </Table>
+                  </Segment>
                 )
                 : (
                   <Segment color="orange" secondary stacked>

@@ -1,0 +1,98 @@
+{
+    "wapii_prompt_message_identity": "Please review the app request and choose an account if you want to approve the link.",
+    "wapii_prompt_header_identity": "Allow app to link ?",
+    "wapii_prompt_header_sign": "Approve sign request ?",
+    "wapii_prompt_header_arbitrary_signature": "Approve arbitrary signature ?",
+    "wapii_prompt_header_unlock": "Approve access ?",
+    "wapii_prompt_message_unlock": "Enter the local wallet password to unlock.",
+    "wapii_prompt_header_pair": "App request to link",
+    "wapii_prompt_ok_unlock": "Allow",
+    "wapii_prompt_ok": "Approve",
+    "wapii_sign_description":["The app ", " requests to sign a transaction which will: "],
+    "wapii_sign_breakdown_header":"Transaction breakdown: ",
+
+    "wapii_sign_summary":{
+        "eosio":{
+            "newaccount":       "create a new account",
+            "buyrambytes":      "buy RAM",
+            "buyram":           "buy RAM",
+            "sellram":          "sell RAM",
+            "delegatebw":       "stake tokens",
+            "undelegatebw":     "unstake tokens",
+            "regproducer":      "register producer",
+            "unregprod":        "unregister producer",
+            "voteproducer":     "vote for producers / set proxy",
+            "token":{
+                "transfer":     "transfer tokens"
+            }
+        }
+    },
+
+    "wapii_sign_breakdown_unknown":{
+        "params":   ["type", "code", "data"],
+        "sentence": ["From contract ", 1, ", perform action ", 0, 2, ", using authorization ", -1]
+    },
+    "wapii_sign_breakdown":{
+        "eosio":{
+            "newaccount": {
+                "params":   ["creator", "name", "owner", "active"],
+                "sentence": [0, " will create account ", 1, " with owner permission ", 2, " and active permission ", 3, ", using authorization ", -1]
+            },
+            "buyrambytes": {
+                "params":   ["payer", "bytes", "receiver"],
+                "sentence": [0, " will buy ", 1, " bytes of RAM for ", 2, ", using authorization ", -1]
+            },
+            "buyram": {
+                "params":   ["payer", "quant", "receiver"],
+                "sentence": [0, " will buy ", 1, " worth of RAM for ", 2, ", using authorization ", -1]
+            },
+            "sellram": {
+                "params":   ["account", "bytes"],
+                "sentence": [0, " will sell ", 1, " bytes of RAM", ", using authorization ", -1]
+            },
+            "delegatebw": {
+                "params":   ["from", "stake_net_quantity", "stake_cpu_quantity", "transfer", "receiver"],
+                "sentence": [
+                    0, " will stake ", 1, " worth of NET and ", 2, " worth of CPU", 
+                    {"param": 3, "condition": "transfer1", "value":[" and tranfer stake ownership to ", 4]}, 
+                    {"param": 3, "condition": "transfer0", "value":[" to ", 4, ", but keep ownership of stake"]}, 
+                    ", using authorization ", -1
+                ]
+            },
+            "undelegatebw": {
+                "params":   ["from", "unstake_net_quantity", "unstake_cpu_quantity", "receiver"],
+                "sentence": [0, " will unstake ", 1, " worth of NET and ", 2, " worth of CPU ", {"param": 3, "condition":"differentReceiver", "value":["to ", 3]}, ", using authorization ", -1]
+            },
+            "regproducer": {
+                "params":   ["producer", "producer_key", "url", "location"],
+                "sentence": ["Register producer ", 0, " with public key ", 1, " and url '", 2, "' (location = ", 3, ")", ", using authorization ", -1]
+            },
+            "unregprod": {
+                "params":   ["producer"],
+                "sentence": ["Unregister producer ", 0, ", using authorization ", -1]
+            },
+            "voteproducer": {
+                "params":   ["voter", "proxy", "producers"],
+                "sentence": [
+                    {"condition":"reset", "value":[0, " will unset any proxy and remove its votes"]},
+                    {"condition":"setProxy", "value":[0, " will change its proxy to ", 1]},
+                    {"condition":"voteProds", "value":[0, " will cast a vote for the following producers : ", 2]}, 
+                    ", using authorization ", -1
+                ]
+            },
+            "token":{
+                "transfer": {
+                    "params":   ["quantity", "from", "to", "memo"],
+                    "sentence": ["Transfer ", 0, " from ", 1, " to ", 2, " with memo '", 3, "'", ", using authorization ", -1]
+                }
+            }
+        }
+    },
+
+    "wapii_sign_chain":["On blockchain", "via endpoint", "with Chain ID", ""],
+    "wapii_sign_reqid":"*Request identifier:",
+    "wapii_json_details":"Details :",
+
+    "cancel": "Cancel",
+    "cancel_all":"Cancell all"
+}

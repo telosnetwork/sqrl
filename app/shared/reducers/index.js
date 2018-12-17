@@ -24,6 +24,7 @@ import transaction from './transaction';
 import validate from './validate';
 import wallet from './wallet';
 import wallets from './wallets';
+import wapii from '../../wallet-integration/wapii.reducer';
 
 const rootReducer = combineReducers({
   accounts,
@@ -48,7 +49,8 @@ const rootReducer = combineReducers({
   transaction,
   validate,
   wallet,
-  wallets
+  wallets,
+  wapii
 });
 
 export default rootReducer;
