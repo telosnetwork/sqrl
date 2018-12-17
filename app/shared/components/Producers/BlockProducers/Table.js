@@ -60,6 +60,7 @@ class ProducersTable extends Component<Props> {
     const activatedStake = (current.total_activated_stake)
       ? parseInt(current.total_activated_stake / 10000, 10)
       : 0;
+
     const activatedStakePercent = parseFloat((activatedStake / 1000000000) * 100, 10).toFixed(2);
     const totalVoteWeight = (current.total_producer_vote_weight > 0)
       ? current.total_producer_vote_weight

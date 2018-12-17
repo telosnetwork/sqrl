@@ -1,12 +1,12 @@
 // @flow
 import React, { Component } from 'react';
 import { I18n } from 'react-i18next';
-import { List, Message } from 'semantic-ui-react';
+import { Icon, List, Message } from 'semantic-ui-react';
 
 export default class ProducersSelectorItemEmpty extends Component<Props> {
   render() {
     const {
-      modified,
+      modified
     } = this.props;
     return (
       <I18n ns="producers">

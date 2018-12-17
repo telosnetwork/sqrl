@@ -196,7 +196,11 @@ class ToolsContainer extends Component<Props> {
       settings,
       t
     } = this.props;
-    const panes = this.getPanes();
+    let panes = {};
+    if (settings.blockchain.tokenSymbol === 'TLOS')
+      panes = this.getPanes().filter((p)=> {return p.menuItem != 'Register Voting Proxy'});
+    else 
+      panes = this.getPanes();
     return (
       <Tab
         menu={{

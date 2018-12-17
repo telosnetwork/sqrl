@@ -10,18 +10,18 @@ export function getBlockExplorers() {
     });
     const rows = [
       {
-        name: 'telostracker.io',
-        patterns: {
-          account: 'https://telostracker.io/account/{account}',
-          txid: 'https://telostracker.io/trx/{txid}',
-          tokenSymbol: 'TLOS'
-        }
-      },
-      {
         name: 'telosfoundation.io',
         patterns: {
           account: 'http://monitor.telosfoundation.io/account/{account}',
           txid: 'http://monitor.telosfoundation.io/transaction/{txid}',
+          tokenSymbol: 'TLOS'
+        }
+      },
+      {
+        name: 'telostracker.io',
+        patterns: {
+          account: 'https://telostracker.io/account/{account}',
+          txid: 'https://telostracker.io/trx/{txid}',
           tokenSymbol: 'TLOS'
         }
       },

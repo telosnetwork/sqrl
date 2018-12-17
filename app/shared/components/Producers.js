@@ -128,16 +128,13 @@ class Producers extends Component<Props> {
             'caleosblocks',
             'eosbarcelona',
             'eosiodetroit',
-            'eosiomiamibp',
             'goodblocktls',
             'infinitybloc',
             'kainosblkpro',
             'telosdacnode',
             'telosmiamibp',
             'tlsvancouver'];
-          this.setState({
-            selected:suggestedBPs // TODO: .filter((p)=> {return p.active;})
-          });
+          //this.setState({selected:suggestedBPs // TODO: .filter((p)=> {return p.active;})});
         }
       }
     }
@@ -344,6 +341,7 @@ class Producers extends Component<Props> {
             producers={producers}
             removeProducer={this.removeProducer.bind(this)}
             selected={selected}
+            settings={settings}
             submitProducerVotes={() => this.previewProducerVotes(true)}
             submitting={submitting}
           />
@@ -365,6 +363,7 @@ class Producers extends Component<Props> {
             <Grid.Column width={10}>
               <Tab
                 panes={
+                  (settings.blockchain.tokenSymbol==='TLOS') ?
                   [
                     {
                       menuItem: t('producers_block_producers'),
@@ -445,7 +444,21 @@ class Producers extends Component<Props> {
                         );
                       }
                     }
-                  ]
+                  ] : [{
+                    menuItem: t('producers_block_producers'),
+                    render: () => {
+                      return (
+                        <Tab.Pane>
+                          <BlockProducers
+                            {...this.props}
+                            addProducer={this.addProducer.bind(this)}
+                            removeProducer={this.removeProducer.bind(this)}
+                            selected={selected}
+                          />
+                        </Tab.Pane>
+                      );
+                    }
+                  }]
                 }
               />
             </Grid.Column>
