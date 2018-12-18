@@ -135,7 +135,12 @@ class APIIntegration extends Component<Props> {
     for(let i = 0; i < props.wallets.length; i++){
       let account = props.accounts[props.wallets[i].account];
       if (props.settings.walletMode === 'hot' && !account) {
-        account = await eos(props.connection).getAccount(props.wallets[i].account);
+        try{
+          account = await eos(props.connection).getAccount(props.wallets[i].account);
+        }catch(err){
+          console.error(err);
+          return accs;
+        }
       }
       if(account){
         for(let j = 0; j < account.permissions.length; j++){

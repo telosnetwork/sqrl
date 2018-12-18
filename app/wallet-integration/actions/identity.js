@@ -23,6 +23,7 @@ export function identityFromPermissions(origin, formatForResult = true){
                 identity = identity.asOnlyRequiredFields(identityRequirements);
             }
             identity.accounts = APIUtils.getAccounts(getState().wapii.accounts, possibleId.accounts).map(x => formatForResult ? APIUtils.plugin.returnableAccount(x) : x);
+            if(identity.accounts.length == 0) return null;
             return identity;
         }
         return null;
