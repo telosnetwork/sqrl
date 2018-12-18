@@ -21,7 +21,12 @@ export default class APIUtils{
     }
 
     static getAccounts(allAccounts, toGet){
-        return toGet.map(unique => allAccounts.find(x => this.uniqueAccount(x) === unique));
+        const result = [];
+        toGet.forEach(unique => {
+            const acc = allAccounts.find(x => this.uniqueAccount(x) === unique);
+            if(acc) result.push(acc);
+        });
+        return result;
     }
 
     static uniqueAccount(acc){
