@@ -98,8 +98,8 @@ export default class MenuBuilder {
         { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl'); } },
         { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/issues'); } },
         { label: 'Releases (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/releases'); } },
-        { type: 'separator' },
-        { label: 'Check for Updates', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
+        //{ type: 'separator' },
+        //{ label: 'Check for Updates', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
       ]
     };
 
@@ -170,8 +170,8 @@ export default class MenuBuilder {
         { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl'); } },
         { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/issues'); } },
         { label: 'Releases (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/releases'); } },
-        { type: 'separator' },
-        { label: 'Check Updates...', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
+        //{ type: 'separator' },
+        //{ label: 'Check Updates...', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
       ]
     }];
 

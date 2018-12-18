@@ -31,6 +31,7 @@ class BlockProducers extends Component<Props> {
   tick() {
     const {
       actions,
+      settings,
       validate
     } = this.props;
     const {
@@ -40,7 +41,7 @@ class BlockProducers extends Component<Props> {
     } = actions;
     if (validate.NODE) {
       getProducers();
-      getProducersInfo();
+      if (settings.blockchain.tokenSymbol === 'EOS') getProducersInfo();
       getProposals();
     }
   }
