@@ -18,17 +18,20 @@ class GlobalSettingsIPFSNode extends Component<Props> {
 
     return (
       [(<GlobalFormFieldGeneric
+        key="ipfsNode"
         name="ipfsNode"
         onChange={this.onChange}
         value={settings.ipfsNode}
       />),
         (<GlobalFormFieldGeneric
+          key="ipfsPort"
           label="IPFS Port:"
           name="ipfsPort"
           onChange={this.onChange}
           value={settings.ipfsPort}
         />),
         (<GlobalFormFieldGeneric
+          key="ipfsProtocol"
           label="IPFS Protocol:"
           name="ipfsProtocol"
           onChange={this.onChange}

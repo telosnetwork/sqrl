@@ -107,7 +107,8 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
     const voted = !!(vote.ballot_id >= 0 && candidate.index===votedCandidate);
     const isExpired = (end_time * 1000) < Date.now();
     const isTooEarly = (begin_time * 1000) > Date.now();
-    
+    const isOpenElection = (tfvoting.config && board_id == tfvoting.config.open_election_id);
+
     let lastError = '';
     if (system.GOVERNANCE_VOTE_PROPOSAL === 'FAILURE') {
       lastError = system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR;
@@ -153,7 +154,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
           />
 
           <Popup
-            content={"If you would like to vote for this nominiee, click here."}
+            content={"If you would like to vote for this nominee, click here."}
             header={"Vote for Nominee"}
             hoverable
             position="right center"
@@ -161,7 +162,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
               <Button
                 color={isSelected ? 'green' : 'grey'}
                 icon='checkmark'
-                disabled={voted || isExpired || isTooEarly || settings.account == candidate.member}
+                disabled={voted || isExpired || isTooEarly || settings.account == candidate.member || !isOpenElection}
                 onClick={() => this.approve(ballot.ballot_id)}
                 loading={system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_MIRRORCAST_PENDING === 'PENDING' || system.GOVERNANCE_REGVOTER_PENDING === 'PENDING'}
                 size="small"
@@ -174,7 +175,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
         >
           <Header size="small">
             <span styles={{ fontFamily: '"Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace' }}>
-              {candidate.member} {candidate.index}
+              {candidate.member}
             </span>
           </Header>
         </Table.Cell>

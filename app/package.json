@@ -1,7 +1,7 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "",
   "main": "./main.prod.js",
   "author": {
@@ -15,6 +15,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ipfs-api": "^25.0.0"
+    "eos-rc-parser": "^1.0.4",
+    "eosjs2": "^1.0.0",
+    "ipfs-api": "^25.0.0",
+    "scrypt-async": "^2.0.1",
+    "socket.io": "^2.2.0"
   }
 }

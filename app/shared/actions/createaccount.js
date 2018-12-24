@@ -68,48 +68,42 @@ export function createAccount(
   };
 }
 
-export function createFreeAccount(
-  account_name,
-  owner_key,
-  active_key
-  ) {
+export function createFreeAccount(account_name, owner_key, active_key, macaddresses) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_CREATEACCOUNT_PENDING
     });
-    const { connection, settings } = getState();
-    const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'telos.free',
-          name: 'create',
-          authorization: [{
-            actor: account,
-            permission: 'active'
-          }],
-          data: {
-            account_creator: 'freesqlracct',
-            account_name,
-            owner_key,
-            active_key,
-            key_prefix: 'EOS'
-          }
-        }
-      ]
-    }, {
-      broadcast: connection.broadcast,
-      expireInSeconds: connection.expireInSeconds,
-      sign: connection.sign
-    }).then((tx) => {
-      return dispatch({
-        payload: { tx },
-        type: types.SYSTEM_CREATEACCOUNT_SUCCESS
-      });
+    console.log('mac addresses:',macaddresses)
+    return fetch('https://api.eos.miami:1460', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: new URLSearchParams({
+        account_name: account_name,
+        owner_key: owner_key,
+        active_key: active_key,
+        identifiers: macaddresses
+      })
+    }).then(response => response.json()).then((response) => {
+      if (response.code == 1) {
+        return dispatch({
+          payload: { response },
+          type: types.SYSTEM_CREATEACCOUNT_SUCCESS
+        });
+      } else if (response.code == 0) {
+        const message = response && response.message && response.message.error 
+          && response.message.error.details[0] ? response.message.error.details[0] : 
+          response && response.message ? response.message : 'An undefined exception occurred';
+        return dispatch({
+          payload: { err: message },
+          type: types.SYSTEM_CREATEACCOUNT_FAILURE
+        });
+      }
     }).catch((err) => dispatch({
       payload: { err },
       type: types.SYSTEM_CREATEACCOUNT_FAILURE
-    }));
+    }));    
   };
 }
 

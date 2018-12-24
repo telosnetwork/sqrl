@@ -76,6 +76,11 @@ const paneMapping = [
     name: 'customtokens',
   },
   {
+    element: ToolsPermissionsApp,
+    modes: ['hot', 'watch'],
+    name: 'permissions_app',
+  },
+  {
     element: ToolsBlockchains,
     modes: ['hot', 'watch'],
     name: 'blockchains',
@@ -94,11 +99,6 @@ const paneMapping = [
     element: ToolsPermissions,
     modes: ['hot', 'watch'],
     name: 'permissions',
-  },
-  {
-    element: ToolsPermissionsApp,
-    modes: ['hot', 'watch'],
-    name: 'permissions_app',
   },
   {
     element: ContractInterface,

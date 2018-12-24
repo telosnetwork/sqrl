@@ -45,6 +45,8 @@ class GovernanceTFVotingFormTFVotingConfirming extends Component<Props> {
     const {
       creds_ipfs_url,
       fileInfo,
+      hasError,
+      ipfsError,
       ipfsHash,
       onBack,
       onClose,
@@ -115,6 +117,15 @@ class GovernanceTFVotingFormTFVotingConfirming extends Component<Props> {
           )
           : ''
         }
+
+        {(hasError === true)
+        ? (
+          <Message
+          color="red"
+          header={ipfsError.message}
+          icon="x"
+          />
+        ) :''}
 
         {(lastError && lastError.message && lastError.message.indexOf('keyProvider') !== -1) ?
           <GlobalButtonElevate

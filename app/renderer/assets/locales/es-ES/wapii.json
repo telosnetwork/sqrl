@@ -1,5 +1,5 @@
 {
-    "wapii_prompt_message_identity": "Please review the app request and choose an account if you want to approve the link.",
+    "wapii_prompt_message_identity": "{{appName}} is requesting your permission to connect to Sqrl. If you did not initiate this request or do not trust this app, do not approve this request. If you would like to allow {{appName}} to connect to Sqrl on your behalf, select the permission you would like it to use (we do not recommend using 'owner') and select Approve.",
     "wapii_prompt_header_identity": "Allow app to link ?",
     "wapii_prompt_header_sign": "Approve sign request ?",
     "wapii_prompt_header_arbitrary_signature": "Approve arbitrary signature ?",

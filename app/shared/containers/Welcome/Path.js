@@ -44,8 +44,6 @@ class WelcomePathContainer extends Component<Props> {
               onClick={() => onStageSelect(types.SETUP_STAGE_ACCOUNT_LOOKUP)}
             />
           </Container>
-          {
-            /*
           <Divider />
           <Header>
             {t('welcome_path_generate_keys_header')}
@@ -62,8 +60,6 @@ class WelcomePathContainer extends Component<Props> {
               system={system}
             />
           </Container>
-          */
-        }
         </Segment>
         <Button
           content={t('back')}

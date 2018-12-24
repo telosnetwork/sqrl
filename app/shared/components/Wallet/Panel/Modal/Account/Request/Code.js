@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 
 import { Button, Container, Divider, Form, Header, Message, Segment } from 'semantic-ui-react';
 import ReactJson from 'react-json-view';
+import macaddress from 'macaddress';
 
 const { clipboard } = require('electron');
 
@@ -27,23 +28,24 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
       settings,
       values 
     } = this.props;
-
-    // hash/key for 'freesqrlacct'
-    const hash = "95f3e6bb635fe2e3447d8f6b5086be9f4a0621a3ce608e70d3272c7d6bb720e5V11u/hhPO0HK57YkUY6RpXNFO7q07ACCxwKgVFU+dcG+Ff5VLj/KOjv4LWLFiAFGAK6OWmuuRAcSXF84ieb5sA==";
-    const key = "95c6bb575ab3d10745e670d34ebb6b676ec3d3feb8171cd8415589d0b277d9e2gz3mRhyPvxSQQN7u2aS5eNYHVBoLytS9eOrE3CaygDu/Ff67C5MFS8w+Ww8rvzLhr+nPH/NGtd7a5UQrhOY2MA==";
-    //actions.setSetting('account', 'freesqrlacct');
-
-    connection.keyProviderObfuscated = Object.assign({}, {
-      hash: hash,
-      key: key
-    });
     
     if (settings.freeAccountCreated !== true){
-      actions.createFreeAccount(values.accountName, 
-        values.owner,
-        values.active);
-        //'1 ' + settings.blockchain.tokenSymbol, 
-        //'1 ' + settings.blockchain.tokenSymbol, 
+      macaddress.all(function (err, all) {
+        const macaddresses = [];
+        const map = new Map();
+        let keys = Object.keys(all);
+        for(let index=0;index<keys.length;index++)
+        {
+          const mac = all[keys[index]].mac;
+          if(!map.has(mac) && mac != '00:00:00:00:00:00'){
+            map.set(mac, true);
+            macaddresses.push(mac);
+          }
+        }
+
+        if (macaddresses.length > 0)
+          {actions.createFreeAccount(values.accountName, values.owner, values.active, macaddresses);}
+      });
     }
   }
   render() {
@@ -68,8 +70,12 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
     }
 
     let lastErrorMessage = '';
-    if (system.CREATEACCOUNT === 'FAILURE' && system[`CREATEACCOUNT_LAST_ERROR`].error) {
-      lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR.error.code + ':' + system.CREATEACCOUNT_LAST_ERROR.error.what;
+    if (system.CREATEACCOUNT === 'FAILURE' && system[`CREATEACCOUNT_LAST_ERROR`]) {
+      if (system[`CREATEACCOUNT_LAST_ERROR`].error)
+        lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR.error.code + ':' + system.CREATEACCOUNT_LAST_ERROR.error.what;
+      else {
+        lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR;
+      }
     }
 
     return (

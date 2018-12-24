@@ -54,6 +54,7 @@ class GlobalFormFieldAccount extends Component<Props> {
       label,
       loading,
       name,
+      settings,
       t,
       width
     } = this.props;
@@ -71,14 +72,14 @@ class GlobalFormFieldAccount extends Component<Props> {
         text: `${contact.accountName} ${contact.label ? (`(${contact.label})`) : ''}`
       }));
     } else if (fieldOption === 'exchanges') {
-      dropdownOptions = sortBy(exchangeAccounts).map((exchangeAccount) => ({
+      dropdownOptions = sortBy(exchangeAccounts[settings.blockchain.tokenSymbol]).map((exchangeAccount) => ({
         value: exchangeAccount,
         text: exchangeAccount
       }));
     }
 
     const availableOptions = ['manual'];
-    if (enableExchanges) {
+    if (enableExchanges && exchangeAccounts[settings.blockchain.tokenSymbol]) {
       availableOptions.push('exchanges');
     }
     if (enableContacts && contacts && contacts.length > 0) {

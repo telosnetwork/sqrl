@@ -32,7 +32,7 @@ export default class GetIdentityPrompt extends Component<Props> {
               <React.Fragment>
                 <Header icon="unlock" content={t('wapii_prompt_header_identity')} />
                 <Modal.Content>
-                  <h3>{t('wapii_prompt_message_identity')}</h3>
+                  <h3>{t('wapii_prompt_message_identity', {appName:payload.origin})}</h3>
 
                   {payload.accounts.map((item, index) => {
                     return <Button onClick={ ()=>{chooseAccount(item)} } key={index} primary={account.authorityName === item.authorityName} > {item.authorityName} </Button>

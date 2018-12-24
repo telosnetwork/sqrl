@@ -164,7 +164,7 @@ class GovernanceTFVotingFormTFVoting extends Component<Props> {
     // save proposal to IPFS, return its hash#, and submit contract to chain
     await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
       if (error) {
-        console.log('got error in IPFS..', error)
+        console.log('got error in IPFS..',  error)
         this.setState({ ipfsError:error });
       }
 
@@ -240,15 +240,7 @@ class GovernanceTFVotingFormTFVoting extends Component<Props> {
       >
         {(!confirming && !ipfsing) ? (
             <Segment basic clearing>
-                {(hasError === true)
-                  ? (
-                    <Message
-                    color="red"
-                    header={ipfsError.message}
-                    icon="x"
-                    />
-                  )
-                  : <Header
+                 <Header
                     attached="top"
                     color="black"
                     block
@@ -259,7 +251,6 @@ class GovernanceTFVotingFormTFVoting extends Component<Props> {
                     
                   </Header.Subheader>
                 </Header>
-                }
               <Message
                 content="You have been nominated to become a Telos Foundation Board Member! To finalize your nomination, simply upload a document to help voters learn more about you and we will attempt to confirm acceptance of your nomination for an open board seat."
                 warning
@@ -300,6 +291,8 @@ class GovernanceTFVotingFormTFVoting extends Component<Props> {
               actions={actions}
               creds_ipfs_url={creds_ipfs_url}
               fileInfo={fileInfo}
+              hasError={hasError}
+              ipfsError={ipfsError}
               ipfsHash={ipfsHash}
               onBack={this.onBack}
               onClose={this.onClose}

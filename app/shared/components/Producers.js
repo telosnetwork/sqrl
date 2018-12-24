@@ -234,8 +234,17 @@ class Producers extends Component<Props> {
     const {
       selected
     } = this.state;
+    const { 
+      producers
+    } = this.props;
     clearSystemState();
-    voteproducers(selected);
+    //make sure selected producers weren't kicked
+    //while user was in the research process
+    const compliantProducers = producers.list
+      .filter((p) => {return selected.indexOf(p.owner) !== -1})
+      .map((s) => {return s.owner});
+
+    voteproducers(compliantProducers);
     this.setState({
       lastError: false, // Reset the last error
       lastTransaction: {}, // Reset the last transaction

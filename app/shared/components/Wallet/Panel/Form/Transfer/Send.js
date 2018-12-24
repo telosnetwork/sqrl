@@ -162,7 +162,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
       return 'cannot_transfer_to_self';
     }
 
-    if (exchangeAccounts.includes(to) && (!memo || memo.length === 0)) {
+    if (exchangeAccounts[settings.blockchain.tokenSymbol].includes(to) && (!memo || memo.length === 0)) {
       return 'transferring_to_exchange_without_memo';
     }
 
@@ -198,7 +198,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
     let exchangeWarning;
 
     if (memo && memo !== '') {
-      exchangeAccounts.forEach((exchangeAccount) => {
+      exchangeAccounts[settings.blockchain.tokenSymbol].forEach((exchangeAccount) => {
         if (memo.match(`.*?${exchangeAccount}.*?`)) {
           exchangeWarning = (
             <Message warning>
@@ -244,6 +244,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
                 label={t('transfer_label_to')}
                 name="to"
                 onChange={this.onChange}
+                settings={settings}
                 value={to}
               />
               <FormFieldMultiToken
