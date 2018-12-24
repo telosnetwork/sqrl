@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Popup } from 'semantic-ui-react';
 
 const notation = [
-  { value: 1, symbol: '' },
+  { value: 1, symbol: 'Votes' },
   { value: 1E3, symbol: ' Kilovotes' },
   { value: 1E6, symbol: ' Megavotes' },
   { value: 1E9, symbol: ' Gigavotes' },
@@ -30,14 +30,21 @@ export default class ProducersVoteWeight extends Component<Props> {
 
   render() {
     const {
+      settings,
       weight
     } = this.props;
+    let adjustedWeight = weight;
+    let roundingPrecision = 3;
+    if (settings.blockchain.tokenSymbol==='TLOS'){
+      adjustedWeight = adjustedWeight / 10000;
+      roundingPrecision = 2;
+    }
     return (
       <Popup
-        content={parseInt(weight, 10).toLocaleString()}
+        content={parseInt(adjustedWeight, 10).toLocaleString()}
         inverted
         position="top center"
-        trigger={<span>{this.nFormatter(weight, 3)}</span>}
+        trigger={<span>{this.nFormatter(adjustedWeight, roundingPrecision)}</span>}
       />
     );
   }

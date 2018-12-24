@@ -15,7 +15,7 @@ export default class RePairPrompt extends Component<Props> {
       const messages = {
         "app": payload.origin || payload.data.origin,
         // "nonce": request.nonce,
-        "with appkey": request.appkey 
+        "with appkey": request.appkey || payload.data.appkey 
       };
 
       if(payload.fields && payload.fields.accounts){

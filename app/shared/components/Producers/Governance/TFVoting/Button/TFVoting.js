@@ -47,12 +47,15 @@ class GovernanceTFVotingButtonTFVoting extends Component<Props> {
     let candidate = {};
     let candidateLeaderboard = {};
     leaderboards.forEach((leaderboard) => {
-      if (leaderboard.voting_symbol.indexOf('TFVT') != -1 && leaderboard.candidates.filter ((c) => c.member === settings.account)[0])
+      if (leaderboard.voting_symbol.indexOf('TFVT') != -1 
+      && leaderboard.candidates.filter ((c) => c.member === settings.account)[0]
+      && leaderboard.board_id == tfvoting.config.open_election_id)
       {
         candidate = leaderboard.candidates.filter ((c) => c.member === settings.account)[0];
       }
 
-      if (candidate && leaderboard.status == 0){ // candidate is an applicant in active election
+      if (candidate && leaderboard.status == 0 && tfvoting.config
+        && leaderboard.board_id == tfvoting.config.open_election_id){ // candidate is an applicant in active election
         candidateLeaderboard = leaderboard;
         return;
       }

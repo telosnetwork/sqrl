@@ -67,7 +67,6 @@ class GovernanceTFVotingCandidatesTable extends Component<Props> {
     if (!ballot)
       ballot = {};
 
-    const isExpired = (end_time * 1000) < Date.now();
     const querying = this.querying();
     let baseTable = <Table.Body />;
     let searchTable = (

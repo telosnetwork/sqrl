@@ -18,6 +18,14 @@ export function getBlockExplorers() {
         }
       },
       {
+        name: 'telos.eosx.io',
+        patterns: {
+          account: 'https://telos.eosx.io/account/{account}',
+          txid: 'https://telos.eosx.io/tx/{txid}',
+          tokenSymbol: 'TLOS'
+        }
+      },
+      {
         name: 'telostracker.io',
         patterns: {
           account: 'https://telostracker.io/account/{account}',

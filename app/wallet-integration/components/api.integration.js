@@ -134,7 +134,7 @@ class APIIntegration extends Component<Props> {
     const accs = [];
     for(let i = 0; i < props.wallets.length; i++){
       let account = props.accounts[props.wallets[i].account];
-      if (props.settings.walletMode === 'hot' && !account) {
+      if (props.settings.walletMode === 'hot' && !account) { //&& props.connection.chainId == props.wallets[i].chainId
         try{
           account = await eos(props.connection).getAccount(props.wallets[i].account);
         }catch(err){
@@ -150,7 +150,7 @@ class APIIntegration extends Component<Props> {
             authority: account.permissions[j].perm_name
           });
         }
-      }
+      } 
     }
     return accs;
   }

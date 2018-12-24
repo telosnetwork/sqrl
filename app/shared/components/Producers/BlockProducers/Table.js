@@ -61,7 +61,8 @@ class ProducersTable extends Component<Props> {
       ? parseInt(current.total_activated_stake / 10000, 10)
       : 0;
 
-    const activatedStakePercent = parseFloat((activatedStake / 1000000000) * 100, 10).toFixed(2);
+    const tokenSupply = settings.blockchain.tokenSymbol === 'EOS' ? 1000000000 : 203727747.103; // 344007720.1030 supply mins 140279973.0000 exchange pool
+    const activatedStakePercent = parseFloat((activatedStake / tokenSupply) * 100, 10).toFixed(2);
     const totalVoteWeight = (current.total_producer_vote_weight > 0)
       ? current.total_producer_vote_weight
       : 0;
@@ -152,6 +153,7 @@ class ProducersTable extends Component<Props> {
               {activatedStake.toLocaleString()} {t('block_producer_eos_staked', {tokenSymbol:settings.blockchain.tokenSymbol})} ({activatedStakePercent}%)
               <Header.Subheader>
                 <ProducersVoteWeight
+                  settings={settings}
                   weight={totalVoteWeight}
                 />
                 {' '}

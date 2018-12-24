@@ -39,6 +39,7 @@ class ProducersTableRow extends Component<Props> {
     const voteFormatted = (producer.votes > 0)
       ? (
         <ProducersVoteWeight
+          settings={settings}
           weight={producer.votes}
         />
       )

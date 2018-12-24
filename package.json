@@ -1,8 +1,8 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "0.5.4",
-  "description": "Simple light wallet and block producer voting tool for the TELOS blockchain",
+  "version": "0.5.5",
+  "description": "A fully featured wallet and governance tool for EOS.IO blockchains",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
@@ -85,12 +85,12 @@
     },
     "linux": {
       "category": "Network",
-      "description": "Simple light wallet and block producer voting tool for the TELOS blockchain",
+      "description": "A fully featured wallet and governance tool for EOS.IO blockchains",
       "desktop": {
         "Name": "Sqrl",
-        "GenericName": "TELOS Voting Client + Wallet",
+        "GenericName": "EOS.IO Wallet + Governance",
         "X-GNOME-FullName": "Sqrl",
-        "Comment": "Simple light wallet and block producer voting tool for the TELOS blockchain",
+        "Comment": "A fully featured wallet and governance tool for EOS.IO blockchains",
         "Type": "Application",
         "Terminal": "false",
         "StartupNotify": "false",
@@ -112,7 +112,7 @@
       ]
     },
     "snap": {
-      "synopsis": "Simple light wallet and block producer voting tool for the TELOS blockchain"
+      "synopsis": "A fully featured wallet and governance tool for EOS.IO blockchains"
     },
     "directories": {
       "buildResources": "resources",
@@ -251,6 +251,7 @@
     "i18next-electron-language-detector": "^0.0.10",
     "i18next-sprintf-postprocessor": "^0.2.2",
     "i18next-sync-fs-backend": "^1.1.0",
+    "macaddress": "^0.2.9",
     "moment": "^2.22.2",
     "pretty-bytes": "^5.1.0",
     "react": "^16.4.0",
@@ -272,8 +273,7 @@
     "redux-persist": "^5.10.0",
     "redux-persist-electron-storage": "^1.1.2",
     "redux-thunk": "^2.3.0",
-    "scrypt-async": "^2.0.1",
-    "socket.io": "^2.1.1"
+    "scrypt-async": "^2.0.1"
   },
   "devEngines": {
     "node": ">=7.x",

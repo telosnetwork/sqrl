@@ -98,8 +98,8 @@ class GovernanceTFVotingTFVoting extends Component<Props> {
       end_time,
       status
     } = leaderboard;
-    
     const isExpired = (end_time * 1000) < Date.now();
+    const isOpenElection = (tfvoting.config && board_id == tfvoting.config.open_election_id);
     return (
       <React.Fragment>
         <Header
@@ -112,7 +112,7 @@ class GovernanceTFVotingTFVoting extends Component<Props> {
           TF Board Election: (#{board_id})
           <Header.Subheader >
           {
-            (isExpired && status != 3) ?
+            (isExpired && status != 3 && isOpenElection) ?
               <GlobalTransactionModal
                 actionName="GOVERNANCE_ENDELECTION"
                 actions={actions}

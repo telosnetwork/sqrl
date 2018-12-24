@@ -6,6 +6,22 @@ import eos from '../helpers/eos';
 
 const defaultContract = 'tf';
 
+export function getTFConfig() {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETTFCONFIG_PENDING
+    });
+    const { connection } = getState();
+    eos(connection).getTableRows(true, defaultContract, defaultContract, 'config').then((results) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETTFCONFIG_SUCCESS,
+      payload: { results: results.rows[0] }
+    })).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETTFCONFIG_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
 export function getTFVoterBalances(scope = 'eosio.trail', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
@@ -321,6 +337,7 @@ export function endTFElection() {
 }
 
 export default {
+  getTFConfig,
   getTFVoterBalances,
   getTFBoardMembers,
   getTFNominees,

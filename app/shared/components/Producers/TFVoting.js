@@ -6,12 +6,17 @@ import { Container, Header, Message, Segment } from 'semantic-ui-react';
 
 import GovernanceTFVotingTFVoting from './Governance/TFVoting/TFVoting';
 import GovernanceTFVotingButtonTFVoting from './Governance/TFVoting/Button/TFVoting';
-import { getTFVoterBalances, getTFNominees } from '../../actions/governance/tfvoting';
+import { getTFVoterBalances, getTFNominees, getTFConfig } from '../../actions/governance/tfvoting';
 
 class GovernanceTFVoting extends Component<Props> {
   componentDidMount() {
+    const {
+      actions
+    } = this.props;
+    actions.getTFConfig();
+
     this.tick();
-    this.interval = setInterval(this.tick.bind(this), 5000);
+    this.interval = setInterval(this.tick.bind(this), 10000);
   }
 
   componentWillUnmount() {
@@ -93,7 +98,7 @@ class GovernanceTFVoting extends Component<Props> {
               wallet={wallet}
             />
           </Container>
-          <Message 
+          <Message
             content={(
               <React.Fragment>
                 <p>

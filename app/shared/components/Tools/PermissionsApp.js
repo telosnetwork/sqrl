@@ -142,7 +142,7 @@ class ToolsPermissionsApp extends Component<Props> {
             floated="left"
           />
           <Button
-            content={t('tools_permissions_app_delete')}
+            content={t('tools_permissions_app_delete_all')}
             icon="trash alternate"
             floated="right"
             onClick={() => this.setState({ confirmDeleteAll: true})}>

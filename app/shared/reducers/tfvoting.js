@@ -1,6 +1,7 @@
 import * as types from '../actions/types';
 
 const initialState = {
+  config: [],
   tfvtbalances: [],
   tfvtboardmembers: [],
   tfvtnominees: [],
@@ -14,8 +15,7 @@ export default function tfvoting(state = initialState, action) {
     }
     case types.SYSTEM_GOVERNANCE_GETTFVTBALANCES_SUCCESS: {
       return Object.assign({}, state, {
-        tfvtbalances: action.payload.tfvtbalances,
-        scope: action.payload.scope
+        tfvtbalances: action.payload.tfvtbalances
       });
     }
     case types.SYSTEM_GOVERNANCE_GETTFVTBOARDMEMBERS_SUCCESS: {
@@ -26,8 +26,12 @@ export default function tfvoting(state = initialState, action) {
     }
     case types.SYSTEM_GOVERNANCE_GETTFVTNOMINEES_SUCCESS: {
       return Object.assign({}, state, {
-        tfvtnominees: action.payload.tfvtnominees,
-        scope: action.payload.scope
+        tfvtnominees: action.payload.tfvtnominees
+      });
+    }
+    case types.SYSTEM_GOVERNANCE_GETTFCONFIG_SUCCESS: {
+      return Object.assign({}, state, {
+        config: action.payload.results
       });
     }
     default: {
