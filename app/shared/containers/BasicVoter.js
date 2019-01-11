@@ -20,6 +20,7 @@ import * as ArbitrationActions from '../actions/governance/arbitration';
 import * as BlockExplorersActions from '../actions/blockexplorers';
 import * as BuyRamBytesActions from '../actions/system/buyrambytes';
 import * as BuyRamActions from '../actions/system/buyram';
+import * as ContractsActions from '../actions/contracts';
 import * as CreateAccountActions from '../actions/createaccount';
 import * as ChainActions from '../actions/chain';
 import * as GlobalsActions from '../actions/globals';
@@ -220,6 +221,7 @@ function mapStateToProps(state) {
     blockExplorers: state.blockexplorers,
     chain: state.chain,
     connection: state.connection,
+    contracts: state.contracts,
     globals: state.globals,
     keys: state.keys,
     producers: state.producers,
@@ -243,6 +245,7 @@ function mapDispatchToProps(dispatch) {
       ...BuyRamActions,
       ...BuyRamBytesActions,
       ...ChainActions,
+      ...ContractsActions,
       ...CreateAccountActions,
       ...GlobalsActions,
       ...ProducersActions,

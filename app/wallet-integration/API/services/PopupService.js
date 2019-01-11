@@ -1,6 +1,7 @@
 import * as Actions from '../models/api/ApiActions';
 import APIUtils from '../util/APIUtils';
 import { pctEncChar } from 'uri-js';
+const { ipcRenderer } = require('electron');
 
 const ecc = require('eosjs-ecc');
 export class PopupService {
@@ -23,6 +24,8 @@ export class PopupService {
         this.currentPopup = this.queue.shift(); 
         if(this.currentPopup){
             this.open();
+        } else {
+            ipcRenderer.send('sendToBack');
         }
     }
 
@@ -133,6 +136,8 @@ export class PopupService {
         }else{
             this.queue.push(popupData);
         }
+
+        ipcRenderer.send('bringToFront');
     }
 
     open = () => {
