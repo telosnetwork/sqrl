@@ -2,9 +2,13 @@
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Button, Header, Modal } from 'semantic-ui-react';
+import Markdown from 'react-markdown';
 
 class ModalConstitution extends Component<Props> {
-  state = { open: false }
+  state = { 
+    open: false, 
+    loadedConstitution: 'Loading content from [Telos Blockchain Network Operating Agreement](https://web.ipfs.telosfoundation.io/Qmexc2Uejr2f5f8bCQxTkt5CfTAC9szXLpG6mu6No7pmVs). Please wait...' 
+  }
 
   componentWillReceiveProps(nextProps) {
     const { isUser, settings } = nextProps;
@@ -13,7 +17,26 @@ class ModalConstitution extends Component<Props> {
       && !settings.acceptedConstitution
     ) {
       this.setState({ open: true });
+      if (settings.blockchain.tokenSymbol === 'TLOS'){
+        this.loadData();
+      }
     }
+  }
+
+  loadData = () => {
+    const url = "https://web.ipfs.telosfoundation.io/Qmexc2Uejr2f5f8bCQxTkt5CfTAC9szXLpG6mu6No7pmVs";
+    fetch(url)
+      .then(function (response) {
+        if(response.ok){
+          return response.text();
+        }
+      })
+      .then(function (data) {
+        this.setState({ loadedConstitution: data });
+      }.bind(this))
+      .catch(function (err) {
+        console.log("failed to load ", url, err.message);
+      });
   }
 
   accept = () => {
@@ -30,7 +53,8 @@ class ModalConstitution extends Component<Props> {
       t
     } = this.props;
     const {
-      open
+      open,
+      loadedConstitution
     } = this.state;
     return (
       <Modal
@@ -41,6 +65,8 @@ class ModalConstitution extends Component<Props> {
         <Modal.Header>
           {t(`${settings.blockchain.tokenSymbol}_constitution_title`)}
         </Modal.Header>
+        { 
+        settings.blockchain.tokenSymbol == 'EOS' ?
         <Modal.Content>
           <Header>
             {t(`${settings.blockchain.tokenSymbol}_constitution_preface`)}
@@ -85,51 +111,14 @@ class ModalConstitution extends Component<Props> {
           <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_19_body`)}</p>
           <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_20_title`)}</Header>
           <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_20_body`)}</p>
-          { 
+          </Modal.Content>
+          :''}
+
+          {
             settings.blockchain.tokenSymbol == 'TLOS' ?
-            <div>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_21_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_21_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_22_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_22_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_23_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_23_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_24_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_24_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_25_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_25_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_26_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_26_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_27_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_27_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_28_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_28_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_29_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_29_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_30_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_30_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_31_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_31_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_32_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_32_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_33_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_33_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_34_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_34_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_35_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_35_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_36_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_36_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_37_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_37_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_38_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_38_body`)}</p>
-              <Header size="small">{t(`${settings.blockchain.tokenSymbol}_constitution_article_39_title`)}</Header>
-              <p>{t(`${settings.blockchain.tokenSymbol}_constitution_article_39_body`)}</p>
-            </div>
-          : null 
+            <p style={{ padding: 20 }}><Markdown source={loadedConstitution} /></p>
+          : '' 
           }
-        </Modal.Content>
         <Modal.Actions>
           <Button
             content={t(`${settings.blockchain.tokenSymbol}_constitution_accept`)}

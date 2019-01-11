@@ -1,7 +1,8 @@
-import { set } from 'dot-prop-immutable';
+import { get, set } from 'dot-prop-immutable';
 
 import * as types from './types';
 import eos from './helpers/eos';
+import eos2 from './helpers/eos2';
 
 export function buildTransaction(contract, action, account, data) {
   return (dispatch: () => void, getState) => {
@@ -32,26 +33,43 @@ export function buildTransaction(contract, action, account, data) {
         }
       ]
     };
-    eos(modified)
-      .transaction(op, {
-        broadcast: false,
-        forceActionDataHex: false,
-        sign: false
-      })
-      .then((tx) => {
-        dispatch(setTransaction(JSON.stringify({
-          contract,
-          transaction: tx
-        })));
-        return dispatch({
-          payload: { tx },
-          type: types.SYSTEM_TRANSACTION_BUILD_SUCCESS
-        });
-      })
-      .catch((err) => dispatch({
-        payload: { err },
-        type: types.SYSTEM_TRANSACTION_BUILD_FAILURE
-      }));
+
+    // weird precision,symbol hack - use eosjs2 to build valid transaction obj, 
+    // pass back to normal eosjs for processing
+    eos2(modified, true).transact(op, {
+      broadcast: false,
+      blocksBehind: 3,
+      expireSeconds: 120
+    }).then((tempTx) => {
+      const buffer = Buffer.from(tempTx.serializedTransaction, 'hex');
+      eos2(modified, false).deserializeTransactionWithActions(buffer)
+      .then((newTx) => {
+        eos(modified).transaction(op, {
+          broadcast: false,
+          forceActionDataHex: false,
+          sign: false
+        })
+        .then((tx) => {
+          tx.transaction.transaction = Object.assign({}, newTx);
+          dispatch(setTransaction(JSON.stringify({
+            contract,
+            transaction: tx
+          })));
+          return dispatch({
+            payload: { tx },
+            type: types.SYSTEM_TRANSACTION_BUILD_SUCCESS
+          });
+        })
+        .catch((err) => dispatch({
+          payload: { err },
+          type: types.SYSTEM_TRANSACTION_BUILD_FAILURE
+        }));
+      });
+    })
+    .catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_TRANSACTION_BUILD_FAILURE
+    }));
   };
 }
 
@@ -134,10 +152,11 @@ export function signTransaction(tx, contract = false) {
           transaction: signed
         })));
       })
-      .catch((err) => dispatch({
+      .catch((err) => {
+        dispatch({
         payload: { err, tx },
         type: types.SYSTEM_TRANSACTION_SIGN_FAILURE
-      }));
+      })});
   };
 }
 

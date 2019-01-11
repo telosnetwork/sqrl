@@ -7,6 +7,8 @@ import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react'
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
 
+import { find } from 'lodash';
+
 class ToolsWallets extends Component<Props> {
   removeWallet = (account) => {
     const { actions } = this.props;
@@ -67,7 +69,9 @@ class ToolsWallets extends Component<Props> {
                   <Table.Row key={account.account + account.chainId}>
                     <Table.Cell>
                       <Header size="small">
-                      {settings.blockchains.filter( (c) => { return c.chainId === account.chainId})[0].blockchain} ({account.account})
+                      {settings.blockchains.find( c => c.chainId === account.chainId)
+                      && settings.blockchains.find( c => c.chainId === account.chainId).blockchain ?
+                      settings.blockchains.find( (c) => c.chainId === account.chainId).blockchain : ''} ({account.account})
                       </Header>
                     </Table.Cell>
                     <Table.Cell textAlign="center">
