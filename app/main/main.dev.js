@@ -87,9 +87,7 @@ app.on('ready', async () => {
 // debug event logging
 app.on('window-all-closed', (event) => {
   log.info('app: window-all-closed suspended');
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  app.quit();
 });
 app.on('will-finish-launching', () => { log.info('app: will-finish-launching'); });
 app.on('before-quit', () => { log.info('app: before-quit'); });
