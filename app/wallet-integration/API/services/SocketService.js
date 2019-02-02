@@ -139,7 +139,7 @@ const getCerts = async () => {
 
 export default class SocketService {
     
-    static initialize(actions){
+    static async initialize(actions){
         io = window.require('socket.io')();
         const options = { pingTimeout:100000000000000000 };
 
@@ -150,7 +150,7 @@ export default class SocketService {
         }
         
         const http = window.require('http');
-        // const https = window.require('https');
+        const https = window.require('https');
         const ip = '127.0.0.1';
 
         // HTTP protocol (port 50005)
@@ -160,12 +160,12 @@ export default class SocketService {
         io.attach(httpServer,options);
 
         // HTTPS protocol (port 50006)
-        // const certs = await getCerts();
-        // if(certs && certs.hasOwnProperty('key') && certs.hasOwnProperty('cert')){
-        //     const httpsServer = https.createServer(certs);
-        //     httpsServer.listen(50006, ip);
-        //     io.attach(httpsServer,options);
-        // }
+        const certs = await getCerts();
+        if(certs && certs.hasOwnProperty('key') && certs.hasOwnProperty('cert')){
+            const httpsServer = https.createServer(certs);
+            httpsServer.listen(50006, ip);
+            io.attach(httpsServer,options);
+        }
 
         this.open(actions);
     }
