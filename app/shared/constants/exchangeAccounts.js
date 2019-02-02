@@ -5,7 +5,7 @@ const exchangeAccounts = {
     'krakenkraken'
   ], 
   'TLOS': [
-    'chainrifttls',
+    'chainriftcom',
     'eosexaccount'
   ]
 };
