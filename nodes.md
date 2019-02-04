@@ -28,7 +28,7 @@ If you are concerned about revealing this information to any of these 3rd party 
 - [https://telos.eosdetroit.io](https://telos.eosdetroit.io/v1/chain/get_info) - operated by [EOS Detroit](https://eosdetroit.io)
 - [https://api.telosunlimited.io](https://api.telosunlimited.io/v1/chain/get_info) - operated by [Telos Unlimited](http://telosunlimited.io)
 - [https://api.telos.telosgreen.com](https://api.telos.telosgreen.com) - operated by [TelosGreen](https://telosgreen.com)
-- [https://api.telos.telosgreen.com](https://api.telos.telosgreen.com) - operated by [TheTeloscope](https://theteloscope.io)
+- [https://api.telos.theteloscope.io](https://api.theteloscope.io) - operated by [TheTeloscope](https://theteloscope.io)
 - [https://telos.eossweden.eu](https://telos.eossweden.eu) - operated by [EOS/Telos Sweden Corenet](https://eossweden.eu)
 - [http://api.apac.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
 - [http://api.emea.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
