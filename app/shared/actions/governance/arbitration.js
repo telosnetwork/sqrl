@@ -7,7 +7,7 @@ import { getBallots, getVoteInfo } from './proposals';
 
 const defaultContract = 'eosio.arb';
 
-export function registerCandidate(candidate, creds_ipfs_url) {
+export function registerCandidate(nominee, credentials_link) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_REGCANDIDATE_PENDING
@@ -18,14 +18,14 @@ export function registerCandidate(candidate, creds_ipfs_url) {
       actions: [
         {
           account: defaultContract,
-          name: 'regcand',
+          name: 'regarb',
           authorization: [{
             actor: account,
             permission: 'active'
           }],
           data: {
-            candidate,
-            creds_ipfs_url
+            nominee,
+            credentials_link
           }
         },
         {
@@ -36,8 +36,8 @@ export function registerCandidate(candidate, creds_ipfs_url) {
             permission: 'active'
           }],
           data: {
-            candidate,
-            creds_ipfs_url
+            nominee,
+            credentials_link
           }
         }
       ]
@@ -58,7 +58,7 @@ export function registerCandidate(candidate, creds_ipfs_url) {
   };
 }
 
-export function unRegisterCandidate(candidate) {
+export function unRegisterCandidate(nominee) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_UNREGCANDIDATE_PENDING
@@ -75,18 +75,18 @@ export function unRegisterCandidate(candidate) {
             permission: 'active'
           }],
           data: {
-            candidate
+            nominee
           }
         },
         {
           account: defaultContract,
-          name: 'unregcand',
+          name: 'unregnominee',
           authorization: [{
             actor: account,
             permission: 'active'
           }],
           data: {
-            candidate
+            nominee
           }
         }
       ]
