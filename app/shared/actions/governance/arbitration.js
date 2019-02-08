@@ -14,6 +14,7 @@ export function registerCandidate(nominee, credentials_link) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
+    credentials_link = credentials_link + '######'; //workaround to make 59 chars
     return eos(connection, true).transaction({
       actions: [
         {
