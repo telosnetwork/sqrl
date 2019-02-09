@@ -258,18 +258,13 @@ class GovernanceProposalsProposal extends Component<Props> {
           }
           <React.Fragment><p><strong>Voting Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
           <React.Fragment><p><strong>Voting Ends:</strong> <Moment>{end_time*1000}</Moment></p></React.Fragment>
-          <React.Fragment><p><strong>Amount Requested:</strong> {submission.amount} {settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Amount Requested:</strong> {submission.amount} {settings.blockchain.tokenSymbol} in {cycle_count} cycle(s)</p></React.Fragment>
           <React.Fragment><p><strong>Requesting Account:</strong> {submission.receiver}</p></React.Fragment>
-          {
-            (submission.proposer == settings.account) ?
-              <div>
-                <React.Fragment><p><strong>Worker Proposal Fee:</strong> {proposalFee + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
-                <React.Fragment><p><strong>Yes Votes:</strong> {proposal.yes_count}</p></React.Fragment>
-                <React.Fragment><p><strong>No Votes:</strong> {proposal.no_count}</p></React.Fragment>
-                <React.Fragment><p><strong>Abstain Votes:</strong> {proposal.abstain_count}</p></React.Fragment>
-              </div>
-              : ''
-          }
+          <React.Fragment><p><strong>Worker Proposal Fee:</strong> {proposalFee + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Yes Votes:</strong> {proposal.yes_count}</p></React.Fragment>
+          <React.Fragment><p><strong>No Votes:</strong> {proposal.no_count}</p></React.Fragment>
+          <React.Fragment><p><strong>Abstain Votes:</strong> {proposal.abstain_count}</p></React.Fragment>
+        
           <React.Fragment>
             {
               (proposal.info_url) ? 
