@@ -100,6 +100,13 @@ class GovernanceTFVotingTFVoting extends Component<Props> {
     } = leaderboard;
     const isExpired = (end_time * 1000) < Date.now();
     const isOpenElection = (tfvoting.config && board_id == tfvoting.config.open_election_id);
+
+    let tfvtHolder = {};
+    if (tfvtHolder && tfvoting.tfvtbalances) {
+      tfvtHolder = tfvoting.tfvtbalances.filter((a) => a.owner === settings.account)[0]; 
+      if (!tfvtHolder) tfvtHolder = {};
+    }
+    const isTfvtHolder = tfvtHolder.tokens && tfvtHolder.tokens.split(' ')[0] > 0;
     return (
       <React.Fragment>
         <Header
@@ -112,7 +119,7 @@ class GovernanceTFVotingTFVoting extends Component<Props> {
           TF Board Election: (#{board_id})
           <Header.Subheader >
           {
-            (isExpired && status != 3 && isOpenElection) ?
+            (isExpired && status != 3 && isOpenElection && isTfvtHolder) ?
               <GlobalTransactionModal
                 actionName="GOVERNANCE_ENDELECTION"
                 actions={actions}

@@ -109,7 +109,7 @@ class GovernanceTFVoting extends Component<Props> {
             info
           />
           {([].concat(leaderboards)
-            .filter((board) => { return board.voting_symbol && board.voting_symbol.indexOf('TFVT') != -1;})
+            .filter((board) => { return board.voting_symbol && board.voting_symbol.indexOf('TFVT') != -1 && board.board_id > 0;})
             .map((leaderboard) => (
               <GovernanceTFVotingTFVoting
                 actions={actions}
