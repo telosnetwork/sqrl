@@ -99,7 +99,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
     
     let boardMember = {};
     if (tfvoting && tfvoting.tfvtboardmembers) {
-      boardMember = tfvoting.tfvtboardmembers.find(a => a.member === settings.account); 
+      boardMember = tfvoting.tfvtboardmembers.find(a => a.member === candidate.member); 
       if (!boardMember)
       boardMember = {};
     }
