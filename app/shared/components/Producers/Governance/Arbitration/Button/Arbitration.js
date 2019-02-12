@@ -65,11 +65,11 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
     const isArbitrator = arbitrator.arb && arbitrator.arb.length > 0;
 
     let isExpired = false;
-    let isTooEarly = false;
+    let isElectionStarted = false;
 
     if (candidateLeaderboard.begin_time && candidateLeaderboard.end_time) {
       isExpired = (candidateLeaderboard.end_time * 1000) < Date.now();
-      isTooEarly = (candidateLeaderboard.begin_time * 1000) > Date.now();
+      isElectionStarted = (candidateLeaderboard.begin_time * 1000) < Date.now();
     }
     
     return ( 
@@ -78,7 +78,7 @@ class GovernanceArbitrationButtonArbitration extends Component<Props> {
       // only remove if we aren't over or havent' started and board isn't closed
       (candidate && candidate.member && candidateLeaderboard.board_id >=0 && candidateLeaderboard.status != 3) ?
         
-        (!isExpired && isTooEarly && !applying) ?
+        (!isExpired && !isElectionStarted && !applying) ?
         <GlobalTransactionModal
           actionName="GOVERNANCE_UNREGCANDIDATE"
           actions={actions}
