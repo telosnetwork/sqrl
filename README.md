@@ -40,11 +40,11 @@
 
 ### Releases
 
-Current 1.0.3 release downloads:
+Current 1.0.4 release downloads:
 
-- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.3/win-Sqrl-1.0.3.exe)
-- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.3/mac-Sqrl-1.0.3.dmg)
-- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/1.0.3.tar.gz)
+- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.4/win-Sqrl-1.0.4.exe)
+- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.4/mac-Sqrl-1.0.4.dmg)
+- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/1.0.4.tar.gz)
 
 The latest release will always be available on the releases page of this repository:
 
@@ -116,40 +116,40 @@ Signed by [eosmiami on keybase](https://keybase.io/eosmiami)
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-shasum -b -a 512 linux-Sqrl-1.0.3-amd64.deb
-88c9d17e067b7636fa8b077b0e16e2da7d12ef65a129860d2590b53f0e80ad1d694c653823c8cf8b3fbc72a377eade81d091c29000c0b9ef3e882978891c4d07 *linux-Sqrl-1.0.3-amd64.deb
-shasum -b -a 512 linux-Sqrl-1.0.3-amd64.snap
-cacd6b843c58c3be4b320b5ad1d60410dd9a90213a59af435d2eb9a9b57bf5e15df89837fdb13a0a814e886612839effb654f4192234d7623c097bef149762e4 *linux-Sqrl-1.0.3-amd64.snap
-shasum -b -a 512 linux-Sqrl-1.0.3-arm64.deb
-cbc6633217d8b0147b0f5ca91d9c1bd15a4341b783ccd55f251dfc5c82d98bcc91e090dc909bec392e47b68473204f16b0f28d87f7097bb0bc763d2cd55cd2e9 *linux-Sqrl-1.0.3-arm64.deb
-shasum -b -a 512 linux-Sqrl-1.0.3-armv7l.deb
-b54f10931cc27f2f59e0d6a94a5daf568f1e6315cab8b8af00ebee842d57b54995a36b09bf39a01a3979a174d9713413c8a2ee0056b69b745d8b57430644a029 *linux-Sqrl-1.0.3-armv7l.deb
-shasum -b -a 512 linux-Sqrl-1.0.3-i386.deb
-1e3ab006e334a3b892dac8907d4e9a9e92deb570b53e7edc9a574f9177095c7373509708cb4c60436359189f67d9f12d142130214fe5f2870226045601884fa4 *linux-Sqrl-1.0.3-i386.deb
-shasum -b -a 512 linux-Sqrl-1.0.3-x86_64.AppImage
-7cea2055a55f86b586745022281e9b536e02fb4b2d3c30cd31df86177d79e1092b0c6bc0a5ba3d359282c16b9a11950a42662be2e295b5afdbc699eecd979c0d *linux-Sqrl-1.0.3-x86_64.AppImage
-shasum -b -a 512 mac-Sqrl-1.0.3.dmg
-198435ea5d68a24b72cee1243a9176891af06f49d9c66cba935155d15c28fde8cdd9e9db2e0c85a094173a845dd5b3d3d97f2aeb141996d2222d4435147df641 *mac-Sqrl-1.0.3.dmg
-shasum -b -a 512 mac-Sqrl-1.0.3.zip
-29a8c03a94255a0e5c171ace3ee527d10cce9b09236ab2d71e57aabc5e8b07d88e71c16816f3d3b3a4cb2f09f23485cca4b7bc4d6e6f0727a7b8d759ffcf2841 *mac-Sqrl-1.0.3.zip
-shasum -b -a 512 win-Sqrl-1.0.3.exe
-a984633844dd69a8234d722f57212322effd236c1a30bc134703481381ad1a5ccaccd47d2b4dd8c704b146e1bfd387265690068765070dc1729675e100ad1ced *win-Sqrl-1.0.3.exe
+shasum -b -a 512 linux-Sqrl-1.0.4-amd64.deb
+8d427ae09c440a2e74612b37a9c11a6612202df133815f4924ec5ff2609590609ee1080bbdca7cd153f69ca230f4d9f4ab2b81a715328e8b02b5055ac68e214e *linux-Sqrl-1.0.4-amd64.deb
+shasum -b -a 512 linux-Sqrl-1.0.4-amd64.snap
+9fadd092f0250c8ad20f5e5233bf9874971cc3f75d4d1b128e2d9449dc556e364f5e97ccfbac28a243e46988ca341d4669a6943c570bceccdbc1c5e26b95d1b9 *linux-Sqrl-1.0.4-amd64.snap
+shasum -b -a 512 linux-Sqrl-1.0.4-arm64.deb
+b1c40fea16b03f9f0f327c48914a9769f7a5a2a7ee54bce4ae0cc6ebbb0efcdd71ceb4660af226521a47a86e4c28c8dba8033ca0776ae786acd4b6677f518456 *linux-Sqrl-1.0.4-arm64.deb
+shasum -b -a 512 linux-Sqrl-1.0.4-armv7l.deb
+17882ad184a1c05eddb4910d46b161986bee5f537d957a4d1d8677bdf92462b50f77bfb44730ea5991440b2f15ac82e65cc5e52cabf445d15f4bdb8a66208ef2 *linux-Sqrl-1.0.4-armv7l.deb
+shasum -b -a 512 linux-Sqrl-1.0.4-i386.deb
+2cbf06a39964a97df908d498e69904f9b135cd202c59978d4c7815bbb646d5052cf4c70f86ab9876159b65fc6aa44c68dfe69e3066521ed9cc17dddea65e8e7e *linux-Sqrl-1.0.4-i386.deb
+shasum -b -a 512 linux-Sqrl-1.0.4-x86_64.AppImage
+ba24b96e5fa5c49d1d537db0c59ed8bd9795d60ff6ad45bdab292a9c95fb104c0f3e279160f9e4406307b2bf469831b168e5044c65cb1a545560793513c76d89 *linux-Sqrl-1.0.4-x86_64.AppImage
+shasum -b -a 512 mac-Sqrl-1.0.4.dmg
+23b3e1a0840ea535bf042869f937681dd7138d992750c58c0c69ea26ed02d028a0ef008b91afb65f45dfbdedd593f97a887c67aa34e6592602d5772a60e642be *mac-Sqrl-1.0.4.dmg
+shasum -b -a 512 mac-Sqrl-1.0.4.zip
+eea921ece6ffff10a2ae69c610b474ab7d83a809f5f2b42e30776c3783c9988290fb2b5ac3417eec8fd08e8366513ff13278f746f952c223808bcd12436957f1 *mac-Sqrl-1.0.4.zip
+shasum -b -a 512 win-Sqrl-1.0.4.exe
+05db072b52d852d743e9f529460b46e49ab776366f87e3617570bb80dc5d7e68f146a6a7bf8d833832a01b77ddfc93f07640c461f788aad4bc2de5283e233a7d *win-Sqrl-1.0.4.exe
 -----BEGIN PGP SIGNATURE-----
 Version: Keybase OpenPGP v2.0.80
 Comment: https://keybase.io/crypto
 
-wsFcBAABCgAGBQJcY0pKAAoJEDT4ke1a0TzTQi8QAKvC3owDtpA+d1A0H7hcgItW
-KzVLsuKwi4fdhl/uH6FRLWJwcpRfozcGsMXEKuauTxEtXdDu/I7ruYNR1cR2kFhU
-Y5sROe97wcW7MewzMyNBcTdN3lS4KioTfsFAB3PanNBz0gMVUVBehFUXBTB2SJ6n
-BhwjWHGyvu8U2K1wY5U5idLLI7iM+bCieybXeh7CTCw4bsZFwgh2uF2h56B5Gu85
-LVaZ7cyk8si4hqyeBla/WYbClswjOooipYwYc2q/s0g7i7VfPaFsKybtP/9sWWta
-a3L8In0BlieqpC4p15GfmWcKvxUFxg7L032/o49rCrLdFXfkOgs7HWNoeoJvAlmZ
-0SPMvu0lekUEH2+k1NZGCnSHP+6FODotzz2VnEv+zHs0Fe78QuD0/lFsPcZichX+
-Svq+Snso+eVGd7l/xY/XIqcdOEJbAKNTJpirI1Kd6knSB5Jx33wgcZPwdg9vOyIa
-AQgWne9WG2TQsU/sDIX9+rMYyXg+8W0pcJowAQbSRwWC+c2B08UkfVt9OSwVlrnP
-M0qthWpDtfPbdPXFEUglOxRl7qkbZt7RrISpluBLiPUrHVj3Fip51DKUKCcTYa+r
-quj53ffRFAP4rf7/75q3LkxChuFQ6Nt4ao9nDLAyicoT6OLvMZwU9MsuUIA5pluH
-V42LREW4WgzcE1rbf7m1
-=PxEt
+wsFcBAABCgAGBQJcZjC0AAoJEDT4ke1a0TzTDwUP/3fisZKsFlb592k8j2zGDSZ2
+D8u2cURTlWQ4pNi9t5ZTYs7LNNkpTdl+goC/oi87FK3Ysas+RWY/mxTUe+QHPwSv
+UTGfV49adF11j+ui65uOG/USd3ffL8GV9iqQ6ufvML8T4RpV/Tj86rHv0xLrVxJh
+l/HXB80lOyE8ozi1SQ5aUhOgrvaaUrtZ9X37YiUjuGvfW0GK+7vsZq5XIYHGVY96
+sjDmEDdg+LHpCKRuxg0WxCe9HBglT8Fil3i66QOJLmvGE205EfdsaR/Ss+3V9oq6
+IKq8ghqTOYyV5+YDgKsIFMddfBNUCAdRwkLOXom49PaLE4mu8utiTVGZWMv6TH+P
+jDZkMosvGxc47LcY2qczDBVi/pH3iujO69OVS/4gzeGb3LyUfdbcGF75NKJNvCWj
+P//FWPOWedxHR4l57+Bj+BrCRmRhXNwVPPtxiL+qFbDQLi9a443xDRl9aOveJrIR
+akRLFm+CvhC54rkCedmk9qaUS3krrPM9EFhOkisxBO5hqUOucPMkZo7OuyxkC9S0
+fTiGa35PjEcIEJr2fSDQzFKycKvhsKBu6pPnABGsdAkRLpXtpa+4jrQH+E5YOzwC
+gNuNAPPidAMrDQti2J2yoBJSAxB1sCWe7qhEpafBa/YK9kSM37+t7IAZhYs7NORm
+qRKPVWfEtB44MBeIP29r
+=sQJU
 -----END PGP SIGNATURE-----
 ```

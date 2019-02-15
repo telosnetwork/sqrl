@@ -88,6 +88,13 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
     let vote = votes.filter((v) => v.ballot_id === ballot.ballot_id)[0]; 
     if (!vote)
       vote = {};
+
+    let votedCandidate = {};
+    if (vote.directions) {
+      votedCandidate = vote.directions.find(d => d === candidate.index);
+    }
+    if (!(votedCandidate >=0))
+      votedCandidate = {};
     
     let arbitrator = {};
     if (arbitrators) {
@@ -96,7 +103,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
         arbitrator = {};
     }
     
-    const voted = !!(vote.ballot_id >= 0);
+    const voted = !!(vote.ballot_id >= 0 && candidate.index===votedCandidate);
     const isExpired = (end_time * 1000) < Date.now();
     const isTooEarly = (begin_time * 1000) > Date.now();
     const isArbitrator = arbitrator.arb && arbitrator.arb.length > 0;
