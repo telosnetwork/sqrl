@@ -81,7 +81,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
       end_time,
       status
     } = leaderboard;
-    let ballot = ballots.filter((b) => b.reference_id === board_id)[0]; 
+    let ballot = ballots.filter((b) => b.reference_id === board_id && b.table_id === 2)[0]; 
     if (!ballot)
       ballot = {};
     
@@ -95,7 +95,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
     }
     if (!(votedCandidate >=0))
       votedCandidate = {};
-    
+    console.log('arb votes (ballot)(leaderboard): ',votes,ballot,leaderboard);
     let arbitrator = {};
     if (arbitrators) {
       arbitrator = arbitrators.filter((a) => a.arb === candidate.member)[0]; 

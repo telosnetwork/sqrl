@@ -87,7 +87,7 @@ class GovernanceProposalsProposal extends Component<Props> {
       cycle_count,
       status
     } = proposal;
-    let ballot = ballots.filter((b) => b.reference_id === prop_id)[0]; 
+    let ballot = ballots.filter((b) => b.reference_id === prop_id && b.table_id === 0)[0]; 
     if (!ballot)
       ballot = {};
     
