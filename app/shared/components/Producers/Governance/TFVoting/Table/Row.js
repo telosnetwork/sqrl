@@ -82,7 +82,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
       end_time,
       status
     } = leaderboard;
-    let ballot = ballots.find(b => b.reference_id === board_id); 
+    let ballot = ballots.find(b => b.reference_id === board_id && b.table_id === 2); 
     if (!ballot)
       ballot = {};
     
