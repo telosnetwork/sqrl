@@ -14,6 +14,11 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
+    
+    let feeAmount = (amount * 3 / 100);
+    if (feeAmount < 50 || isNaN(feeAmount))
+      feeAmount = 50;
+
     return eos(connection, true).transaction({
       actions: [
         {
@@ -26,7 +31,7 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
           data: {
             from: account,
             to:'eosio.saving',
-            quantity: '50.0000 ' + settings.blockchain.tokenSymbol,
+            quantity: feeAmount.toFixed(4) + ' ' + settings.blockchain.tokenSymbol,
             memo: "WPS deposit ("+title+")"
           }
         },{
@@ -41,7 +46,7 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
             title,
             cycles,
             ipfs_location,
-            amount,
+            amount: amount + ' ' + settings.blockchain.tokenSymbol,
             receiver:send_to
           }
         }
