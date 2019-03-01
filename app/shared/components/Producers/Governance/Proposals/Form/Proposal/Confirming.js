@@ -50,6 +50,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       ipfsHash,
       onBack,
       onClose,
+      proposal_id,
       send_to,
       settings,
       system,
@@ -60,6 +61,8 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     } = this.props;
     let ipfsSuccess = (ipfsHash && ipfsHash.length > 0);
     let lastError = system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR;
+    if (proposal_id >= 0)
+      lastError = system.GOVERNANCE_EDITPROPOSAL_LAST_ERROR;
     const cycleDays = cycles * 29;
 
     if (walletUnLockRequested && validate.WALLET_PASSWORD === 'SUCCESS'){
@@ -74,7 +77,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Header.Content>
             <Header.Subheader>
               Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request. Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+              and a new proposal must be created to replace this request. Submission Fee: the greater of 3% or 5.0000 {settings.blockchain.tokenSymbol}
             </Header.Subheader>
           </Header.Content>
         </Header>
@@ -93,7 +96,10 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
                 Proposal Details:
               </Table.Cell>
               <Table.Cell>
-                Committing the contents of <strong>{fileInfo.name}</strong> to IPFS
+              {(proposal_id >= 0) ? 
+                <strong>{ipfs_location}</strong> :
+                <p>Committing the contents of <strong>{fileInfo.name}</strong> to IPFS</p>
+              }
               </Table.Cell>
             </Table.Row>
             <Table.Row>
@@ -112,6 +118,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
                 {send_to}
               </Table.Cell>
             </Table.Row>
+            {(proposal_id >= 0) ? '' :
             <Table.Row>
               <Table.Cell>
                 Number of Cycles:
@@ -120,11 +127,13 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
                 {cycles} (~ {cycleDays} Days)
               </Table.Cell>
             </Table.Row>
+            }
           </Table.Body>
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {(lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS')
+        {( (lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS' && !proposal_id) ||
+          (lastError && system.GOVERNANCE_EDITPROPOSAL !== 'SUCCESS' && proposal_id >= 0) )
           ? (
             <Message negative size="tiny">
               {(lastError.code)

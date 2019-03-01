@@ -8,6 +8,7 @@ import { Button, Header, Message, Segment } from 'semantic-ui-react';
 
 import GovernanceProposalsProposalVote from './Proposal/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
+import GovernanceProposalsFormProposal from './Form/Proposal';
 
 class GovernanceProposalsProposal extends Component<Props> {
   approve = (ballot_id) => {
@@ -64,15 +65,19 @@ class GovernanceProposalsProposal extends Component<Props> {
   }
   render() {
     const {
+      accounts,
       actions,
       ballots,
       blockExplorers,
-      settings,
       proposal,
+      settings,
       submissions,
       system,
       t,
-      votes
+      tables,
+      validate,
+      votes,
+      wallet
     } = this.props;
     const {
       prop_id,
@@ -154,14 +159,14 @@ class GovernanceProposalsProposal extends Component<Props> {
               />
             : ''}
             {
-            (submission.proposer === settings.account && proposal.cycle_count === 0 && proposal.status === 0) ?
+            (submission.proposer === settings.account) ?
             <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
                 blockExplorers={blockExplorers}
                 button={{
                   color: 'green',
-                  content: "Delete Proposal",
+                  content: "Cancel Proposal",
                   icon: 'close'
                 }}
                 content={(
@@ -171,7 +176,7 @@ class GovernanceProposalsProposal extends Component<Props> {
                     Are you sure you would like to proceed?
                     <Button
                       color='green'
-                      content="Delete Proposal"
+                      content="Cancel Proposal"
                       floated="right"
                       icon="delete"
                       loading={isVotePending}
@@ -185,8 +190,46 @@ class GovernanceProposalsProposal extends Component<Props> {
                 icon="share square"
                 settings={settings}
                 system={system}
-                title="Delete Worker Proposal"
+                title="Cancel Worker Proposal"
               />
+            : ''}
+            {
+              (submission.proposer == settings.account && 0==1) ?
+              <GlobalTransactionModal
+                actionName="GOVERNANCE_EDITPROPOSAL"
+                actions={actions}
+                blockExplorers={blockExplorers}
+                button={{
+                  color: 'blue',
+                  content: 'Modify Proposal',
+                  icon: "circle plus",
+                  floated: 'right',
+                  size: 'small'
+                }}
+                content={(
+                  <GovernanceProposalsFormProposal
+                    accounts={accounts}
+                    actions={actions}
+                    key="ProposalModifyForm"
+                    settings={settings}
+                    system={system}
+                    tables={tables}
+                    validate={validate}
+                    wallet={wallet}
+
+                    proposal_id={submission.id}
+                    amount={submission.amount}
+                    ipfs_location={submission.ipfs_location}
+                    send_to={submission.receiver}
+                    title={submission.title}
+                  />
+                )}
+                icon="inbox"
+                //onClose={onClose}
+                settings={settings}
+                system={system}
+                title="Modify"
+                />
             : ''}
             {
             (submission.proposer === settings.account && proposal.status === 0 && isExpired) ?
@@ -258,9 +301,9 @@ class GovernanceProposalsProposal extends Component<Props> {
           }
           <React.Fragment><p><strong>Voting Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
           <React.Fragment><p><strong>Voting Ends:</strong> <Moment>{end_time*1000}</Moment></p></React.Fragment>
-          <React.Fragment><p><strong>Amount Requested:</strong> {submission.amount} {settings.blockchain.tokenSymbol} in {cycle_count} cycle(s)</p></React.Fragment>
+          <React.Fragment><p><strong>Amount Requested:</strong> {(submission.amount/10000).toFixed(4)} {settings.blockchain.tokenSymbol} in {submission.cycles} cycle(s)</p></React.Fragment>
           <React.Fragment><p><strong>Requesting Account:</strong> {submission.receiver}</p></React.Fragment>
-          <React.Fragment><p><strong>Worker Proposal Fee:</strong> {proposalFee + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Worker Proposal Fee:</strong> {parseFloat(proposalFee).toFixed(4) + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
           <React.Fragment><p><strong>Yes Votes:</strong> {proposal.yes_count}</p></React.Fragment>
           <React.Fragment><p><strong>No Votes:</strong> {proposal.no_count}</p></React.Fragment>
           <React.Fragment><p><strong>Abstain Votes:</strong> {proposal.abstain_count}</p></React.Fragment>

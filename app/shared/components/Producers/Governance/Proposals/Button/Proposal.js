@@ -22,7 +22,7 @@ class GovernanceProposalsButtonProposal extends Component<Props> {
 
     return (
       <GlobalTransactionModal
-        actionName="CREATEPROPOSAL"
+        actionName="GOVERNANCE_CREATEPROPOSAL"
         actions={actions}
         blockExplorers={blockExplorers}
         button={{

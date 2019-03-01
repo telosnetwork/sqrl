@@ -62,6 +62,47 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
   };
 }
 
+export function editProposal(proposal_id, title, ipfs_location, amount, send_to) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_EDITPROPOSAL_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+    return eos(connection, true).transaction({
+      actions: [
+        {
+          account: defaultContract,
+          name: 'editproposal',
+          authorization: [{
+            actor: account,
+            permission: 'active'
+          }],
+          data: {
+            sub_id: proposal_id,
+            title: title,
+            ipfs_location: ipfs_location,
+            amount: amount,
+            receiver:send_to
+          }
+        }
+      ]
+    }, {
+      broadcast: connection.broadcast,
+      expireInSeconds: connection.expireInSeconds,
+      sign: connection.sign
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_GOVERNANCE_EDITPROPOSAL_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_GOVERNANCE_EDITPROPOSAL_FAILURE
+    }));
+  };
+}
+
 export function actOnProposal(submission_id, actionName) {
   return (dispatch: () => void, getState) => {
     dispatch({
@@ -469,6 +510,7 @@ export function voteBallot(voter, ballot_id, direction) {
 export default {
   actOnProposal,
   createProposal,
+  editProposal,
   getProposals,
   mirrorCast,
   registerVoter,
