@@ -13,16 +13,18 @@ export default class GlobalModalExplorerLink extends Component<Props> {
       linkType,
       settings
     } = this.props;
-    // look for compatible block explorer based on token, else use first
+    // look for default block explorer based on token, else find compatible
     const blockExplorerKeys = Object.keys(blockExplorers);
-    let blockExplorer = blockExplorers[blockExplorerKeys[0]];
-    blockExplorerKeys.forEach( (blockExplorerKey) => {
-      const explorer = blockExplorers[blockExplorerKey];
-      if (explorer.tokenSymbol == settings.blockchain.tokenSymbol){
-        blockExplorer = Object.assign({name: blockExplorerKey}, explorer);
-        return;
-      }
-    });
+    let blockExplorer = blockExplorers[settings.blockExplorer];
+    if (!blockExplorer) {
+      blockExplorerKeys.forEach( (blockExplorerKey) => {
+        const explorer = blockExplorers[blockExplorerKey];
+        if (explorer.tokenSymbol == settings.blockchain.tokenSymbol){
+          blockExplorer = Object.assign({name: blockExplorerKey}, explorer);
+          return;
+        }
+      });
+    }
 
     let urlPartsWithoutVariable;
     let generatedLink;

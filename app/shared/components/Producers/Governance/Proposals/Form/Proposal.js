@@ -147,6 +147,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       ipfs_location,
       title
     } = this.state;
+    const { proposal_id } = this.props;
     const formErrors = errors;
     let submitDisabled = false;
 
@@ -169,7 +170,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       submitDisabled = true;
     }
 
-    if ((Number(cycles) < 1 || isNaN(cycles)) && !submitDisabled) {
+    if ((Number(cycles) < 1 || isNaN(cycles)) && !submitDisabled && !proposal_id) {
       formErrors.cycles = 'invalid_proposal_cycles';
       submitDisabled = true;
     }
@@ -192,44 +193,57 @@ class GovernanceProposalsFormProposal extends Component<Props> {
 
     const {
       actions,
+      proposal_id,
       settings
     } = this.props;
 
     const {
-      createProposal
+      createProposal,
+      editProposal
     } = actions;
 
     const {
       amount,
       cycles,
+      ipfs_location,
       title,
       send_to
     } = this.state;
     
     // save proposal to IPFS, return its hash#, and submit contract to chain
-    await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
-      if (error) {
-        console.log('IPFS error occurred...', error)
-        this.setState({ ipfsError:error });
-      }
-      
-      // now we can finally add the proposal to the blockchain
-      if (ipfsHash) {
-        const hashPath = "/ipfs/" + ipfsHash[0].hash + "/";
-        const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
-        
+    let amountFormatted = parseFloat(amount).toFixed(4);
+    if (proposal_id >= 0) { // editing
         // submit WP
-        createProposal(title, hashPath, parseInt(cycles), 
-          amount + " " + settings.blockchain.tokenSymbol, send_to);
+        editProposal(proposal_id, title, ipfs_location, amountFormatted + " " + settings.blockchain.tokenSymbol, send_to);
 
-        this.setState({
-          ipfsHash: hashPath,
-          ipfs_location: ipfsLocation
-        });
-      }
-
+      this.setState({
+        ipfsHash: ipfs_location
+      });
       this.setState({ipfsing: false});
-    });
+    } else {
+      await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
+        if (error) {
+          console.log('IPFS error occurred...', error)
+          this.setState({ ipfsError:error });
+        }
+        
+        // now we can finally add the proposal to the blockchain
+        if (ipfsHash) {
+          const hashPath = "/ipfs/" + ipfsHash[0].hash + "/";
+          const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
+          
+          // submit WP
+          createProposal(title, hashPath, parseInt(cycles), amountFormatted + " " + settings.blockchain.tokenSymbol, send_to);
+  
+          this.setState({
+            ipfsHash: hashPath,
+            ipfs_location: ipfsLocation
+          });
+        }
+  
+        this.setState({ipfsing: false});
+      });
+    }
   }
 
   onBack = (e) => {
@@ -254,6 +268,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
   render() {
     const {
       actions,
+      proposal_id,
       settings,
       system,
       t,
@@ -297,7 +312,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     return (
       <Form
         warning
-        loading={ipfsing === true || system.GOVERNANCE_CREATEPROPOSAL === 'PENDING'}
+        loading={ipfsing === true || system.GOVERNANCE_CREATEPROPOSAL === 'PENDING' || system.GOVERNANCE_EDITPROPOSAL === 'PENDING'}
         onKeyPress={this.onKeyPress}
         onSubmit={this.onSubmit}
       >
@@ -318,8 +333,8 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                     size="huge"
                   >
                   {title}
-                  <Header.Subheader>
-                    Submission Fee: 50.0000 {settings.blockchain.tokenSymbol}
+                  <Header.Subheader> proposal:
+                    Submission Fee: the greater of 3% or 5.0000 {settings.blockchain.tokenSymbol}
                   </Header.Subheader>
                 </Header>
                 }
@@ -334,10 +349,12 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                 onChange={this.onChange}
                 value={title} 
               />
+              {(proposal_id >= 0) ? '' :
               <input 
                 type = "file"
                 onChange = {this.uploadWorkerProposal}
               />
+              }
               <GlobalFormFieldGeneric
                 label={amountLabel}
                 name="amount"
@@ -351,12 +368,14 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                 onChange={this.onChange}
                 value={send_to}
               />
+              {(proposal_id >= 0) ? '' :
               <GlobalFormFieldGeneric
                 label="Cycles:"
                 name="cycles"
                 onChange={this.onChange}
                 value={cycles}
               />
+              }
               <Divider />
               <FormMessageError
                 errors={
@@ -387,7 +406,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
           ? (
             <GovernanceProposalsFormProposalConfirming
               actions={actions}
-              amount={amount}
+              amount={parseFloat(amount).toFixed(4)}
               cycles={cycles}
               fileInfo={fileInfo}
               ipfsHash={ipfsHash}
@@ -395,6 +414,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
               onBack={this.onBack}
               onClose={this.onClose}
               onConfirm={this.onConfirm}
+              proposal_id={proposal_id}
               settings={settings}
               send_to={send_to}
               system={system}
