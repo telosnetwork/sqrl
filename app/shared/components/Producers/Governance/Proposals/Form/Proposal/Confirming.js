@@ -70,6 +70,10 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       ipfsSuccess = false;
       this.setState({ walletUnLockRequested: false });
     }
+
+    let feeAmount = (amount * 3 / 100);
+    if (feeAmount < 50 || isNaN(feeAmount))
+      feeAmount = 50;
     return (
       <Segment basic clearing vertical>
         <Header block size="large">
@@ -77,7 +81,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           <Header.Content>
             <Header.Subheader>
               Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request. Submission Fee: the greater of 3% or 5.0000 {settings.blockchain.tokenSymbol}
+              and a new proposal must be created to replace this request. Submission Fee: {feeAmount.toFixed(4)} {settings.blockchain.tokenSymbol}
             </Header.Subheader>
           </Header.Content>
         </Header>

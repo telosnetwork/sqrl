@@ -214,7 +214,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     let amountFormatted = parseFloat(amount).toFixed(4);
     if (proposal_id >= 0) { // editing
         // submit WP
-        editProposal(proposal_id, title, ipfs_location, amountFormatted + " " + settings.blockchain.tokenSymbol, send_to);
+        editProposal(proposal_id, title, ipfs_location, amountFormatted, send_to);
 
       this.setState({
         ipfsHash: ipfs_location
@@ -233,7 +233,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
           const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
           
           // submit WP
-          createProposal(title, hashPath, parseInt(cycles), amountFormatted + " " + settings.blockchain.tokenSymbol, send_to);
+          createProposal(title, hashPath, parseInt(cycles), amountFormatted, send_to);
   
           this.setState({
             ipfsHash: hashPath,
@@ -309,6 +309,11 @@ class GovernanceProposalsFormProposal extends Component<Props> {
 
     const formErrorKeys = Object.keys(formErrors);
     const hasError = ipfsError.message && ipfsError.message.length > 0;
+
+    let feeAmount = (amount * 3 / 100);
+    if (feeAmount < 50 || isNaN(feeAmount))
+      feeAmount = 50;
+
     return (
       <Form
         warning
@@ -333,8 +338,8 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                     size="huge"
                   >
                   {title}
-                  <Header.Subheader> proposal:
-                    Submission Fee: the greater of 3% or 5.0000 {settings.blockchain.tokenSymbol}
+                  <Header.Subheader>
+                    Submission Fee: Upon submission, a deposit of 3% of the requested proposal amount (minimum 50.0000 {settings.blockchain.tokenSymbol}) will be transferred from this account to eosio.saving. Please make sure you have a balance of {feeAmount.toFixed(4)} {settings.blockchain.tokenSymbol} or this submission will fail.
                   </Header.Subheader>
                 </Header>
                 }

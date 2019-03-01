@@ -119,22 +119,6 @@ class Producers extends Component<Props> {
           });
         } else {
           // otherwise notify users that they must stake before allowed voting
-          // and suggest several BPs as defaults (if they're registered)
-          let suggestedBPs = [
-            '21zephyr1111',
-            'amplifiedtls',
-            'bigironbptex',
-            'blindblocart',
-            'caleosblocks',
-            'eosbarcelona',
-            'eosiodetroit',
-            'goodblocktls',
-            'infinitybloc',
-            'kainosblkpro',
-            'telosdacnode',
-            'telosmiamibp',
-            'tlsvancouver'];
-          //this.setState({selected:suggestedBPs // TODO: .filter((p)=> {return p.active;})});
         }
       }
     }
