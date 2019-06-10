@@ -178,6 +178,7 @@ class ProxiesTable extends Component<Props> {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell collapsing />
+              <Table.HeaderCell collapsing />
               <Table.HeaderCell>
                 {t('producers_proxies_table_header_name')}
               </Table.HeaderCell>

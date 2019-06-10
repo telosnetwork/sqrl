@@ -107,5 +107,6 @@
   "wallet_status_tab_account_history": "내역",
   "wallet_status_tab_staked": "스테이킹된 {{tokenSymbol}}",
   "wallet_status_tab_token_balances": "잔고",
-  "wallet_status_total_balance": "총"
+  "wallet_status_total_balance": "총",
+  "wallet_exchange_actions": "Exchange Actions"
 }

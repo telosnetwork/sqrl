@@ -5,6 +5,7 @@ import { find } from 'lodash';
 import Moment from 'react-moment';
 const { shell } = require('electron');
 import { Button, Header, Message, Segment } from 'semantic-ui-react';
+import {Chart} from 'react-google-charts';
 
 import GovernanceProposalsProposalVote from './Proposal/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -90,7 +91,8 @@ class GovernanceProposalsProposal extends Component<Props> {
       begin_time,
       end_time,
       cycle_count,
-      status
+      status,
+      cycleVoteExpired
     } = proposal;
     let ballot = ballots.filter((b) => b.reference_id === prop_id && b.table_id === 0)[0]; 
     if (!ballot)
@@ -107,10 +109,16 @@ class GovernanceProposalsProposal extends Component<Props> {
     const approved = (voted) ? (vote.directions[0]=='1') : false;
     const abstained = (voted) ? (vote.directions[0]=='2') : false;
     const isExpired = (end_time * 1000) < Date.now();
+    const isStarted = (begin_time * 1000) < Date.now();
     const isVotePending = !!(system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_UNVOTE_PROPOSAL === 'PENDING')
     const isSupporting = (voted && approved);
     const isAbstaining = (voted && abstained);
     const isAgainst = (voted && against);
+    const isPastCycleVoter = proposal.cycleVoteExpired;
+    const totalCycles = submission.cycles > 0 ? submission.cycles - 1 : submission.cycles;
+    const yesVotes = parseFloat(proposal.yes_count.split(' ')[0]);
+    const noVotes = parseFloat(proposal.no_count.split(' ')[0]);
+    const absVotes = parseFloat(proposal.abstain_count.split(' ')[0]);
     return (
       <React.Fragment>
         <Header
@@ -159,7 +167,7 @@ class GovernanceProposalsProposal extends Component<Props> {
               />
             : ''}
             {
-            (submission.proposer === settings.account) ?
+            (submission.proposer === settings.account && !isStarted) ?
             <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
@@ -273,8 +281,9 @@ class GovernanceProposalsProposal extends Component<Props> {
             ? (
               <Message
                 color="green"
-                header="You have voted YES on this worker proposal."
+                header={isPastCycleVoter ? "Note: You have voted YES on this worker proposal IN A PREVIOUS CYCLE. This is your chance to vote YES again on this proposal, or change your vote to something else." : "You have voted YES on this worker proposal"}
                 icon="checkmark"
+                size="tiny"
               />
             )
             : false
@@ -283,8 +292,9 @@ class GovernanceProposalsProposal extends Component<Props> {
             ? (
               <Message
                 color="yellow"
-                header="You have voted to ABSTAIN on this worker proposal."
+                header={isPastCycleVoter ? "Note: You have voted to ABSTAIN on this worker proposal IN A PREVIOUS CYCLE. This is your chance to vote ABSTAIN again on this proposal, or change your vote to something else." : "You have voted to ABSTAIN on this worker proposal"}
                 icon="minus"
+                size="tiny"
               />
             )
             : false
@@ -293,20 +303,36 @@ class GovernanceProposalsProposal extends Component<Props> {
             ? (
               <Message
                 color="red"
-                header="You have voted NO on this worker proposal."
+                header={isPastCycleVoter ? "Note: You have voted NO on this worker proposal IN A PREVIOUS CYCLE. This is your chance to vote NO again on this proposal, or change your vote to something else." : "You have voted NO on this worker proposal"}
                 icon="x"
+                size="tiny"
               />
             )
             : false
           }
+          <React.Fragment><p><strong>Cycle:</strong> {proposal.cycle_count} of {totalCycles}</p></React.Fragment>
           <React.Fragment><p><strong>Voting Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
           <React.Fragment><p><strong>Voting Ends:</strong> <Moment>{end_time*1000}</Moment></p></React.Fragment>
-          <React.Fragment><p><strong>Amount Requested:</strong> {(submission.amount/10000).toFixed(4)} {settings.blockchain.tokenSymbol} in {submission.cycles} cycle(s)</p></React.Fragment>
-          <React.Fragment><p><strong>Requesting Account:</strong> {submission.receiver}</p></React.Fragment>
-          <React.Fragment><p><strong>Worker Proposal Fee:</strong> {parseFloat(proposalFee).toFixed(4) + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
-          <React.Fragment><p><strong>Yes Votes:</strong> {proposal.yes_count}</p></React.Fragment>
-          <React.Fragment><p><strong>No Votes:</strong> {proposal.no_count}</p></React.Fragment>
-          <React.Fragment><p><strong>Abstain Votes:</strong> {proposal.abstain_count}</p></React.Fragment>
+          <React.Fragment><p><strong>Amount Requested:</strong> {(submission.amount/10000).toFixed(4)} {settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Receiving Account:</strong> {submission.receiver}</p></React.Fragment>
+          <React.Fragment><p><strong>Submission Fee:</strong> {parseFloat(proposalFee).toFixed(4) + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
+
+          {
+            (isStarted || isExpired) ?
+          <Chart
+            width={'90%'}
+            chartType="BarChart"
+            loader={<div>Loading...</div>}
+            data={[
+              ['Vote', 'Yes', 'No', 'Abstain'],
+              ['', yesVotes, noVotes, absVotes],
+            ]}
+            legendToggle
+            options={{
+              chartArea: { width: '99%' },
+              legend:{position:'top'},
+            }}
+          /> : ''}
         
           <React.Fragment>
             {
@@ -335,12 +361,12 @@ class GovernanceProposalsProposal extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('Yes'),
-                  disabled: isSupporting,
+                  disabled: isSupporting && !isPastCycleVoter,
                   icon: 'checkmark'
                 }}
                 confirm={(
                   <Button
-                    color={(isSupporting) ? 'green' : 'grey'}
+                    color={(isSupporting && !isPastCycleVoter) ? 'green' : 'grey'}
                     content={t('confirm')}
                     floated="right"
                     icon="checkmark"
@@ -364,14 +390,14 @@ class GovernanceProposalsProposal extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('No'),
-                  disabled: isAgainst,
+                  disabled: isAgainst && !isPastCycleVoter,
                   icon: 'x'
                 }}
                 confirm={(
                   <Button
-                    color={(isAgainst) ? 'orange' : 'grey'}
+                    color={(isAgainst && !isPastCycleVoter) ? 'orange' : 'grey'}
                     content={t('confirm')}
-                    disabled={isAgainst}
+                    disabled={isAgainst && !isPastCycleVoter}
                     floated="right"
                     icon="checkmark"
                     loading={isVotePending}
@@ -394,14 +420,14 @@ class GovernanceProposalsProposal extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('Abstain'),
-                  disabled: isAbstaining,
+                  disabled: isAbstaining && !isPastCycleVoter,
                   icon: 'minus'
                 }}
                 confirm={(
                   <Button
-                    color={(isAbstaining) ? 'blue' : 'grey'}
+                    color={(isAbstaining && !isPastCycleVoter) ? 'blue' : 'grey'}
                     content={t('confirm')}
-                    disabled={isAbstaining}
+                    disabled={isAbstaining && !isPastCycleVoter}
                     floated="right"
                     icon="checkmark"
                     loading={isVotePending}

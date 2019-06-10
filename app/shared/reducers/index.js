@@ -16,6 +16,7 @@ import keys from './keys';
 import globals from './globals';
 import producers from './producers';
 import proposals from './proposals';
+import rex from './rex';
 import settings from './settings';
 import system from './system';
 import tables from './tables';
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   keys,
   producers,
   proposals,
+  rex,
   router,
   settings,
   system,

@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Button, Popup, Segment, Table, Header } from 'semantic-ui-react';
+import { Button, Image, Popup, Segment, Table, Header } from 'semantic-ui-react';
 import { isEqual } from 'lodash';
 
 import DangerLink from '../../../Global/Modal/DangerLink';
@@ -103,6 +103,9 @@ class ProducersTableRow extends Component<Props> {
               />
             )}
           />
+        </Table.Cell>
+        <Table.Cell singleLine>
+          <Image size="mini" src={proxy.logo_256} />
         </Table.Cell>
         <Table.Cell
           singleLine

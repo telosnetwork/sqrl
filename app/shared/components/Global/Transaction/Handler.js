@@ -38,7 +38,6 @@ export default class GlobalTransactionHandler extends Component<Props> {
     const hasError = (system[`${actionName}_LAST_ERROR`]);
 
     let { content } = this.props;
-
     if (broadcastTransaction) {
       content = (
         <GlobalTransactionMessageSuccess

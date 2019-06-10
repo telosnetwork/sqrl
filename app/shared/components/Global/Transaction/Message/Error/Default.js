@@ -10,6 +10,8 @@ class GlobalTransactionMessageErrorDefault extends Component<Props> {
     } = this.props;
 
     let errorMessage = error.error && error.error.details[0] && error.error.details[0].message;
+    if (!errorMessage) errorMessage = error.message;
+    
     let messageDetails = '';
     if (errorMessage) {
       const errorMessageArray = errorMessage.split('assertion failure with message:');

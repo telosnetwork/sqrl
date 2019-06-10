@@ -107,7 +107,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
     const voted = !!(vote.ballot_id >= 0 && candidate.index===votedCandidate);
     const isExpired = (end_time * 1000) < Date.now();
     const isTooEarly = (begin_time * 1000) > Date.now();
-    const isOpenElection = (tfvoting.config && board_id == tfvoting.config.open_election_id);
+    //const isOpenElection = (tfvoting.config && board_id == tfvoting.config.open_election_id);
 
     let lastError = '';
     if (system.GOVERNANCE_VOTE_PROPOSAL === 'FAILURE') {
@@ -162,7 +162,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
               <Button
                 color={isSelected ? 'green' : 'grey'}
                 icon='checkmark'
-                disabled={voted || isExpired || isTooEarly || settings.account == candidate.member || !isOpenElection}
+                disabled={voted || isExpired || isTooEarly || settings.account == candidate.member}
                 onClick={() => this.approve(ballot.ballot_id)}
                 loading={system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_MIRRORCAST_PENDING === 'PENDING' || system.GOVERNANCE_REGVOTER_PENDING === 'PENDING'}
                 size="small"

@@ -72,7 +72,7 @@ class ProducersTable extends Component<Props> {
     const totalVoteWeight = (current.total_producer_vote_weight > 0)
       ? current.total_producer_vote_weight
       : 0;
-    const loading = (producers.list.length < 1 || totalVoteWeight < 1);
+    const loading = (producers.list.length < 1); // || totalVoteWeight < 1);
     const querying = this.querying();
     let baseTable = <Table.Body />;
     let searchTable = (

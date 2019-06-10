@@ -107,5 +107,6 @@
   "wallet_status_tab_account_history": "履歴",
   "wallet_status_tab_staked": "ステーク中の{{tokenSymbol}}",
   "wallet_status_tab_token_balances": "残高",
-  "wallet_status_total_balance": "合計"
+  "wallet_status_total_balance": "合計",
+  "wallet_exchange_actions": "Exchange Actions"
 }
