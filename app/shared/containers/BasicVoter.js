@@ -8,6 +8,7 @@ import { forEach } from 'lodash';
 import { Segment } from 'semantic-ui-react';
 
 import About from '../components/About';
+import Exchange from '../components/Exchange';
 import Producers from '../components/Producers';
 import TabMenu from '../components/TabMenu';
 import APIIntegration from '../../wallet-integration/components/api.integration';
@@ -27,6 +28,7 @@ import * as GlobalsActions from '../actions/globals';
 import * as ProducersActions from '../actions/producers';
 import * as ProposalsActions from '../actions/governance/proposals';
 import * as ProxyActions from '../actions/system/community/regproxyinfo';
+import * as REXActions from '../actions/rex';
 import * as SellRamActions from '../actions/system/sellram';
 import * as SettingsActions from '../actions/settings';
 import * as StakeActions from '../actions/stake';
@@ -40,19 +42,19 @@ import * as WalletActions from '../actions/wallet';
 import * as SystemStateActions from '../actions/system/systemstate';
 
 type Props = {
+  accounts: {},
   actions: {
     getAccount: () => void,
     getGlobals: () => void,
     getInfo: () => void
   },
+  balances: {},
   history: {},
   keys: {},
   settings: {},
+  system: {},
   validate: {},
-  wallet: {},
-  balances: {},
-  accounts: {},
-  system: {}
+  wallet: {}
 };
 
 class BasicVoterContainer extends Component<Props> {
@@ -100,7 +102,10 @@ class BasicVoterContainer extends Component<Props> {
 
     const {
       getBlockExplorers,
-      getCurrencyStats
+      getCurrencyStats,
+      getRexPool,
+      getRexFund,
+      getRexBalance
     } = actions;
 
     switch (settings.walletMode) {
@@ -114,6 +119,9 @@ class BasicVoterContainer extends Component<Props> {
         } else {
           getCurrencyStats();
           getBlockExplorers();
+          getRexPool();
+          getRexFund();
+          getRexBalance();
           forEach(settings.customTokens, (token) => {
             const [contract, symbol] = token.split(':');
             getCurrencyStats(contract, symbol.toUpperCase());
@@ -159,6 +167,7 @@ class BasicVoterContainer extends Component<Props> {
     const {
       actions,
       keys,
+      rex,
       settings,
       system,
       validate,
@@ -167,6 +176,10 @@ class BasicVoterContainer extends Component<Props> {
 
     let activeTab = <Producers {...this.props} />;
     switch (activeItem) {
+      case 'exchange': {
+        activeTab = <Exchange {...this.props} />;
+        break;
+      }
       case 'wallet': {
         activeTab = <Wallet {...this.props} />;
         break;
@@ -190,6 +203,7 @@ class BasicVoterContainer extends Component<Props> {
           activeItem={activeItem}
           handleItemClick={this.handleItemClick}
           locked={(!keys.key)}
+          rex={rex}
           settings={settings}
           validate={validate}
           wallet={wallet}
@@ -226,6 +240,7 @@ function mapStateToProps(state) {
     keys: state.keys,
     producers: state.producers,
     proposals: state.proposals,
+    rex: state.rex,
     settings: state.settings,
     system: state.system,
     tables: state.tables,
@@ -251,6 +266,7 @@ function mapDispatchToProps(dispatch) {
       ...ProducersActions,
       ...ProposalsActions,
       ...ProxyActions,
+      ...REXActions,
       ...SellRamActions,
       ...SettingsActions,
       ...StakeActions,

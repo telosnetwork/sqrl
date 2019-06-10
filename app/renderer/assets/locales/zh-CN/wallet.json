@@ -105,5 +105,6 @@
   "wallet_status_tab_account_history": "History",
   "wallet_status_tab_staked": "放样的EOS",
   "wallet_status_tab_token_balances": "Balances",
-  "wallet_status_total_balance": "Total"
+  "wallet_status_total_balance": "Total",
+  "wallet_exchange_actions": "Exchange Actions"
 }

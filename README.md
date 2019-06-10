@@ -16,6 +16,7 @@
 ### Features
 
 **NEW FEATURES**:
+- **(T-)REX**: Sqrl allows you to participate in the Resource Exchange system, or REX, for any blockchain that supports it. REX allows you to lend your idle CPU and NET resources to the network for others to use while you earn interest for being a lender.
 - **IPFS Storage for Key Documents**: All interactions with key documents in Sqrl, such as the Telos Blockchain Network Operating Agreement, are uploaded and retrieved from the InterPlanetary File System (IPFS).
 - **Create Worker Proposals**: Sqrl allows you to create new worker proposal requests on the Telos blockchain. You can also participate in voting on existing worker proposals.
 - **Register and Vote on Arbitration**: As the first EOS.IO chain with real on-chain governance support, Sqrl allows anyone to apply to be an arbitrator and voters to elect arbitrators. You can also submit claims and go through the arbitration process using Sqrl.
@@ -40,11 +41,11 @@
 
 ### Releases
 
-Current 1.0.5 release downloads:
+Current 1.0.6 release downloads:
 
-- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.5/win-Sqrl-1.0.5.exe)
-- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.5/mac-Sqrl-1.0.5.dmg)
-- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/1.0.5.tar.gz)
+- [Windows Installer](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.6/win-Sqrl-1.0.6.exe)
+- [macOS Package](https://github.com/Telos-Foundation/Sqrl/releases/download/1.0.6/mac-Sqrl-1.0.6.dmg)
+- [Linux (src)](https://github.com/Telos-Foundation/Sqrl/archive/1.0.6.tar.gz)
 
 The latest release will always be available on the releases page of this repository:
 
@@ -116,40 +117,40 @@ Signed by [eosmiami on keybase](https://keybase.io/eosmiami)
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-shasum -b -a 512 linux-Sqrl-1.0.5-amd64.deb
-188964204049246d089cdff7c489034b5513d259567adae7e4b3ea6760cf41a9789e7079dfde3c2c945da33b05939be80f52c4d7fc990ca5a4da773212979f12 *linux-Sqrl-1.0.5-amd64.deb
-shasum -b -a 512 linux-Sqrl-1.0.5-amd64.snap
-3daa52b93cfcc1e723a63fd403a25fe6f02eb1191f02480179655f9da07d66ce93c44b6733992a57ecf008b2112eae934b47eed1fb9685a54a54511ba3101009 *linux-Sqrl-1.0.5-amd64.snap
-shasum -b -a 512 linux-Sqrl-1.0.5-arm64.deb
-4d59556494501415fed9c74358cc8d566bc7bea7b91145c3122ee4d2b1a4646dae631e6d99e15af202d346a7255861dad487c4b7164ec8b2c0f1f6ba76abd953 *linux-Sqrl-1.0.5-arm64.deb
-shasum -b -a 512 linux-Sqrl-1.0.5-armv7l.deb
-0223b20a58fe5ddf9a4416fb9856822e4e5a8b390fd1df932908c3e7a95f38dd2fa522a5e6ee03eafd83bc881f743d935990c5356baa6efbc45f0c79cebdeb9a *linux-Sqrl-1.0.5-armv7l.deb
-shasum -b -a 512 linux-Sqrl-1.0.5-i386.deb
-e4d7a6377722ca52f45c27fd9c3a3e9f828ac3de893a177e3f7c0089b62d82f5c0ace116db042d735292685ad169bd43547da22a0fd28585b80d6df4bd083955 *linux-Sqrl-1.0.5-i386.deb
-shasum -b -a 512 linux-Sqrl-1.0.5-x86_64.AppImage
-4c25a90e2e46da0c09041c873cd165dcca918b6e26204af561c4f6fe1ff9a9fee8adbde1fc77759c30c358a53dbf9362919b5bc10b9dfc9540c11f59c563cb58 *linux-Sqrl-1.0.5-x86_64.AppImage
-shasum -b -a 512 mac-Sqrl-1.0.5.dmg
-eade9b8fe609317ca4f6be0124c09577d9f6d3179d39c4278d12b169d20097290beaee99a370e74236a1eff0a502021e35bb0abfa3f72bc548e048ace61a6114 *mac-Sqrl-1.0.5.dmg
-shasum -b -a 512 mac-Sqrl-1.0.5.zip
-ce15c9d81715b36f324dfb5093c85630ac1e0159e721f8a3da191779657ed2a9347bfed0cfe1e4a72899d553bd7438c07c1022716086b773444b9e73f61eff44 *mac-Sqrl-1.0.5.zip
-shasum -b -a 512 win-Sqrl-1.0.5.exe
-a0f691caa0f964bcbd105d05dd65a35fb744434abcb1c29645246468dd6d4cf2cd85274bd69c5b5c433287ea678815d3de7aa4be4ecb39178aac6a4816c233e1 *win-Sqrl-1.0.5.exe
+shasum -b -a 512 linux-Sqrl-1.0.6-amd64.deb
+7c019aa8f3a62e0f533a5d1c2c2c272dba2b84bc4696b2c43590b7cc60853072f4a3314adee133035cbdd9763b4f0cf9e0bb65f8efcb5222b83ef3d0268f0a5f *linux-Sqrl-1.0.6-amd64.deb
+shasum -b -a 512 linux-Sqrl-1.0.6-amd64.snap
+1e7c6875b66c2f3b855781705102500932ae6d60ca3d43169dce31117e0058970968855346aec6e583f18e715365e2a6fee340d21f807788d5888f6845045336 *linux-Sqrl-1.0.6-amd64.snap
+shasum -b -a 512 linux-Sqrl-1.0.6-arm64.deb
+9baf5acfe7be92ebab6f60f50b83804be25a89bad37030ea8066f19e9d9869824a07c1b66df17075bbe0079b5b5455f5b52f4dd17d25d0288a5acfde4687c0b5 *linux-Sqrl-1.0.6-arm64.deb
+shasum -b -a 512 linux-Sqrl-1.0.6-armv7l.deb
+ac793e93a8ff1e80e1889ec9a4a8b1428be1ffaeec0a21cd37c8b655ee736a13f50b63de832d2e329a9f81a6c123304b119487f09d8104b4f7c887357d1cd730 *linux-Sqrl-1.0.6-armv7l.deb
+shasum -b -a 512 linux-Sqrl-1.0.6-i386.deb
+a4f7e9cae4a868541d50dae16979389d87b33c4b144d64afaff4c19c0814c6bf2746acde26a71cdc6e42076ffa48d08a44e50353160ea68a5100548ea1790eb2 *linux-Sqrl-1.0.6-i386.deb
+shasum -b -a 512 linux-Sqrl-1.0.6-x86_64.AppImage
+707aac3b4e36c603020fd05cc73364b5386427856cd92dc10f2f012d02931283efea5d13c7db61085de4925ac5633c0715b6024da62cd82ee48fa3ca68becc51 *linux-Sqrl-1.0.6-x86_64.AppImage
+shasum -b -a 512 mac-Sqrl-1.0.6.dmg
+c741c75fd6b6040164db845630750b46ad6918bd79ee8801f4251b534144890a0a3dda4d0dc9ed5d752e9a1d21e04d1442a8a38f3a9d4aabbb349a31528270a7 *mac-Sqrl-1.0.6.dmg
+shasum -b -a 512 mac-Sqrl-1.0.6.zip
+a7b073776fae020c39f48c63fcd2eac64f83815b8f239555d70f069802c16711ea2bcd1ca55bc8cf3992dab82cdbe25835ea137781ed594d131922ff2c0c4fb0 *mac-Sqrl-1.0.6.zip
+shasum -b -a 512 win-Sqrl-1.0.6.exe
+8b7e8a2b6ffc7a0ad4056a3f4b974edab89d1e5a26d1ad4a4fc286172843af892527e9c6da802699f37b0566076a8961dff1d320455bea1d3c6e8bc6aaf5ccbd *win-Sqrl-1.0.6.exe
 -----BEGIN PGP SIGNATURE-----
 Version: Keybase OpenPGP v2.1.0
 Comment: https://keybase.io/crypto
 
-wsFcBAABCgAGBQJcebePAAoJEDT4ke1a0TzTCdcP/0Y1KzzjFM+3iIext/GN2nNm
-07alLQWrp87cZv4VCg84pizbjMOUhpeI1+JbTIytv0jiLaX/24k8eWd3HqOUuen3
-sGTgLl8C5NCnziJjl4jsG3H+bjsjPlJ3E4pL69Kug3By/QuhbjwMvlu26qYqiByY
-M9cnJ4pU4UmAR915/nb0VTijSH+OKqkRD1SzUWuDwsC73toJZ7FNNKmcDftKoIC9
-Q7bpjtDcEJVqVQAaKHfu6jLnym3w9nqKWAyGcWhoACtEDn3PX7165sHyk0UITZL/
-1M98eWW+A8l2NbAf0s3dGYpEbfCEMg0HxHRbuG/5pm4HKj0pgnZYtVr+TwlzVA/c
-a0tMWXI/6p/GBkkBzpi/Dn/RHtF328qdz5V2B1qhL7K9mQBf0If6qrsX91nKSVpm
-0Riiz+zEmBnJa/Pd+DZKQstwVrUdoJiFXrAbAYsJk+uKWYBQq7Il9bg/gK1Mz9OJ
-NeNdke4uy0M+Hkl/To2Qg8IpiZ+tqqSRv9IT1j/20iEc1HW7XNzw72seVnjRtM/+
-QMrhgjnpAxoeDHeew1dIXrX2SN2QxvlSyAfFJ7j/Cixx2FXqGmftny0KymV7wv6o
-gbvZfOQAVQli0ItZkqNbktvCmdpWzTYXymJUa7Biq26hJfFeaa46FPoR4XTnundA
-N/F0nM4BSUMYHUtH0JrV
-=R0qK
+wsFcBAABCgAGBQJc/tq6AAoJEDT4ke1a0TzTqK8QAJDkXt8OOjKYR0fKZ1lH7Btj
+i33T1B5NLqUodAapwJNYjl6K2QhAjkFhjbS1iqtBdxDemUqdJTKpA45xSoeiYbxW
+vveo+m1p/W61MFdtYEVXLfId/gyhRpp/ysmc+vSQ+y5pGsm4k/fq1frE8A4l9FU3
+RdWXMy+l83iPbMa/64uGaB0+MOKY5qy0c1fgsrB1QaGCQsup1SoGfArPF7r2HcHJ
+Q/7d+1bpv51cUhVN/tXDVmKijikexvQED9qj+86t91XfnXjSPQ6LV1206QhmYuIj
+pszO/GJrPil6DYgZOspcJ2ij/ATN86DDgVeQpGQjAWjsOibrHbvn5kMCAEk1Rq4a
+zngpXZEZDsdqzQGS/H1UT8QPdHi9oGGJ6Smh1NMf7jBEC1d/WdgOHWsTn6nYrNGX
+z7zjvgJNicuv/PBtCm/ZDWoJMCPuqqAPWK3duWR08aZ9GSY5sjacwE4tV7WymCCi
+5Hcr34aCMVDBb+razhKvTOKJPCsnBzS1szDYMH41bo4Kf+/AuqzcvxOIh75x7deW
+EiloobfbT9AVh7Wg4/Ve0e/94aEj5wPYLwNWdf16KzT6tkYAO1vawvFSQDYImfvm
+ivo1//gkbhEbKAllaRM4G4Jq2B6RANscj84k30CXUsy2jCsR6PrOSlBHas5qYI6Y
+21582+z0vUgvIXztOP7b
+=wKNy
 -----END PGP SIGNATURE-----
 ```

@@ -23,6 +23,7 @@
   "update_staked_coins": "Update Staked Balances",
   "update_staked_cpu_amount": "Set {{tokenSymbol}} staked in CPU",
   "update_staked_net_amount": "Set {{tokenSymbol}} staked in Bandwidth",
+  "rex_unstaketo_explanation_confirm": "You are about to unstake and lend some tokens. Please note that these tokens will be unavailable for use until they're unlent, which has a 4-day maturity date from the day they are unlent.",
   "will_have_less_than_one_eos_staked": "You will have less than 1 {{tokenSymbol}} staked to Bandwidth and/or CPU. That may prevent you from carrying out transactions when the network is busy.",
   "you_will_have": "You will have",
   "about_to_unstake_tokens": "You are about to unstake some tokens, please note that all tokens that were unstaked will have to be claimed in 72 hours.",

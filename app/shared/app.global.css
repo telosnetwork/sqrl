@@ -18,6 +18,10 @@ a {     -webkit-transition: all 0.3s ease;-moz-transition: all 0.3s ease;-o-tran
   min-width: 0;
 }
 
+.rexlabel {
+  font-size: 11pt;
+}
+
 .ui.grey.button {
   background-color: #DFDDD6;
   color: rgba(0,0,0,.6);

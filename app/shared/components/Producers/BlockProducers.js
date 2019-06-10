@@ -37,12 +37,16 @@ class BlockProducers extends Component<Props> {
     const {
       getProducers,
       getProducersInfo,
-      getProposals
+      getProposals,
+      getRatifyDocuments,
+      getRatifySubmissions
     } = actions;
     if (validate.NODE) {
       getProducers();
       if (settings.blockchain.tokenSymbol === 'EOS') getProducersInfo();
       getProposals();
+      getRatifyDocuments();
+      getRatifySubmissions();
     }
   }
 

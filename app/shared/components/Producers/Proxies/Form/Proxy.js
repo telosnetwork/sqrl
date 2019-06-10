@@ -232,7 +232,7 @@ class ProxiesFormProposal extends Component<Props> {
     } = this.state;
     
     // save logo to IPFS, return its hash#, and submit proxy to chain
-    if (!updatingRegistration) {
+    if (!updatingRegistration || this.state.fileBuffer != '') {
       await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
         if (error) {
           console.log('got error in IPFS..', error)

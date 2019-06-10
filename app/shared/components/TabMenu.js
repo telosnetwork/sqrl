@@ -17,11 +17,13 @@ class TabMenu extends Component<Props> {
       activeItem,
       handleItemClick,
       locked,
+      rex,
       settings,
       validate,
       wallet,
       t
     } = this.props;
+
     return (
       <Menu
         attached
@@ -49,6 +51,18 @@ class TabMenu extends Component<Props> {
               icon="protect"
               content={t('wallet')}
               active={activeItem === 'wallet'}
+              onClick={handleItemClick}
+            />
+          )
+          : false
+        }
+        {( (rex && rex.rexpool) && (settings.account || settings.walletMode === 'wait'))
+          ? (
+            <Menu.Item
+              name="exchange"
+              icon="exchange"
+              content={t('exchange')}
+              active={activeItem === 'exchange'}
               onClick={handleItemClick}
             />
           )

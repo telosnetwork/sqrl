@@ -8,6 +8,7 @@ import ProducersProxy from './Producers/Proxy';
 import GovernanceArbitration from './Producers/Arbitration';
 import GovernanceProposals from './Producers/Proposals';
 import GovernanceRatifyAmend from './Producers/RatifyAmend';
+import GovernanceRatify from './Producers/Ratify';
 import GovernanceTFVoting from './Producers/TFVoting';
 import ProducersVotingPreview from './Producers/BlockProducers/Modal/Preview';
 import Proxies from './Producers/Proxies';
@@ -419,6 +420,18 @@ class Producers extends Component<Props> {
                         return (
                           <Tab.Pane>
                             <GovernanceTFVoting
+                              {...this.props}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    },
+                    {
+                      menuItem: 'Ratify',
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <GovernanceRatify
                               {...this.props}
                             />
                           </Tab.Pane>

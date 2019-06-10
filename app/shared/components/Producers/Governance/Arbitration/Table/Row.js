@@ -95,7 +95,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
     }
     if (!(votedCandidate >=0))
       votedCandidate = {};
-    console.log('arb votes (ballot)(leaderboard): ',votes,ballot,leaderboard);
+    
     let arbitrator = {};
     if (arbitrators) {
       arbitrator = arbitrators.filter((a) => a.arb === candidate.member)[0]; 

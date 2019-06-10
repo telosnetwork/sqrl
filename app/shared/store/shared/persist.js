@@ -164,7 +164,7 @@ const migrations = {
         {
           blockchain:'Jungle Testnet',
           tokenSymbol:'EOS',
-          node:'http://jungle.cryptolions.io:18888',
+          node:'https://jungle2.cryptolions.io',
           chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
         }
       ];
@@ -218,7 +218,7 @@ const migrations = {
         {
           blockchain:'EOS Testnet',
           tokenSymbol:'EOS',
-          node:'http://jungle.cryptolions.io:18888',
+          node:'https://jungle2.cryptolions.io',
           chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
         }
       ];
@@ -291,7 +291,7 @@ const migrations = {
         {
           blockchain:'EOS Testnet',
           tokenSymbol:'EOS',
-          node:'http://jungle.cryptolions.io:18888',
+          node:'https://jungle2.cryptolions.io',
           chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
         }
       ];

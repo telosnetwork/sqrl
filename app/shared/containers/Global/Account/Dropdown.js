@@ -26,6 +26,7 @@ class GlobalAccountDropdown extends Component<Props> {
   }
   swapAccount = (account, password = false) => {
     const { actions, settings } = this.props;
+    
     actions.useWallet(account, settings.blockchain.chainId);
     if (password) {
       actions.unlockWallet(password);
@@ -115,11 +116,11 @@ class GlobalAccountDropdown extends Component<Props> {
           color: 'orange',
           name: 'eye'
         };
-        if (options.length > 0) { // switch to first wallet
-          setTimeout(() => {
+        /*if (options.length > 0) { // switch to first wallet
+          setTimeout(() => { // causes wallet to switch back and forth between accts
             actions.useWallet(options[0].w.account, settings.blockchain.chainId);
           }, 1000);
-        }
+        }*/
         break;
       }
       default: {

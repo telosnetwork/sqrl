@@ -82,7 +82,7 @@ class GovernanceTFVoting extends Component<Props> {
         <Header floated="left">
           TF Voting Portal
         </Header>
-          <Container floated="right" style={{ marginBottom: '5px' }}>
+          <Container floated="right" style={{ marginBottom: '75px' }}>
             <GovernanceTFVotingButtonTFVoting
               accounts={accounts}
               actions={actions}

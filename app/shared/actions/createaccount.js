@@ -73,7 +73,6 @@ export function createFreeAccount(account_name, owner_key, active_key, macaddres
     dispatch({
       type: types.SYSTEM_CREATEACCOUNT_PENDING
     });
-    console.log('mac addresses:',macaddresses)
     return fetch('https://api.eos.miami:1460', {
       method: 'POST',
       headers: {

@@ -97,6 +97,8 @@ class GovernanceArbitrationArbitration extends Component<Props> {
       end_time,
       status
     } = leaderboard;
+
+    const currentCandidate = leaderboard.candidates.filter((a) => a.member === settings.account)[0]; 
     
     const isExpired = (end_time * 1000) < Date.now();
     return (
@@ -111,7 +113,7 @@ class GovernanceArbitrationArbitration extends Component<Props> {
           Arbitration Election: (#{board_id})
           <Header.Subheader >
           {
-            (isExpired && status != 3) ?
+            (isExpired && status != 3 && currentCandidate) ?
               <GlobalTransactionModal
                 actionName="GOVERNANCE_ENDELECTION"
                 actions={actions}

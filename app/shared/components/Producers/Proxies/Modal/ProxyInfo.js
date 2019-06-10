@@ -1,11 +1,12 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Modal, Table, Segment } from 'semantic-ui-react';
+import { Image, Modal, Table, Segment } from 'semantic-ui-react';
 
 import DangerLink from '../../../Global/Modal/DangerLink';
 
-const urlKeys = ['website', 'logo_256'];
+const urlKeys = ['website'];
+const imageKeys = ['logo_256'];
 
 class ProducersProxiesModalProxyInfo extends Component<Props> {
   componentWillMount = () => {
@@ -56,12 +57,14 @@ class ProducersProxiesModalProxyInfo extends Component<Props> {
                             {(urlKeys.includes(key))
                               ? (
                                 <DangerLink
-                                  //content={viewingProxy[key].substring(0, 30).replace(/(^\w+:|^)\/\//, '')}
                                   content={viewingProxy[key]}
                                   link={viewingProxy[key]}
                                   settings={settings}
                                 />
-                              ) : (
+                              ) : (imageKeys.includes(key)) ? (
+                                <Image size="small" src={viewingProxy[key]} />
+                                ) 
+                              : (
                                 <p>{viewingProxy[key]}</p>
                               )}
                           </Table.Cell>
