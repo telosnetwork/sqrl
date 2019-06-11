@@ -24,6 +24,11 @@ export default function rex(state = initialState, action) {
         rexpool: action.payload.rexpool
       });
     }
+    case types.SYSTEM_REX_GETREXPOOL_FAILURE: {
+      return Object.assign({}, state, {
+        rexpool: null
+      });
+    }
     case types.SYSTEM_REX_GETREXBAL_SUCCESS: {
       return Object.assign({}, state, {
         rexbal: action.payload.rexbal

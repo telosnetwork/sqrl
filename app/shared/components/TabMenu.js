@@ -23,7 +23,6 @@ class TabMenu extends Component<Props> {
       wallet,
       t
     } = this.props;
-
     return (
       <Menu
         attached
@@ -61,7 +60,7 @@ class TabMenu extends Component<Props> {
             <Menu.Item
               name="exchange"
               icon="exchange"
-              content={t('exchange')}
+              content='REX'
               active={activeItem === 'exchange'}
               onClick={handleItemClick}
             />
