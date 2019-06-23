@@ -16,7 +16,7 @@ import * as ricardianParser from 'eos-rc-parser';
 import * as Actions from '../../models/api/ApiActions';
 // import {store} from '../../store/store'
 import eosjs2 from 'eosjs2';
-// import * as numeric from  "../../../node_modules/eosjs2/dist/eosjs2-numeric";
+import * as numeric from  "../../../../node_modules/eosjs2/dist/eosjs2-numeric";
 import { decrypt } from '../../../../shared/actions/wallet';
 import APIUtils from '../../util/APIUtils';
 import PopupService from '../../services/PopupService';
@@ -85,13 +85,14 @@ export default class EOS{
             chainId: "",
             node: "",
         }
-        this.name = Blockchains.TELOS;
+        //this.name = Blockchains.TELOS;
+        this.name = Blockchains.EOSIO;
         this.type = BLOCKCHAIN_SUPPORT;
     }
 
     setBlockchain(blockchain){
         this.blockchain = Object.assign(this.blockchain, blockchain);
-        this.blockchain.chain = this.blockchain.tokenSymbol.toLowerCase();
+        //this.blockchain.chain = this.blockchain.tokenSymbol.toLowerCase();
     }
 
     explorers(){ return EXPLORERS; }
@@ -105,18 +106,18 @@ export default class EOS{
     async getEndorsedNetwork(){
         return new Promise((resolve, reject) => {
             resolve(new Network(
-                'TELOS Testnet', 'https',
+                'Telos Mainnet', 'https',
                 'api.eos.miami',
-                17441,
+                443,
                 Blockchains.TELOS,
-                '335e60379729c982a6f04adeaad166234f7bf5bf1191252b8941783559aec33e'
+                '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
             ));
         });
     }
 
     async isEndorsedNetwork(network){
         const endorsedNetwork = await this.getEndorsedNetwork();
-        return network.blockchain === Blockchains.TELOS && network.chainId === endorsedNetwork.chainId;
+        return network.blockchain === Blockchains.EOSIO && network.chainId === endorsedNetwork.chainId;
     }
 
     async getChainId(network){
@@ -251,7 +252,7 @@ export default class EOS{
 
     defaultDecimals(){ return 4; }
     defaultToken(){ 
-        return {symbol:this.blockchain.tokenSymbol, account:'eosio.token', name:'TELOS', blockchain:this.blockchain.chain}; 
+        return {symbol:this.blockchain.tokenSymbol, account:'eosio.token', name:'Telos', blockchain:this.blockchain.chain}; 
     }
 
     // async fetchTokens(tokens){
@@ -488,59 +489,62 @@ export default class EOS{
     }
 
     async parseEosjs2Request(payload, network){
-        return null;
-        // const {transaction} = payload;
+		const {transaction} = payload;
 
-        // const rpc = new eosjs2.Rpc.JsonRpc(network.fullhost());
-        // const api = new eosjs2.Api({rpc});
+		const rpc = new eosjs2.Rpc.JsonRpc(network.fullhost());
+		const api = new eosjs2.Api({rpc});
 
-        // const contracts = ObjectHelpers.distinct(transaction.abis.map(x => x.account_name));
+		const contracts = ObjectHelpers.distinct(transaction.abis.map(x => {
+			if(x.hasOwnProperty('account_name')) return x.account_name;
+			return x.accountName;
+		}));
 
-        // const abis = await Promise.all(contracts.map(async accountName => {
-        //     const cachedABI = await StorageService.getCachedABI(accountName+'eosjs2', network.chainId);
+		const abis = await Promise.all(contracts.map(async accountName => {
+			const cachedABI = null; // await StorageService.getCachedABI(accountName+'eosjs2', network.chainId);
 
-        //     const account = await rpc.get_account(accountName);
-        //     const lastUpdate = +new Date(account.last_code_update);
+			const account = await rpc.get_account(accountName);
+			const lastUpdate = +new Date(account.last_code_update);
 
-        //     let rawAbiHex;
-        //     const fetchAbi = async () => {
-        //         const rawAbi = numeric.base64ToBinary((await rpc.get_raw_code_and_abi(accountName)).abi);
-        //         rawAbiHex = Buffer.from(rawAbi).toString('hex');
-        //         await StorageService.cacheABI(accountName+'eosjs2', network.chainId, {
-        //             rawAbiHex,
-        //             timestamp:+new Date()
-        //         });
-        //     };
+			let rawAbiHex;
+			const fetchAbi = async () => {
+				const rawAbi = numeric.base64ToBinary((await rpc.get_raw_code_and_abi(accountName)).abi);
+				rawAbiHex = Buffer.from(rawAbi).toString('hex');
+				/*await StorageService.cacheABI(accountName+'eosjs2', network.chainId, {
+					rawAbiHex,
+					timestamp:+new Date()
+				});*/
+			};
 
-        //     if(!cachedABI) await fetchAbi();
-        //     else {
-        //         if(cachedABI.timestamp < lastUpdate) await fetchAbi();
-        //         else rawAbiHex = cachedABI.rawAbiHex;
-        //     }
+			if(!cachedABI) await fetchAbi();
+			else {
+				if(cachedABI.timestamp < lastUpdate) await fetchAbi();
+				else rawAbiHex = cachedABI.rawAbiHex;
+			}
 
-        //     const rawAbi = Buffer.from(rawAbiHex, 'hex');
-        //     const abi = api.rawAbiToJson(rawAbi);
-        //     api.cachedAbis.set(accountName, { rawAbi, abi });
-        //     return true;
-        // }));
+			const rawAbi = Buffer.from(rawAbiHex, 'hex');
+			const abi = api.rawAbiToJson(rawAbi);
+			api.cachedAbis.set(accountName, { rawAbi, abi });
+			return true;
+		}));
 
-        // const buffer = Buffer.from(transaction.serializedTransaction, 'hex');
-        // const parsed = await api.deserializeTransactionWithActions(buffer);
-        // parsed.actions.map(x => {
-        //     x.code = x.account;
-        //     x.type = x.name;
-        //     delete x.account;
-        //     delete x.name;
-        // });
+		const buffer = Buffer.from(transaction.serializedTransaction, 'hex');
+		const parsed = await api.deserializeTransactionWithActions(buffer);
+		parsed.actions.map(x => {
+			x.code = x.account;
+			x.type = x.name;
+		});
 
-        // payload.buf = Buffer.concat([
-        //     new Buffer(transaction.chainId, "hex"),         // Chain ID
-        //     buffer,                                         // Transaction
-        //     new Buffer(new Uint8Array(32)),                 // Context free actions
-        // ]);
+		payload.buf = Buffer.concat([
+			new Buffer(transaction.chainId, "hex"),         // Chain ID
+			buffer,                                         // Transaction
+			new Buffer(new Uint8Array(32)),                 // Context free actions
+		]);
 
-        // return parsed.actions;
-    }
+		payload.transaction.parsed = Object.assign({}, parsed);
+		payload.transaction.parsed.actions = await api.serializeActions(parsed.actions);
+
+		return parsed.actions;
+	}
 
     async requestParser(payload, network){
         if(payload.transaction.hasOwnProperty('serializedTransaction'))

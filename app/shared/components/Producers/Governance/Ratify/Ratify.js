@@ -5,7 +5,8 @@ import { find } from 'lodash';
 import Moment from 'react-moment';
 const { shell } = require('electron');
 import { Button, Header, Message, Segment, Table } from 'semantic-ui-react';
-import {Chart} from 'react-google-charts';
+import { Chart } from 'react-google-charts';
+import ReactMarkdown from 'react-markdown';
 
 import GovernanceProposalsRatifyVote from './Ratify/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -13,6 +14,10 @@ import GlobalTransactionModal from '../../../Global/Transaction/Modal';
 const scope = 'eosio.amend';
 
 class GovernanceProposalsRatify extends Component<Props> {
+  state= { 
+    currentClauseMarkdown: null,
+    proposedClauseMarkdown: null
+  };
   approve = (ballot_id) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
@@ -65,6 +70,40 @@ class GovernanceProposalsRatify extends Component<Props> {
       shell.openExternal(link);
     }
   }
+  componentDidMount(){
+    const {
+      proposal
+    } = this.props;
+    const {
+      document_clauses,
+      submission_new_clause_nums,
+      submission_new_ipfs_urls
+    } = proposal;
+
+    if (submission_new_clause_nums && submission_new_clause_nums.length > 0) {
+      const currentClauseURL = document_clauses[submission_new_clause_nums[0]-1];
+      if (currentClauseURL) {
+        fetch(currentClauseURL)
+        .then(response=>{
+          return response.text();
+        }).then(data =>{
+          this.setState({
+            currentClauseMarkdown: data
+          })
+        });
+      }
+      const proposedClauseURL = submission_new_ipfs_urls[0];
+      if (proposedClauseURL) {
+        fetch(proposedClauseURL).then(response=>{
+          return response.text();
+        }).then(data =>{
+          this.setState({
+            proposedClauseMarkdown: data
+          })
+        });
+      }
+    }
+  }
   render() {
     const {
       accounts,
@@ -104,6 +143,11 @@ class GovernanceProposalsRatify extends Component<Props> {
       submission_title
     } = proposal;
 
+    const { 
+      currentClauseMarkdown,
+      proposedClauseMarkdown
+    } = this.state;
+
     console.log(proposal);
 
     let ballot = ballots.filter((b) => b.reference_id === prop_id && b.table_id === 0)[0]; 
@@ -128,7 +172,9 @@ class GovernanceProposalsRatify extends Component<Props> {
     const noVotes = parseFloat(proposal.no_count.split(' ')[0]);
     const absVotes = parseFloat(proposal.abstain_count.split(' ')[0]);
 
-    let clauseIndex = -1;
+    const clauseNotFound = 'Matching clause not found in ' + document_title;
+    const newClauseNotFound = 'New clause details not found for ' + submission_title;
+
     return (
       <React.Fragment>
         <Header
@@ -303,64 +349,60 @@ class GovernanceProposalsRatify extends Component<Props> {
           /> : ''}
         
           <React.Fragment>
-            {
-              (submission_new_ipfs_urls && submission_new_ipfs_urls.length > 0) ? 
-              <p>For more information on this ratification request, see below: 
-              </p>
-              : ''
-            }
-            <Table style={{ marginTop: 20 }}>
-              <Table.Header>
+            {([].concat(submission_new_clause_nums)
+            .map((clauseNum) => {
+              clauseNum--;
+              return (
+                <div>
+                <React.Fragment>
+                <Header
+                  color="black"
+                  size="medium"
+                >
+                  <strong>Clause #:</strong> {clauseNum+1} in {document_title}
+                </Header>
+                </React.Fragment>
+                <Table style={{ marginTop: 20 }}>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>
+                      Current Clause
+                    </Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
                 <Table.Row>
-                <Table.HeaderCell>
-                    Current Clause
-                  </Table.HeaderCell>
-                  <Table.HeaderCell>
-                    New Clause #'s
-                  </Table.HeaderCell>
-                  <Table.HeaderCell>
-                    IPFS Link
-                  </Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                  {([].concat(submission_new_clause_nums)
-                  .map((clauseNum) => {
-                    clauseIndex++;
-                    return (
-                      <React.Fragment key={clauseNum}>
-                        <Table.Row>
-                          <Table.Cell collapsing>
-                            {document_clauses[clauseIndex]}
-                          </Table.Cell>
-                          <Table.Cell style={{
-                            whiteSpace: "normal",
-                            wordWrap: "break-word"
-                          }}>
-                          {clauseNum}
-                          </Table.Cell>
-                          <Table.Cell style={{
-                            whiteSpace: "normal",
-                            wordWrap: "break-word"
-                          }}>
-                          {(submission_new_ipfs_urls[clauseIndex]) ?
-                            <p>
-                            <small>
-                              <a
-                                onClick={() => this.openLink(submission_new_ipfs_urls[clauseIndex])}
-                                role="link"
-                                style={{ cursor: 'pointer', fontSize:'10pt' }}
-                                tabIndex={0}
-                              > {submission_new_ipfs_urls[clauseIndex].replace('/ipfs/','')} fsjdklfjsldf</a>
-                            </small>
-                          </p> : ''}
-                          </Table.Cell>                            
-                        </Table.Row>
-                      </React.Fragment>
-                    );
-                  }))}
-              </Table.Body>
-            </Table>
+                    <Table.Cell style={{
+                      whiteSpace: "normal",
+                      wordWrap: "break-all"
+                    }}>
+                    {(currentClauseMarkdown) ? <ReactMarkdown source={currentClauseMarkdown} /> : clauseNotFound }
+                    </Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+                </Table>
+                <Table style={{ marginTop: 20, marginBottom: 20 }}>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>
+                      Proposed Clause
+                    </Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                <Table.Row>
+                    <Table.Cell style={{
+                      whiteSpace: "normal",
+                      wordWrap: "break-all"
+                    }}>
+                    {(proposedClauseMarkdown) ? <ReactMarkdown source={proposedClauseMarkdown} />  : newClauseNotFound }
+                    </Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+                </Table>
+                </div>
+              )
+            }))}
           </React.Fragment>
 
           {

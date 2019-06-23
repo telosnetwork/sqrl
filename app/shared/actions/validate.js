@@ -2,6 +2,7 @@ import { getCurrencyBalance } from './accounts';
 import * as types from './types';
 import * as chain from './chain';
 import eos from './helpers/eos';
+import * as rex from './rex';
 
 const ecc = require('eosjs-ecc');
 
@@ -95,7 +96,8 @@ export function validateNode(node) {
               type: types.VALIDATE_NODE_SUCCESS
             });
             // Refresh our connection properties with new chain info
-            return dispatch(chain.getInfo());
+            dispatch(chain.getInfo());
+            return dispatch(rex.getRexPool());
           }
           return dispatch({ type: types.VALIDATE_NODE_FAILURE });
         }).catch((err) => dispatch({

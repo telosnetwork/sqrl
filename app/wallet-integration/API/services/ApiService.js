@@ -4,7 +4,7 @@ import Action from '../models/api/Action'
 // import * as StoreActions from '../store/constants'
 import ObjectHelpers from '../util/ObjectHelpers'
 import Hasher from '../util/Hasher'
-// import IdGenerator from '../util/IdGenerator'
+import IdGenerator from '../util/IdGenerator'
 
 // import {Popup} from '../models/popups/Popup';
 // import PopupService from '../services/PopupService';
@@ -23,6 +23,7 @@ import Error from '../models/errors/Error'
 import Network from '../models/Network'
 import APIUtils from '../util/APIUtils';
 import PopupService from './PopupService';
+import { find } from 'lodash';
 
 export default class ApiService {
     static apiHandler = null;
@@ -169,33 +170,36 @@ export default class ApiService {
     //  * @param request
     //  * @returns {Promise.<void>}
     //  */
-    // static async [Actions.REQUEST_ADD_NETWORK](request){
-    //     return new Promise(async resolve => {
+    static async [Actions.REQUEST_ADD_NETWORK](request){
+        return new Promise(resolve => {
 
-    //         let {network} = request.payload;
+            let {network} = request.payload;
 
-    //         network = Network.fromJson(network);
-    //         network.name = request.payload.origin + IdGenerator.text(4);
+            network = Network.fromJson(network);
+            network.name = request.payload.origin + IdGenerator.text(4);
 
-    //         if(!network.isValid())
-    //             return resolve({id:request.id, result:new Error("bad_network", "The network being suggested is invalid")});
+            if(!network.isValid())
+                return resolve({id:request.id, result:new Error("bad_network", "The network being suggested is invalid")});
 
-    //         if(store.state.scatter.settings.networks.find(x => x.unique() === network.unique()))
-    //             return resolve({id:request.id, result:true});
+            const existingNetwork = this.apiHandler.getNetworks().find(x => x.unique() === network.unique());
+            if(!existingNetwork) return resolve({id:request.id, result:Error.noNetwork()});
+/*
+            if(store.state.scatter.settings.networks.find(x => x.unique() === network.unique()))
+                return resolve({id:request.id, result:true});
 
-    //         // Applications can only add one network every 24 hours.
-    //         if(store.state.scatter.settings.networks.find(x => x.fromOrigin === request.payload.origin && x.createdAt > (+new Date() - ((3600 * 12)*1000))))
-    //             return resolve({id:request.id, result:new Error("network_timeout", "You can only add 1 network every 24 hours.")});
+            // Applications can only add one network every 24 hours.
+            if(store.state.scatter.settings.networks.find(x => x.fromOrigin === request.payload.origin && x.createdAt > (+new Date() - ((3600 * 12)*1000))))
+                return resolve({id:request.id, result:new Error("network_timeout", "You can only add 1 network every 24 hours.")});
 
-    //         network.fromOrigin = request.payload.origin;
-    //         const scatter = store.state.scatter.clone();
-    //         scatter.settings.networks.push(network);
-    //         await store.dispatch(StoreActions.SET_SCATTER, scatter);
-    //         await AccountService.importAllAccountsForNetwork(network);
-
-    //         resolve({id:request.id, result:true});
-    //     })
-    // }
+            network.fromOrigin = request.payload.origin;
+            const scatter = store.state.scatter.clone();
+            scatter.settings.networks.push(network);
+            await store.dispatch(StoreActions.SET_SCATTER, scatter);
+            await AccountService.importAllAccountsForNetwork(network);
+*/
+            resolve({id:request.id, result:true});
+        })
+    }
 
     // /***
     //  * Allows dapps to see if a user has an account for a specific blockchain.
@@ -207,11 +211,10 @@ export default class ApiService {
         return new Promise(resolve => {
             request.payload.network = Network.fromJson(request.payload.network);
             const {network} = request.payload;
-            const {blockchain} = network;
 
             if(!network.isValid()) return resolve({id:request.id, result:new Error("bad_network", "The network provided is invalid")});
 
-            const existingNetwork = this.apiHandler.getNetworks.find(x => x.unique() === network.unique());
+            const existingNetwork = this.apiHandler.getNetworks().find(x => x.unique() === network.unique());
             if(!existingNetwork) return resolve({id:request.id, result:Error.noNetwork()});
 
             resolve({id:request.id, result:!!this.apiHandler.getWallets().wallets.find(w => w.chainId === existingNetwork.chainId)});
@@ -294,7 +297,7 @@ export default class ApiService {
 
             // Convert buf and abi to messages
             switch(blockchain){
-                case Blockchains.TELOS: payload.messages = await plugin.requestParser(payload, network); break;
+                //case Blockchains.TELOS: payload.messages = await plugin.requestParser(payload, network); break;
                 case Blockchains.EOSIO: payload.messages = await plugin.requestParser(payload, network); break;
                 case Blockchains.ETH:
                 case Blockchains.TRX:

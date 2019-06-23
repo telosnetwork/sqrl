@@ -926,14 +926,12 @@ export function getRexPool() {
           };
         });
 
-        if (data && data.length > 0){
-          return dispatch({
-            type: types.SYSTEM_REX_GETREXPOOL_SUCCESS,
-            payload: {
-              rexpool:data[0]
-            }
-          });
-        }
+        return dispatch({
+          type: types.SYSTEM_REX_GETREXPOOL_SUCCESS,
+          payload: {
+            rexpool:data[0]
+          }
+        });
     }).catch((err) => dispatch({
       type: types.SYSTEM_REX_GETREXPOOL_FAILURE,
       payload: { err },
