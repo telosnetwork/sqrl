@@ -3,7 +3,7 @@ export const Blockchains = {
     EOSIO:'eos',
     // ETH:'eth',
     // TRX:'trx',
-    TELOS:'tlos'
+    // TELOS:'tlos'
 };
 
 export const BlockchainsArray =
@@ -14,6 +14,6 @@ export const blockchainName = x => {
         case Blockchains.EOSIO: return 'EOSIO';
         // case Blockchains.ETH: return 'Ethereum';
         // case Blockchains.TRX: return 'Tron';
-        case Blockchains.TELOS: return 'TELOS';
+        // case Blockchains.TELOS: return 'TELOS';
     }
 }

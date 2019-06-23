@@ -34,12 +34,12 @@ export function getAccounts(){
 export function getNetworks(){
     return (dispatch: () => void, getState) => {
         const blockchains = getState().settings.blockchains;
-        return blockchains.map(b=>{
+        const bchMap = blockchains.map(b=>{
             urlParser.href = b.node;
             let protocol = urlParser.protocol; protocol = protocol.substring(0, protocol.length - 1);
             const host = urlParser.hostname;
             const port = urlParser.port || 80;
-            Network.fromJson({
+            return Network.fromJson({
                 name:b.blockchain,
                 chainId:b.chainId,
                 blockchain:b.tokenSymbol.toLowerCase(),
@@ -48,6 +48,7 @@ export function getNetworks(){
                 port
             })
         });
+        return bchMap;
     }
 }
 
