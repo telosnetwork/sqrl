@@ -14,10 +14,13 @@ import GlobalTransactionModal from '../../../Global/Transaction/Modal';
 const scope = 'eosio.amend';
 
 class GovernanceProposalsRatify extends Component<Props> {
-  state= { 
-    currentClauseMarkdown: null,
-    proposedClauseMarkdown: null
-  };
+  constructor(props) {
+    super(props);
+    this.state = { 
+      currentClauseMarkdowns: [],
+      proposedClauseMarkdowns: []
+    };
+  }
   approve = (ballot_id) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
@@ -79,28 +82,61 @@ class GovernanceProposalsRatify extends Component<Props> {
       submission_new_clause_nums,
       submission_new_ipfs_urls
     } = proposal;
-
+    
     if (submission_new_clause_nums && submission_new_clause_nums.length > 0) {
-      const currentClauseURL = document_clauses[submission_new_clause_nums[0]-1];
-      if (currentClauseURL) {
-        fetch(currentClauseURL)
-        .then(response=>{
-          return response.text();
-        }).then(data =>{
-          this.setState({
-            currentClauseMarkdown: data
-          })
-        });
-      }
-      const proposedClauseURL = submission_new_ipfs_urls[0];
-      if (proposedClauseURL) {
-        fetch(proposedClauseURL).then(response=>{
-          return response.text();
-        }).then(data =>{
-          this.setState({
-            proposedClauseMarkdown: data
-          })
-        });
+      for (let clauseIdx = 0; clauseIdx < submission_new_clause_nums.length; clauseIdx++) {
+        const currentClauseURL = document_clauses[submission_new_clause_nums[clauseIdx]];
+        //console.log(' seeking clause index ' + clauseIdx + 'for clause # ' + submission_new_clause_nums[clauseIdx] + ' at url ' + currentClauseURL);
+
+        (async () => {
+          await fetch(currentClauseURL)
+          .then(response=>{
+            return response.text();
+          }).then(data =>{
+            const newCurrentClauseMarkdowns = [
+              ...this.state.currentClauseMarkdowns.slice(0, clauseIdx),
+              data,
+              ...this.state.currentClauseMarkdowns.slice(clauseIdx + 1)
+            ];
+
+            this.setState({
+              currentClauseMarkdowns: newCurrentClauseMarkdowns 
+            });
+          }).catch(error => {
+            /*
+            console.log(' ERROR seeking clause index ' + clauseIdx + 'for clause # ' + 
+              submission_new_clause_nums[clauseIdx] + ' at url ' + currentClauseURL);
+
+            this.setState({
+              currentClauseMarkdowns: [...this.state.currentClauseMarkdowns, 
+                "CURRENT CLAUSE (" + submission_new_clause_nums[clauseIdx] + ") DOES NOT EXIST"]
+            });*/
+          });
+        })();
+
+        const proposedClauseURL = submission_new_ipfs_urls[clauseIdx];
+        (async () => {
+          await fetch(proposedClauseURL)
+          .then(response=>{
+            return response.text();
+          }).then(data =>{
+            const newProposedClauseMarkdowns = [
+              ...this.state.proposedClauseMarkdowns.slice(0, clauseIdx),
+              data,
+              ...this.state.proposedClauseMarkdowns.slice(clauseIdx + 1)
+            ];
+
+            this.setState({
+              proposedClauseMarkdowns: newProposedClauseMarkdowns 
+            });
+          }).catch(error => {
+            /*
+            this.setState({
+              proposedClauseMarkdowns: [...this.state.proposedClauseMarkdowns, 
+                "PROPOSED CLAUSE FOR (" + submission_new_clause_nums[clauseIdx] + ") DOES NOT EXIST"]
+            });*/
+          });
+        })();
       }
     }
   }
@@ -144,11 +180,9 @@ class GovernanceProposalsRatify extends Component<Props> {
     } = proposal;
 
     const { 
-      currentClauseMarkdown,
-      proposedClauseMarkdown
+      currentClauseMarkdowns,
+      proposedClauseMarkdowns
     } = this.state;
-
-    console.log(proposal);
 
     let ballot = ballots.filter((b) => b.reference_id === prop_id && b.table_id === 0)[0]; 
     if (!ballot)
@@ -350,16 +384,15 @@ class GovernanceProposalsRatify extends Component<Props> {
         
           <React.Fragment>
             {([].concat(submission_new_clause_nums)
-            .map((clauseNum) => {
-              clauseNum--;
+            .map((clauseNum, idx) => {
               return (
                 <div>
                 <React.Fragment>
                 <Header
                   color="black"
-                  size="medium"
+                  size="large"
                 >
-                  <strong>Clause #:</strong> {clauseNum+1} in {document_title}
+              <strong>Clause #:</strong> {clauseNum} in {document_title}
                 </Header>
                 </React.Fragment>
                 <Table style={{ marginTop: 20 }}>
@@ -376,7 +409,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       whiteSpace: "normal",
                       wordWrap: "break-all"
                     }}>
-                    {(currentClauseMarkdown) ? <ReactMarkdown source={currentClauseMarkdown} /> : clauseNotFound }
+                    {(currentClauseMarkdowns[idx]) ? <ReactMarkdown source={currentClauseMarkdowns[idx]} /> : clauseNotFound}
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>
@@ -395,7 +428,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       whiteSpace: "normal",
                       wordWrap: "break-all"
                     }}>
-                    {(proposedClauseMarkdown) ? <ReactMarkdown source={proposedClauseMarkdown} />  : newClauseNotFound }
+                    {(proposedClauseMarkdowns[idx]) ? <ReactMarkdown source={proposedClauseMarkdowns[idx]} />  : newClauseNotFound}
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>
