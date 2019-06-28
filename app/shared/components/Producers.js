@@ -68,8 +68,11 @@ class Producers extends Component<Props> {
       selected_account: false,
       selected_loaded: false,
       submitting: false,
+      activeTabIndex: 0
     };
   }
+
+  handleTabChange = (e, { activeIndex }) => this.setState({ activeTabIndex: activeIndex })
 
   componentWillReceiveProps(nextProps) {
     const { validate } = this.props;
@@ -257,6 +260,7 @@ class Producers extends Component<Props> {
       wallet
     } = this.props;
     const {
+      activeTabIndex,
       addProxy,
       lastError,
       lastTransaction,
@@ -289,6 +293,8 @@ class Producers extends Component<Props> {
     const modified = (selected.sort().toString() !== producers.selected.sort().toString());
     const currentProxy = (account && account.voter_info && account.voter_info.proxy);
 
+    const columnWidth = (activeTabIndex == 0) ? 10 : 16;
+    
     if (isValidUser && settings.walletMode !== 'wait') {
       sidebar = (
         <React.Fragment>
@@ -346,6 +352,7 @@ class Producers extends Component<Props> {
       <div ref={this.handleContextRef}>
         <Grid divided>
           <Grid.Row>
+            {( activeTabIndex == 0) ?
             <Grid.Column width={6}>
               <SidebarAccount
                 actions={actions}
@@ -354,8 +361,9 @@ class Producers extends Component<Props> {
               />
               {sidebar}
             </Grid.Column>
-            <Grid.Column width={10}>
-              <Tab
+            : '' }
+            <Grid.Column width={columnWidth}>
+              <Tab onTabChange={this.handleTabChange}
                 panes={
                   (settings.blockchain.tokenSymbol==='TLOS') ?
                   [
