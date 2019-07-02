@@ -39,7 +39,13 @@ const initialState = {
       tokenSymbol:'EOS',
       node:'https://jungle2.cryptolions.io',
       chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
-    }
+    },
+    {
+      blockchain:'WAX Mainnet', 
+      tokenSymbol:'WAX',
+      node:'https://chain.wax.io',
+      chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
+    },
   ],
   // List of contacts
   contacts: [],
