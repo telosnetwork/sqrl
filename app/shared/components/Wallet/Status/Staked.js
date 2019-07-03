@@ -22,8 +22,8 @@ class WalletStatusStaked extends Component<Props> {
       ram_usage
     } = account;
     const no_delegation = {
-      cpu_weight: '0.0000 ' + settings.blockchain.tokenSymbol,
-      net_weight: '0.0000 ' + settings.blockchain.tokenSymbol
+      cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+      net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
     };
     const self_delegated_bandwidth = account.self_delegated_bandwidth ? 
       account.self_delegated_bandwidth : no_delegation;
@@ -76,7 +76,7 @@ class WalletStatusStaked extends Component<Props> {
                         {t('wallet_status_resources_usage')}
                       </Table.Cell>
                       <Table.Cell>
-                        {(cpu_limit.used / 1000000).toFixed(4)} sec / {(cpu_limit.max / 1000000).toFixed(4)} sec
+                        {(cpu_limit.used / 1000000).toFixed(settings.tokenPrecision)} sec / {(cpu_limit.max / 1000000).toFixed(settings.tokenPrecision)} sec
                       </Table.Cell>
                     </Table.Row>
                   </Table.Body>

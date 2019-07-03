@@ -130,8 +130,8 @@ export function getAccount(account = '') {
         const modified = Object.assign({}, results);
         if (!modified.self_delegated_bandwidth) {
           modified.self_delegated_bandwidth = {
-            cpu_weight: '0.0000 ' + settings.blockchain.tokenSymbol,
-            net_weight: '0.0000 ' + settings.blockchain.tokenSymbol
+            cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+            net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
           };
         }
         // If a proxy voter is set, cache it's data for vote referencing

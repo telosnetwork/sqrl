@@ -65,10 +65,10 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
               <Segment>
                 <Header textAlign="center">
                   <font color="green">
-                    <Icon name="wifi" />{t('about_to_stake_to_net')} {netDifference.toFixed(4)} {settings.blockchain.tokenSymbol}
+                    <Icon name="wifi" />{t('about_to_stake_to_net')} {netDifference.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {netAmount.toFixed(4)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {netAmount.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
@@ -78,10 +78,10 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
               <Segment>
                 <Header textAlign="center">
                   <font color="red">
-                    <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netDifference).toFixed(4)} {settings.blockchain.tokenSymbol}
+                    <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netDifference).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {netAmount.toFixed(4)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {netAmount.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
@@ -91,10 +91,10 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
               <Segment>
                 <Header textAlign="center">
                   <font color="green">
-                    <Icon name="microchip" />{t('about_to_stake_to_cpu')} <b>{cpuDifference.toFixed(4)} {settings.blockchain.tokenSymbol}</b>
+                    <Icon name="microchip" />{t('about_to_stake_to_cpu')} <b>{cpuDifference.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {cpuAmount.toFixed(4)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {cpuAmount.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
@@ -104,10 +104,10 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
               <Segment>
                 <Header textAlign="center">
                   <font color="red">
-                    <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuDifference).toFixed(4)} {settings.blockchain.tokenSymbol}</b>
+                    <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuDifference).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {cpuAmount.toFixed(4)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {cpuAmount.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
@@ -123,7 +123,7 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
               icon="warning sign"
               warning="true"
             >
-              {t('have_already_unstaked')} {statsFetcher.totalBeingUnstaked().toFixed(4)} {settings.blockchain.tokenSymbol} {t('unstaking_will_be_reset')}
+              {t('have_already_unstaked')} {statsFetcher.totalBeingUnstaked().toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} {t('unstaking_will_be_reset')}
             </Message>
           ) : ''}
 

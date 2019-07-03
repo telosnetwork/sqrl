@@ -11,7 +11,7 @@ class WalletPanelFormStakeInput extends Component<Props> {
     const {
       onChange
     } = this.props;
-    const parsed = new Decimal(value.split(' ')[0]).toFixed(4);
+    const parsed = new Decimal(value.split(' ')[0]).toFixed(settings.tokenPrecision);
     onChange(name, parsed);
   }
 
@@ -32,7 +32,7 @@ class WalletPanelFormStakeInput extends Component<Props> {
         loading={false}
         name={name}
         onChange={this.onChange}
-        defaultValue={defaultValue.toFixed(4)}
+        defaultValue={defaultValue.toFixed(settings.tokenPrecision)}
         settings={settings}
       />
     );

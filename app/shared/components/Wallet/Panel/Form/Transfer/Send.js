@@ -146,7 +146,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
       return true;
     }
 
-    if (!quantity || quantity === '' || quantity === '0.0000') {
+    if (!quantity || quantity === '' || quantity === '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
       return true;
     }
 
@@ -261,7 +261,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
                 
               />
               <p>
-                {`${balance[asset].toFixed(4)} ${asset} ${t('transfer_header_available')}`}
+                {`${balance[asset].toFixed(settings.tokenPrecision)} ${asset} ${t('transfer_header_available')}`}
               </p>
               <GlobalFormFieldMemo
                 icon="x"

@@ -40,12 +40,19 @@ export function getCurrencyStats(contractName = "eosio.token", symbolName) {
           },
         });
       }
+
+      const supply = results[settings.blockchain.tokenSymbol].supply && 
+        results[settings.blockchain.tokenSymbol].supply.split(' ')[0];
+      const precision = supply && supply.split('.')[1] && supply.split('.')[1].length;
+      if (!precision) precision = 4;
+      
       return dispatch({
         type: types.GET_CURRENCYSTATS_SUCCESS,
         payload: {
           account,
           results,
-          symbol
+          symbol,
+          precision
         }
       });
     }).catch((err) => dispatch({

@@ -21,7 +21,7 @@ class WalletPanelFormExchangeSellStats extends Component<Props> {
       <Segment.Group horizontal>
         <Segment>
           <Header textAlign="center">
-            {(REXbalance).toFixed(4)} REX
+            {(REXbalance).toFixed(settings.tokenPrecision)} REX
             <Header.Subheader>
               {t('rex_sellrex_amount_avail', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>
@@ -29,7 +29,7 @@ class WalletPanelFormExchangeSellStats extends Component<Props> {
         </Segment>
         <Segment>
           <Header textAlign="center">
-            {(sellRatio).toFixed(4)} {settings.blockchain.tokenSymbol}
+            {(sellRatio).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
             {t('rex_sellrex_amount_ratio', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>

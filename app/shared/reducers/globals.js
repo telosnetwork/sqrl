@@ -3,7 +3,8 @@ import * as types from '../actions/types';
 const initialState = {
   current: {},
   contract: {},
-  currencyStats: {}
+  currencyStats: {},
+  precision: 4
 };
 
 export default function globals(state = initialState, action) {
@@ -41,7 +42,8 @@ export default function globals(state = initialState, action) {
           [action.payload.account]: Object.assign({}, state.contract[action.payload.account], {
             [action.payload.symbol]: action.payload.results[action.payload.symbol]
           })
-        })
+        }),
+        precision: action.payload.precision
       });
     }
     case types.GET_RAMSTATS_FAILURE: {

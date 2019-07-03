@@ -17,8 +17,11 @@ export default class GlobalFormFieldToken extends Component<Props> {
       settings
     } = this.props;
     const asset = settings.blockchain.tokenSymbol;
-    const valid = !!(value.match(/^\d+(\.\d{1,4})?$/g));
-    const parsed = (value > 0) ? `${new Decimal(value).toFixed(4)} ${asset}` : `0.0000 ${asset}`;
+    const valid = settings.tokenPrecision == 8 ? 
+      !!(value.match(/^\d+(\.\d{1,8})?$/g)) : !!(value.match(/^\d+(\.\d{1,4})?$/g));
+
+    const defaultValue = '0.'.padEnd(settings.tokenPrecision + 2, '0');
+    const parsed = (value > 0) ? `${new Decimal(value).toFixed(settings.tokenPrecision)} ${asset}` : `${defaultValue} ${asset}`;
 
     this.setState({
       value: parsed
@@ -33,7 +36,8 @@ export default class GlobalFormFieldToken extends Component<Props> {
       icon,
       label,
       loading,
-      name
+      name,
+      settings
     } = this.props;
     const {
       value
@@ -48,7 +52,7 @@ export default class GlobalFormFieldToken extends Component<Props> {
         loading={loading}
         name={name}
         onChange={this.onChange}
-        placeholder="0.0000"
+        placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
       />
     );
   }

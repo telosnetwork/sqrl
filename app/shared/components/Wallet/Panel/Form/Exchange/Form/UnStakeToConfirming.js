@@ -54,10 +54,10 @@ class WalletPanelFormExchangeUnStakeToConfirming extends Component<Props> {
             <Segment>
               <Header textAlign="center">
                 <font color="red">
-                  <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netAmount).toFixed(4)} {settings.blockchain.tokenSymbol}
+                  <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netAmount).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                 </font>
                 <Header.Subheader>
-                  ({t('you_will_have')} {netDifference.toFixed(4)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                  ({t('you_will_have')} {netDifference.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                 </Header.Subheader>
               </Header>
             </Segment>
@@ -65,10 +65,10 @@ class WalletPanelFormExchangeUnStakeToConfirming extends Component<Props> {
             <Segment>
               <Header textAlign="center">
                 <font color="red">
-                  <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuAmount).toFixed(4)} {settings.blockchain.tokenSymbol}</b>
+                  <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuAmount).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
                 </font>
                 <Header.Subheader>
-                  ({t('you_will_have')} {cpuDifference.toFixed(4)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                  ({t('you_will_have')} {cpuDifference.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                 </Header.Subheader>
               </Header>
             </Segment>

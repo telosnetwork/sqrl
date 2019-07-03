@@ -6,6 +6,7 @@ export function deposit(amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -27,7 +28,7 @@ export function deposit(amount) {
           }],
           data: {
             owner: account,
-            amount: `${amount.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -55,6 +56,7 @@ export function withdraw(amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -76,7 +78,7 @@ export function withdraw(amount) {
           }],
           data: {
             owner: account,
-            amount: `${amount.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -104,6 +106,7 @@ export function buyrex(amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -125,7 +128,7 @@ export function buyrex(amount) {
           }],
           data: {
             from: account,
-            amount: `${amount.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -153,6 +156,7 @@ export function sellrex(amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -174,7 +178,7 @@ export function sellrex(amount) {
           }],
           data: {
             from: account,
-            rex: `${amount.toFixed(4)} REX`
+            rex: `${amount.toFixed(settings.tokenPrecision)} REX`
           },
         }
       ]
@@ -202,6 +206,7 @@ export function unstaketorex(from_net, from_cpu) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -224,8 +229,8 @@ export function unstaketorex(from_net, from_cpu) {
           data: {
             owner: account,
             receiver: account,
-            from_net: `${from_net.toFixed(4)} ` + settings.blockchain.tokenSymbol,
-            from_cpu: `${from_cpu.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            from_net: `${from_net.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+            from_cpu: `${from_cpu.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -301,6 +306,7 @@ export function rentcpu(receiver, loan_payment, loan_fund) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -323,8 +329,8 @@ export function rentcpu(receiver, loan_payment, loan_fund) {
           data: {
             from: account,
             receiver: receiver,
-            loan_payment: `${loan_payment.toFixed(4)} ` + settings.blockchain.tokenSymbol,
-            loan_fund: `${loan_fund.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            loan_payment: `${loan_payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+            loan_fund: `${loan_fund.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -352,6 +358,7 @@ export function rentnet(receiver, loan_payment, loan_fund) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -374,8 +381,8 @@ export function rentnet(receiver, loan_payment, loan_fund) {
           data: {
             from: account,
             receiver: receiver,
-            loan_payment: `${loan_payment.toFixed(4)} ` + settings.blockchain.tokenSymbol,
-            loan_fund: `${loan_fund.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            loan_payment: `${loan_payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+            loan_fund: `${loan_fund.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -403,6 +410,7 @@ export function fundcpuloan(loan_num, payment) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -425,7 +433,7 @@ export function fundcpuloan(loan_num, payment) {
           data: {
             from: account,
             loan_num: loan_num,
-            payment: `${payment.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            payment: `${payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -453,6 +461,7 @@ export function defcpuloan(loan_num, amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -475,7 +484,7 @@ export function defcpuloan(loan_num, amount) {
           data: {
             from: account,
             loan_num: loan_num,
-            amount: `${amount.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -503,6 +512,7 @@ export function fundnetloan(loan_num, payment) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -525,7 +535,7 @@ export function fundnetloan(loan_num, payment) {
           data: {
             from: account,
             loan_num: loan_num,
-            payment: `${payment.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            payment: `${payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -553,6 +563,7 @@ export function defnetloan(loan_num, amount) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -575,7 +586,7 @@ export function defnetloan(loan_num, amount) {
           data: {
             from: account,
             loan_num: loan_num,
-            amount: `${amount.toFixed(4)} ` + settings.blockchain.tokenSymbol
+            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
           },
         }
       ]
@@ -651,6 +662,7 @@ export function mvtosavings(rex) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -672,7 +684,7 @@ export function mvtosavings(rex) {
           }],
           data: {
             owner: account,
-            rex: `${rex.toFixed(4)} REX`
+            rex: `${rex.toFixed(settings.tokenPrecision)} REX`
           },
         }
       ]
@@ -700,6 +712,7 @@ export function mvfromsavings(rex) {
   return (dispatch: () => void, getState) => {
     const {
       connection,
+      globals,
       settings
     } = getState();
 
@@ -721,7 +734,7 @@ export function mvfromsavings(rex) {
           }],
           data: {
             owner: account,
-            rex: `${rex.toFixed(4)} REX`
+            rex: `${rex.toFixed(settings.tokenPrecision)} REX`
           },
         }
       ]

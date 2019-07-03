@@ -16,7 +16,7 @@ class WalletPanelFormExchangeDepositStats extends Component<Props> {
       <Segment.Group horizontal>
         <Segment>
           <Header textAlign="center">
-            {(EOSbalance).toFixed(4)} {settings.blockchain.tokenSymbol}
+            {(EOSbalance).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
               {t('rex_deposit_amount_avail', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>

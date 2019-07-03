@@ -40,8 +40,8 @@ class WalletPanelButtonStake extends Component<Props> {
       cpu_weight,
       net_weight
     } = account.self_delegated_bandwidth || {
-      cpu_weight: '0.0000 ' + settings.blockchain.tokenSymbol,
-      net_weight: '0.0000 ' + settings.blockchain.tokenSymbol
+      cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+      net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
     };
 
     return (

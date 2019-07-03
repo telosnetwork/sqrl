@@ -211,7 +211,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     } = this.state;
     
     // save proposal to IPFS, return its hash#, and submit contract to chain
-    let amountFormatted = parseFloat(amount * cycles).toFixed(4);
+    let amountFormatted = parseFloat(amount * cycles).toFixed(settings.tokenPrecision);
     if (proposal_id >= 0) { // editing
         // submit WP
         editProposal(proposal_id, title, ipfs_location, amountFormatted, send_to);
@@ -339,7 +339,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                   >
                   {title}
                   <Header.Subheader>
-                    Submission Fee: Upon submission, a deposit of 3% of the requested proposal amount (minimum 50.0000 {settings.blockchain.tokenSymbol}) will be transferred from this account to eosio.saving. Please make sure you have a balance of {feeAmount.toFixed(4)} {settings.blockchain.tokenSymbol} or this submission will fail.
+                    Submission Fee: Upon submission, a deposit of 3% of the requested proposal amount (minimum 50.0000 {settings.blockchain.tokenSymbol}) will be transferred from this account to eosio.saving. Please make sure you have a balance of {feeAmount.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} or this submission will fail.
                   </Header.Subheader>
                 </Header>
                 }
@@ -411,7 +411,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
           ? (
             <GovernanceProposalsFormProposalConfirming
               actions={actions}
-              amount={parseFloat(amount).toFixed(4)}
+              amount={parseFloat(amount).toFixed(settings.tokenPrecision)}
               cycles={cycles}
               fileInfo={fileInfo}
               ipfsHash={ipfsHash}

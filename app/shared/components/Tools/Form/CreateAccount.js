@@ -394,7 +394,7 @@ class ToolsFormCreateAccount extends Component<Props> {
                 />
                 {(ramPrice && !formErrors.ramAmount) ? (
                   <h4 style={{ margin: '30px' }}>
-                    {`${t('tools_form_create_account_ram_price_estimate')} ${ramPrice.toFixed(4)} ${settings.blockchain.tokenSymbol}.`}
+                    {`${t('tools_form_create_account_ram_price_estimate')} ${ramPrice.toFixed(settings.tokenPrecision)} ${settings.blockchain.tokenSymbol}.`}
                   </h4>
                 ) : ''}
                 <FormMessageError

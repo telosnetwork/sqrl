@@ -189,7 +189,7 @@ class WalletPanelFormExchangeDeposit extends Component<Props> {
                     label={t('rex_deposit_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="depositAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalDepositAmount.toFixed(4)}
+                    defaultValue={decimalDepositAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                 </Form.Group>
