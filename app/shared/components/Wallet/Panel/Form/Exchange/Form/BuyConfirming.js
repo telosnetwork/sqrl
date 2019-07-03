@@ -33,10 +33,10 @@ class WalletPanelFormExchangeBuyConfirming extends Component<Props> {
               <Header textAlign="center">
                 <font color="green">
                   <Icon name="microchip" />{t('rex_buyrex_about_to', 
-                    {buyAmount: buyAmount.toFixed(4), tokenSymbol: settings.blockchain.tokenSymbol})}
+                    {buyAmount: buyAmount.toFixed(settings.tokenPrecision), tokenSymbol: settings.blockchain.tokenSymbol})}
                 </font>
                 <Header.Subheader>
-                  ({t('rex_you_will_have')} {balanceDifference.toFixed(4)} {t('rex_withdraw_balance_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                  ({t('rex_you_will_have')} {balanceDifference.toFixed(settings.tokenPrecision)} {t('rex_withdraw_balance_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                 </Header.Subheader>
               </Header>
             </Segment>

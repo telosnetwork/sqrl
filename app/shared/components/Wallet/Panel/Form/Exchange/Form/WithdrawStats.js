@@ -16,7 +16,7 @@ class WalletPanelFormExchangeWithdrawStats extends Component<Props> {
       <Segment.Group horizontal>
         <Segment>
           <Header textAlign="center">
-            {(REXbalance).toFixed(4)} {settings.blockchain.tokenSymbol}
+            {(REXbalance).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
               {t('rex_withdraw_amount_avail', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>

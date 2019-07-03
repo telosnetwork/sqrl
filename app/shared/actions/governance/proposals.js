@@ -31,7 +31,7 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
           data: {
             from: account,
             to:'eosio.saving',
-            quantity: feeAmount.toFixed(4) + ' ' + settings.blockchain.tokenSymbol,
+            quantity: feeAmount.toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol,
             memo: "WPS deposit ("+title+")"
           }
         },{
@@ -533,7 +533,7 @@ export function registerVoter(voter) {
           }],
           data: {
             voter,
-            token_symbol:'0.0000 VOTE'
+            token_symbol:'0.'.padEnd(settings.tokenPrecision + 2, '0') + ' VOTE'
           }
         }
       ]
@@ -571,7 +571,7 @@ export function mirrorCast(voter) {
           }],
           data: {
             voter,
-            token_symbol: '0.0000 ' + settings.blockchain.tokenSymbol
+            token_symbol: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
           }
         }
       ]

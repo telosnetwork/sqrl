@@ -79,7 +79,7 @@ class WalletPanelFormRamByAmount extends Component<Props> {
         />
         {(priceOfRam && !formError) ? (
           <h4 style={{ textAlign: 'center', margin: '30px' }}>
-            {`${t('ram_form_text_estimate')} ${priceOfRam.toFixed(4)} ${settings.blockchain.tokenSymbol}.`}
+            {`${t('ram_form_text_estimate')} ${priceOfRam.toFixed(settings.tokenPrecision)} ${settings.blockchain.tokenSymbol}.`}
           </h4>
         ) : ''}
       </div>

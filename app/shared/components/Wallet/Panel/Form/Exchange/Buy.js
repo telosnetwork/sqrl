@@ -187,7 +187,7 @@ class WalletPanelFormExchangeBuy extends Component<Props> {
                     label={t('rex_buyrex_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="buyAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalBuyAmount.toFixed(4)}
+                    defaultValue={decimalBuyAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                 </Form.Group>

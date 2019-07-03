@@ -51,15 +51,15 @@ class WalletStatusBalances extends Component<Props> {
               <Table.Body>
                 <Table.Row>
                   <Table.Cell width={4}>{t('wallet_status_liquid')}</Table.Cell>
-                  <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(4) : '0.0000'} {settings.blockchain.tokenSymbol}</Table.Cell>
+                  <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_balances_staked_to_self')}</Table.Cell>
-                  <Table.Cell>{totalStakedToSelf.toFixed(4)} {settings.blockchain.tokenSymbol} </Table.Cell>
+                  <Table.Cell>{totalStakedToSelf.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} </Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_balances_staked_to_others')}</Table.Cell>
-                  <Table.Cell>{totalStakedToOthers.toFixed(4)} {settings.blockchain.tokenSymbol} </Table.Cell>
+                  <Table.Cell>{totalStakedToOthers.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} </Table.Cell>
                 </Table.Row>
                 {(refundDate)
                   ? (
@@ -78,7 +78,7 @@ class WalletStatusBalances extends Component<Props> {
                           )
                           : false
                         }
-                        {totalBeingUnstaked.toFixed(4)} {settings.blockchain.tokenSymbol} (<TimeAgo date={refundDate} />)
+                        {totalBeingUnstaked.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} (<TimeAgo date={refundDate} />)
                       </Table.Cell>
                     </Table.Row>
                   )
@@ -86,7 +86,7 @@ class WalletStatusBalances extends Component<Props> {
                 }
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_total_balance')}</Table.Cell>
-                  <Table.Cell>{totalTokens.toFixed(4)} {settings.blockchain.tokenSymbol}</Table.Cell>
+                  <Table.Cell>{totalTokens.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_ram_amount')}</Table.Cell>

@@ -140,11 +140,13 @@ class BasicVoterContainer extends Component<Props> {
   tick() {
     const {
       actions,
+      globals,
       settings,
       validate
     } = this.props;
     const {
       getAccount,
+      getCurrencyStats,
       getGlobals,
       getInfo
     } = actions;
@@ -153,8 +155,13 @@ class BasicVoterContainer extends Component<Props> {
       if (settings.account) {
         getAccount(settings.account);
       }
+      getCurrencyStats();
       getGlobals();
       getInfo();
+    }
+
+    if (globals.precision > 0 && settings.tokenPrecision != globals.precision) {
+      actions.setSetting('tokenPrecision', globals.precision);
     }
   }
 

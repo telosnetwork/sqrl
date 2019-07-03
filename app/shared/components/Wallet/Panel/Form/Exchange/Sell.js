@@ -191,12 +191,12 @@ class WalletPanelFormExchangeSell extends Component<Props> {
                     label={t('rex_sellrex_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="sellAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalSellAmount.toFixed(4)}
+                    defaultValue={decimalSellAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                 </Form.Group>
                 <Header size="tiny">
-                    {(sellRatio).toFixed(4)} {settings.blockchain.tokenSymbol}
+                    {(sellRatio).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                     <Header.Subheader>
                     {t('rex_sellrex_amount_ratio', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     </Header.Subheader>

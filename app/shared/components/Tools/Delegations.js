@@ -75,10 +75,21 @@ class ToolsDelegations extends Component<Props> {
       successMessage
     } = this.state;
 
-    const delegations = tables &&
-                        tables.eosio &&
-                        tables.eosio[settings.account] &&
-                        tables.eosio[settings.account].delband.rows;
+    let delegations = tables &&
+        tables.eosio &&
+        tables.eosio[settings.account] &&
+        tables.eosio[settings.account].delband.rows;
+
+    if (!delegations && settings.account.indexOf('.') > 0) {
+      const prefix = settings.account.split('.')[0];
+      const suffix = settings.account.split('.')[1];
+      delegations = 
+        tables &&
+        tables.eosio &&
+        tables.eosio[prefix] &&
+        tables.eosio[prefix][suffix] &&
+        tables.eosio[prefix][suffix].delband.rows;
+    }
 
     const delegationsToDisplay = sortBy(delegations, 'accountName');
 

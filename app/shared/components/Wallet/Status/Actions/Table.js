@@ -21,8 +21,8 @@ class WalletStatusActionsTable extends Component<Props> {
     if (!loading) {
       let fullResults = actionHistory.list.slice(0, amount);
 
-      const filterSpamTransfersUnder = settings.filterSpamTransfersUnder || 0.0000;
-      if (filterSpamTransfersUnder !== 0.0000) {
+      const filterSpamTransfersUnder = settings.filterSpamTransfersUnder || '0.'.padEnd(settings.tokenPrecision + 2, '0');
+      if (filterSpamTransfersUnder !== '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
         fullResults = fullResults.filter(action => {
           const {
             act

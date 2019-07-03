@@ -28,8 +28,8 @@ class WalletPanelFormExchangeUnStakeTo extends Component<Props> {
       cpu_weight,
       net_weight
     } = account.self_delegated_bandwidth || {
-      cpu_weight: '0.0000 ' + settings.blockchain.tokenSymbol,
-      net_weight: '0.0000 ' + settings.blockchain.tokenSymbol
+      cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+      net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
     };
 
     const parsedCpuWeight = cpu_weight.split(' ')[0];
@@ -229,7 +229,7 @@ class WalletPanelFormExchangeUnStakeTo extends Component<Props> {
                     label={t('rex_unstaketo_cpu', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="cpuAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalCpuAmount.toFixed(4)}
+                    defaultValue={decimalCpuAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
 
@@ -239,7 +239,7 @@ class WalletPanelFormExchangeUnStakeTo extends Component<Props> {
                     label={t('rex_unstaketo_net', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="netAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalNetAmount.toFixed(4)}
+                    defaultValue={decimalNetAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                 </Form.Group>

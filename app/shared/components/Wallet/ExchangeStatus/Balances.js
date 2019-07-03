@@ -26,18 +26,18 @@ class WalletExchangeStatusBalances extends Component<Props> {
     let rexMaturingEndDate = '';
 
     if (rexbalance.length < 1 || rexbalance.owner != settings.account) {
-      rexbalance.rex_balance = '0.0000 REX';
+      rexbalance.rex_balance = '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' REX';
       rexbalance.matured_rex = '0';
-      rexbalance.vote_stake = '0.0000 ' + settings.blockchain.tokenSymbol;
+      rexbalance.vote_stake = '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol;
     } else {
       rexMaturingEndDate = '[Matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
     }
     
     if (rexfund.length < 1 || rexfund.owner != settings.account) {
-      rexfund.balance = '0.0000 ' + settings.blockchain.tokenSymbol;
+      rexfund.balance = '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol;
     }
 
-    const matured_rex = rexbalance.matured_rex > 0 ? parseFloat(rex.rexbal.matured_rex / 100000000).toFixed(4) : 0.0000;
+    const matured_rex = rexbalance.matured_rex > 0 ? parseFloat(rex.rexbal.matured_rex / 100000000).toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0');
     const totalRent = rex.rexpool.total_rent.split(' ')[0];
     const totalUnlent = rex.rexpool.total_unlent.split(' ')[0];
 
@@ -92,7 +92,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
                 subheader={t('rex_status_fund_rexratio_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}
               />
             <div className="rexlabel">
-              {sellRatio.toFixed(4)} {settings.blockchain.tokenSymbol}
+              {sellRatio.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
               <Responsive as="span" minWidth={800} />
             </div>
             </Grid.Column>
@@ -114,7 +114,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
                 subheader={t('rex_status_fund_interest_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}
               />
             <div className="rexlabel">
-            {rexConversionRates.core_rex.toFixed(4)} REX
+            {rexConversionRates.core_rex.toFixed(settings.tokenPrecision)} REX
               <Responsive as="span" minWidth={800} />
             </div>
             </Grid.Column>

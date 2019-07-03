@@ -22,7 +22,7 @@ class WalletPanelFormExchangeRentStats extends Component<Props> {
       <Segment.Group horizontal>
         <Segment>
           <Header textAlign="center">
-            {(EOSbalance).toFixed(4)} {settings.blockchain.tokenSymbol}
+            {(EOSbalance).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
               {t('rex_rent_core_balance', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>
@@ -30,7 +30,7 @@ class WalletPanelFormExchangeRentStats extends Component<Props> {
         </Segment>
         <Segment>
           <Header textAlign="center">
-            {(sellRatio).toFixed(4)} {settings.blockchain.tokenSymbol}
+            {(sellRatio).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
             {t('rex_rent_core_rate', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>

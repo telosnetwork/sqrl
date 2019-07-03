@@ -257,12 +257,12 @@ class WalletPanelFormExchangeRent extends Component<Props> {
                     label={t('rex_rent_payment_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="paymentAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalPaymentAmount.toFixed(4)}
+                    defaultValue={decimalPaymentAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                   <Message
                     style={{ width: '100%' }}
-                    content={t('rex_rent_loan_amount', {loanAmount: decimalLoanAmount.toFixed(4), tokenSymbol:settings.blockchain.tokenSymbol})}
+                    content={t('rex_rent_loan_amount', {loanAmount: decimalLoanAmount.toFixed(settings.tokenPrecision), tokenSymbol:settings.blockchain.tokenSymbol})}
                   />
                   <GlobalFormFieldAccount
                     value={receiver}

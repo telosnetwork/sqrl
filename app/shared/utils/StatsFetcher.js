@@ -121,8 +121,8 @@ export default class StatsFetcher {
 
   delegatedStats() {
     const no_delegation = {
-      cpu_weight: '0.0000 ' + this.settings.blockchain.tokenSymbol,
-      net_weight: '0.0000 ' + this.settings.blockchain.tokenSymbol
+      cpu_weight: '0.'.padEnd(this.settings.tokenPrecision + 2, '0') + ' ' + this.settings.blockchain.tokenSymbol,
+      net_weight: '0.'.padEnd(this.settings.tokenPrecision + 2, '0') + ' ' + this.settings.blockchain.tokenSymbol
     };
     const self_delegated_bandwidth = this.account.self_delegated_bandwidth ? 
       this.account.self_delegated_bandwidth : no_delegation;
@@ -137,8 +137,8 @@ export default class StatsFetcher {
     const totalNetAmount = Decimal(total_resources.net_weight.split(' ')[0]);
 
     return {
-      cpuWeight: `${totalCpuAmount.minus(selfCpuAmount).toFixed(4)} ${this.settings.blockchain.tokenSymbol}`,
-      netWeight: `${totalNetAmount.minus(selfNetAmount).toFixed(4)} ${this.settings.blockchain.tokenSymbol}`,
+      cpuWeight: `${totalCpuAmount.minus(selfCpuAmount).toFixed(this.settings.tokenPrecision)} ${this.settings.blockchain.tokenSymbol}`,
+      netWeight: `${totalNetAmount.minus(selfNetAmount).toFixed(this.settings.tokenPrecision)} ${this.settings.blockchain.tokenSymbol}`,
       totalStaked: this.totalStakedToSelf() + this.totalStakedToOthers()
     };
   }

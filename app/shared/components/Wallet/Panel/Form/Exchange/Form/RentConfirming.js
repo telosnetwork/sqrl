@@ -38,12 +38,12 @@ class WalletPanelFormExchangeRentConfirming extends Component<Props> {
               <Header textAlign="center">
                 <font color="green">
                   <Icon name="microchip" />{t('rex_rent_about_to', 
-                    {paymentAmount: paymentAmount.toFixed(4), loanAmount: loanAmount.toFixed(4), 
+                    {paymentAmount: paymentAmount.toFixed(settings.tokenPrecision), loanAmount: loanAmount.toFixed(settings.tokenPrecision), 
                     tokenSymbol: settings.blockchain.tokenSymbol, rentNETorCPU: rentNETorCPU,
                     receiver: receiver})}
                 </font>
                 <Header.Subheader>
-                  ({t('rex_you_will_have')} {balanceDifference.toFixed(4)} {t('rex_rent_balance_after', 
+                  ({t('rex_you_will_have')} {balanceDifference.toFixed(settings.tokenPrecision)} {t('rex_rent_balance_after', 
                   {tokenSymbol:settings.blockchain.tokenSymbol})})
                 </Header.Subheader>
               </Header>

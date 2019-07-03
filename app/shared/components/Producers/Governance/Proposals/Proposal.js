@@ -313,9 +313,9 @@ class GovernanceProposalsProposal extends Component<Props> {
           <React.Fragment><p><strong>Cycle:</strong> {proposal.cycle_count} of {totalCycles}</p></React.Fragment>
           <React.Fragment><p><strong>Voting Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
           <React.Fragment><p><strong>Voting Ends:</strong> <Moment>{end_time*1000}</Moment></p></React.Fragment>
-          <React.Fragment><p><strong>Amount Requested:</strong> {(submission.amount/10000).toFixed(4)} {settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Amount Requested:</strong> {(submission.amount/10000).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</p></React.Fragment>
           <React.Fragment><p><strong>Receiving Account:</strong> {submission.receiver}</p></React.Fragment>
-          <React.Fragment><p><strong>Submission Fee:</strong> {parseFloat(proposalFee).toFixed(4) + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
+          <React.Fragment><p><strong>Submission Fee:</strong> {parseFloat(proposalFee).toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol}</p></React.Fragment>
 
           {
             (isStarted || isExpired) ?

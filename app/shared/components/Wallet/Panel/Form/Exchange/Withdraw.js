@@ -187,7 +187,7 @@ class WalletPanelFormExchangeWithdraw extends Component<Props> {
                     label={t('rex_withdraw_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
                     name="withdrawalAmount"
                     onChange={this.onChange}
-                    defaultValue={decimalWithdrawalAmount.toFixed(4)}
+                    defaultValue={decimalWithdrawalAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
                   />
                 </Form.Group>

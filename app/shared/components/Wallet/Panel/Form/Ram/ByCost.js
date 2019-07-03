@@ -77,7 +77,7 @@ class WalletPanelFormRamBuyByCost extends Component<Props> {
           loading={false}
           name="ram_to_buy"
           onChange={this.onChange}
-          defaultValue={priceOfRam && priceOfRam.toFixed(4)}
+          defaultValue={priceOfRam && priceOfRam.toFixed(settings.tokenPrecision)}
           settings={settings}
         />
         {(amountOfRam && !formError) ? (
