@@ -521,9 +521,11 @@ export default class EOS{
 				else rawAbiHex = cachedABI.rawAbiHex;
 			}
 
-			const rawAbi = Buffer.from(rawAbiHex, 'hex');
-			const abi = api.rawAbiToJson(rawAbi);
-			api.cachedAbis.set(accountName, { rawAbi, abi });
+            const rawAbi = Buffer.from(rawAbiHex, 'hex');
+            if (typeof api.rawAbiToJson === "function") {
+                const abi = api.rawAbiToJson(rawAbi);
+                api.cachedAbis.set(accountName, { rawAbi, abi });
+            }
 			return true;
 		}));
 
