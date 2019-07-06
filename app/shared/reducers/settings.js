@@ -47,6 +47,8 @@ const initialState = {
       chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
     },
   ],
+  // WAX chain
+  claimGBMRewards: false,
   // List of contacts
   contacts: [],
   // Custom tokens the wallet should be tracking

@@ -2,6 +2,7 @@ import { forEach } from 'lodash';
 
 import * as types from './types';
 import eos from './helpers/eos';
+import eos2 from './helpers/eos2';
 
 export function clearAccountCache() {
   return (dispatch: () => void) => {
@@ -335,9 +336,66 @@ export function clearAccountByKey() {
   };
 }
 
+export function claimGBMRewards() {
+  return (dispatch: () => void, getState) => {
+    const {
+      connection,
+      settings
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_CLAIMGBM_PENDING
+    });
+
+    const { account } = settings;
+
+    // Build the operation to perform
+    const op = {
+      actions: [
+        {
+          account: 'eosio',
+          name: 'claimgenesis',
+          authorization: [{
+            actor: account,
+            permission: 'active',
+          }],
+          data: {
+            claimer: account
+          },
+        },{
+          account: 'eosio',
+          name: 'claimgbmvote',
+          authorization: [{
+            actor: account,
+            permission: 'active',
+          }],
+          data: {
+            owner: account
+          },
+        }
+      ]
+    };
+
+    return eos2(connection, true).transact(op, {
+      broadcast: true,
+      blocksBehind: 3,
+      expireSeconds: 120
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_CLAIMGBM_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_CLAIMGBM_FAILURE
+    }));
+  };
+}
+
 export default {
   checkAccountAvailability,
   checkAccountExists,
+  claimGBMRewards,
   clearAccountByKey,
   clearAccountCache,
   getAccount,

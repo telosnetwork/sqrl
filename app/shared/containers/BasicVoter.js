@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { forEach } from 'lodash';
+import { Decimal } from 'decimal.js';
 
 import { Segment } from 'semantic-ui-react';
 
@@ -139,13 +140,18 @@ class BasicVoterContainer extends Component<Props> {
 
   tick() {
     const {
+      accounts,
+      actionHistories,
       actions,
+      balances,
       globals,
       settings,
       validate
     } = this.props;
     const {
+      claimGBMRewards,
       getAccount,
+      getActions,
       getCurrencyStats,
       getGlobals,
       getInfo
@@ -162,6 +168,50 @@ class BasicVoterContainer extends Component<Props> {
 
     if (globals.precision > 0 && settings.tokenPrecision != globals.precision) {
       actions.setSetting('tokenPrecision', globals.precision);
+    }
+
+    if (settings.blockchain.tokenSymbol === 'WAX' && settings.claimGBMRewards === true 
+      && settings.account && accounts[settings.account]) {
+
+      const claimer = accounts[settings.account];
+      if (claimer.voter_info && claimer.voter_info.last_claim_time) {
+        const lastClaimed = new Date(claimer.voter_info.last_claim_time+'z');
+        const secondsSince = ((new Date().getTime() - lastClaimed.getTime()) / 1000);
+        const currentBalance = Decimal(claimer.core_liquid_balance.split(' ')[0]);
+
+        if (secondsSince > 86400) {
+          claimGBMRewards();
+
+          const {
+            cpu_weight,
+            net_weight
+          } = claimer.self_delegated_bandwidth || {
+            cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+            net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
+          };
+      
+          const currentCpuWeight = Decimal(cpu_weight.split(' ')[0]);
+          const currentNetWeight = Decimal(net_weight.split(' ')[0]);
+
+          (async () => {
+            await getActions(settings.account, -1, -50);
+
+            if (actionHistories[settings.account] && actionHistories[settings.account].list) {
+              actionHistories[settings.account].list.map(action => {
+                if (action && action.action_trace && action.action_trace.act) {
+                  const trace = action.action_trace.act;
+                  if (trace.data && trace.data.from == "genesis.wax" && trace.data.memo == "claimgenesis") {
+                    const rewards = Decimal(trace.data.quantity.split(' ')[0]);
+                    if (currentBalance >= rewards) {
+                      actions.setStake(settings.account, currentNetWeight.toFixed(8), currentCpuWeight.plus(rewards).toFixed(8));
+                    }
+                  }
+                }
+              });
+            }
+          })();
+        }
+      }
     }
   }
 
