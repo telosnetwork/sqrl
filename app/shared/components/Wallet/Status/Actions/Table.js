@@ -21,6 +21,11 @@ class WalletStatusActionsTable extends Component<Props> {
     if (!loading) {
       let fullResults = actionHistory.list.slice(0, amount);
 
+      // de dupe history actions by transaction/action name combo
+      fullResults = fullResults.map(e => e.action_trace.trx_id + "." + e.action_trace.act.name)
+        .map((e, i, final) => final.indexOf(e) === i && i)
+        .filter(e => fullResults[e]).map(e => fullResults[e]);
+
       const filterSpamTransfersUnder = settings.filterSpamTransfersUnder || '0.'.padEnd(settings.tokenPrecision + 2, '0');
       if (filterSpamTransfersUnder !== '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
         fullResults = fullResults.filter(action => {

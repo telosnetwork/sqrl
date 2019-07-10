@@ -59,13 +59,14 @@ export function importWallets(accounts, authorization = false, key = false, pass
     forEach(accounts, (account) => dispatch(importWallet(account, authorization, key, password, mode, chainId)));
 }
 
-export function removeWallet(account, chainId) {
+export function removeWallet(account, chainId, authorization) {
   return (dispatch: () => void) => {
     dispatch({
       type: types.REMOVE_WALLET,
       payload: {
         account,
-        chainId
+        chainId,
+        authorization
       }
     });
   };

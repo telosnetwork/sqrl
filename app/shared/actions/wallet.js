@@ -99,10 +99,15 @@ export function lockWallet() {
   };
 }
 
-export function removeWallet() {
+export function removeWallet(account, chainId, authorization) {
   return (dispatch: () => void) => {
     dispatch({
-      type: types.WALLET_REMOVE
+      type: types.WALLET_REMOVE,
+      payload: {
+        account,
+        authorization,
+        chainId,
+      }
     });
   };
 }
