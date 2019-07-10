@@ -12,7 +12,7 @@ import { find } from 'lodash';
 class ToolsWallets extends Component<Props> {
   removeWallet = (account) => {
     const { actions } = this.props;
-    actions.removeWallet(account.account, account.chainId);
+    actions.removeWallet(account.account, account.chainId, account.authorization);
   }
   swapWallet = (account, password = false) => {
     const { actions, settings } = this.props;
