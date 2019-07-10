@@ -32,6 +32,7 @@ class Proxies extends Component<Props> {
   tick() {
     const {
       actions,
+      settings,
       validate
     } = this.props;
     const {
@@ -39,7 +40,10 @@ class Proxies extends Component<Props> {
     } = actions;
 
     if (validate.NODE) {
-      getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies');
+      if (settings.blockchain.tokenSymbol === 'TLOS')
+        getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies');
+      else if (settings.blockchain.tokenSymbol === 'WAX')
+        getTable('eosio', 'eosio', 'voters', 10000000);
     }
   }
 
@@ -67,7 +71,32 @@ class Proxies extends Component<Props> {
     const account = accounts[settings.account];
     const isProxying = !!(account && account.voter_info && account.voter_info.proxy);
     const currentProxy = account && account.voter_info && account.voter_info.proxy;
-    const proxies = (tables.tlsproxyinfo && tables.tlsproxyinfo.tlsproxyinfo.proxies.rows) || [];
+    let proxies = (tables.tlsproxyinfo && tables.tlsproxyinfo.tlsproxyinfo.proxies.rows) || [];
+    if (proxies.length < 1) {
+      const voters = (tables.eosio && 
+        tables.eosio.eosio && 
+        tables.eosio.eosio.voters && 
+        tables.eosio.eosio.voters.rows) || [];
+      if (voters.length > 0)
+        proxies = voters.filter( (p) => {return p.is_proxy === 1} ).map(proxy => {
+        return {
+          owner: proxy.owner,
+          name: proxy.owner,
+          website: '',
+          slogan: '',
+          philosophy: '',
+          background: '',
+          logo_256: '',
+          telegram: '',
+          steemit: '',
+          twitter: '',
+          wechat: '',
+          reserved_1: '',
+          reserved_2: '',
+          reserved_3: ''
+        }
+      });
+    }
     const isValidUser = !!((keys && keys.key && settings.walletMode !== 'wait') || settings.walletMode === 'watch');
     const currentProxyReg = (proxies && proxies.length > 0) ? proxies.filter( (p)=> { return p.owner == settings.account;})[0] : null;
     
@@ -77,6 +106,7 @@ class Proxies extends Component<Props> {
       </Header>),
     (
         <Container floated="right" style={{ marginBottom: '50px' }}>
+          {(settings.blockchain.tokenSymbol!=='WAX') ?
             <ProxiesButtonProxy
               accounts={accounts}
               actions={actions}
@@ -88,7 +118,7 @@ class Proxies extends Component<Props> {
               tables={tables}
               validate={validate}
               wallet={wallet}
-            />
+            />:''}
           </Container>
       ),(
         <Visibility

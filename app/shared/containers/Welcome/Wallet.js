@@ -65,6 +65,7 @@ class WelcomeWalletContainer extends Component<Props> {
       changeCoreTokenSymbol,
       setSetting,
       setSettingWithValidation,
+      setWalletHash,
       setWalletKey
     } = actions;
     // if we aren't using a defined chain, search for one by matching chain id and switch to 
@@ -79,8 +80,10 @@ class WelcomeWalletContainer extends Component<Props> {
       changeCoreTokenSymbol(blockchain.tokenSymbol);
     }
     if (encryptWallet) {
-      setSetting('walletInit', true);
-      setWalletKey(key, password, settings.walletMode, hash);
+      setSetting('walletInit', encryptWallet);
+      setSetting('walletTemp', !encryptWallet);
+      setWalletHash(password);
+      setWalletKey(key, password, settings.walletMode, hash, settings.authorization);
     } else {
       setSetting('walletTemp', true);
     }

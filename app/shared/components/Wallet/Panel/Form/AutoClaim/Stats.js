@@ -8,6 +8,7 @@ import { Grid, Header } from 'semantic-ui-react';
 class WalletPanelFormAutoClaimStats extends Component<Props> {
   render() {
     const {
+      claimGBMRewards,
       lastClaimTime,
       nextClaimTime,
       rewardsDue,
@@ -47,10 +48,21 @@ class WalletPanelFormAutoClaimStats extends Component<Props> {
           </Grid.Column>
           <Grid.Column>
             <Header textAlign="center">
-            <Moment fromNow>{nextClaimTime}</Moment>
+            {(claimGBMRewards === true) ? 
+              <div>
+              <Moment fromNow>{nextClaimTime}</Moment>
               <Header.Subheader>
                 {t('claimgbm_next_eligible_claim')} (<Moment>{nextClaimTime}</Moment>)
               </Header.Subheader>
+              </div>
+              :  
+              <div>
+                Automatic claiming is disabled
+              <Header.Subheader>
+                Next time rewards can be claimed
+              </Header.Subheader>
+              </div>
+              }
             </Header>
           </Grid.Column>
         </Grid.Row>

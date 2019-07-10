@@ -1,7 +1,8 @@
 import * as types from '../actions/types';
 
 const initialState = {
-  __contracts: {}
+  __contracts: {},
+  __genesisbal: {}
 };
 
 export default function balances(state = initialState, action) {
@@ -27,6 +28,24 @@ export default function balances(state = initialState, action) {
           }
         }),
         [account_name]: Object.assign({}, state[account_name], tokens)
+      });
+    }
+    case types.GET_GENESIS_BALANCE_SUCCESS: {
+      const {
+        account,
+        balance, 
+        unclaimed_balance, 
+        last_claim_time, 
+        last_updated 
+      } = action.payload;
+      return Object.assign({}, state, {
+        __genesisbal: Object.assign({}, {
+          account,
+          balance, 
+          unclaimed_balance, 
+          last_claim_time, 
+          last_updated 
+        })
       });
     }
     default: {

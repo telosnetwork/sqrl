@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Decimal } from 'decimal.js';
 
-import { Segment, Form, Divider, Message, Button, Header } from 'semantic-ui-react';
+import { Radio, Segment, Form, Divider, Message, Button, Header } from 'semantic-ui-react';
 
 import WalletPanelFormAutoClaimStats from './AutoClaim/Stats';
 
@@ -97,8 +97,32 @@ class WalletPanelFormAutoClaim extends Component<Props> {
     }
   }
 
-  claimNow = () => {
-    console.log('claiming now...');
+  claimAutoRestake = () => {
+    const {
+      actions,
+      settings
+    } = this.props;
+
+    if (settings.claimGBMRestake === true)
+      actions.setSetting('claimGBMRestake', false);
+    else {
+      actions.setSetting('claimGBMRestake', true);
+      actions.setSetting('claimGBMBuyRAM', false);
+    }
+  }
+
+  claimAutoBuyRAM = () => {
+    const {
+      actions,
+      settings
+    } = this.props;
+
+    if (settings.claimGBMBuyRAM === true)
+      actions.setSetting('claimGBMBuyRAM', false);
+    else {
+      actions.setSetting('claimGBMBuyRAM', true);
+      actions.setSetting('claimGBMRestake', false);
+    }
   }
 
   claimAutomatically = () => {
@@ -107,10 +131,35 @@ class WalletPanelFormAutoClaim extends Component<Props> {
       settings
     } = this.props;
 
-    if (settings.claimGBMRewards === true)
+    if (settings.claimGBMRewards === true){
       actions.setSetting('claimGBMRewards', false);
+      actions.setSetting('claimGBMBuyRAM', false);
+      actions.setSetting('claimGBMRestake', false);
+    }
     else 
       actions.setSetting('claimGBMRewards', true);
+  }
+
+  claimVotingNow = () => {
+    const {
+      actions
+    } = this.props;
+    const {
+      claimVotingRewards
+    } = actions;
+
+    claimVotingRewards();
+  }
+
+  claimGBMNow = () => {
+    const {
+      actions
+    } = this.props;
+    const {
+      claimGBMRewards
+    } = actions;
+
+    claimGBMRewards();
   }
 
   render() {
@@ -128,7 +177,6 @@ class WalletPanelFormAutoClaim extends Component<Props> {
       secondsSinceClaimed,
       stakedBalance
     } = this.state;
-
     return (
       <Segment>
         <div>
@@ -136,6 +184,7 @@ class WalletPanelFormAutoClaim extends Component<Props> {
             Current <u>GBM</u> Stats
           </Header>
           <WalletPanelFormAutoClaimStats
+            claimGBMRewards={settings.claimGBMRewards}
             lastClaimTime={lastClaimTime}
             nextClaimTime={nextClaimTime}
             rewardsDue={rewardsDue}
@@ -163,26 +212,51 @@ class WalletPanelFormAutoClaim extends Component<Props> {
               </div>
               : '' )}
 
-            <Button
-              content={t('close')}
-              color="grey"
-              onClick={onClose}
-            />
-            <Button
-              content={t('claimgbm_claim_now')}
-              color="green"
-              disabled={rewardsDue <= 0 || secondsSinceClaimed < 86400}
-              floated="right"
-              onClick={this.claimNow}
-              primary
-            />
-            <Button
-              content={settings.claimGBMRewards === true ? t('claimgbm_claim_auto_off') : t('claimgbm_claim_auto')}
-              color="purple"
-              onClick={this.claimAutomatically}
-              floated="right"
-              primary
-            />
+            <Segment>
+              <Button
+                content={settings.claimGBMRewards === true ? t('claimgbm_claim_auto_off') : t('claimgbm_claim_auto')}
+                color="purple"
+                onClick={this.claimAutomatically}
+                primary
+              />
+              <p style={{ float:"right", marginLeft:5 }} >Auto stake rewards</p>
+              <Radio 
+                style={{ float:"right" , marginLeft:15}} 
+                disabled={settings.claimGBMRewards != true} 
+                toggle 
+                onChange={this.claimAutoRestake} 
+                checked={settings.claimGBMRestake===true} /> 
+              <p style={{ float:"right", marginLeft:5 }} >Buy RAM with rewards</p>
+                <Radio 
+                  style={{ float:"right" }} 
+                  disabled={settings.claimGBMRewards != true} 
+                  toggle 
+                  onChange={this.claimAutoBuyRAM} 
+                  checked={settings.claimGBMBuyRAM===true} /> 
+            </Segment>
+            <Segment>
+              <Button
+                content={t('close')}
+                color="grey"
+                onClick={onClose}
+              />
+              <Button
+                content={'Claim Genesis Rewards'}
+                color="green"
+                disabled={rewardsDue <= 0 || secondsSinceClaimed < 86400}
+                floated="right"
+                onClick={this.claimGBMNow}
+                primary
+              />
+              <Button
+                content={'Claim Voting Rewards'}
+                color="green"
+                disabled={rewardsDue <= 0 || secondsSinceClaimed < 86400}
+                floated="right"
+                onClick={this.claimVotingNow}
+                primary
+              />
+            </Segment>
           </Form>
         </div>
       </Segment>

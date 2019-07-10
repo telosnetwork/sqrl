@@ -55,6 +55,7 @@
   "global_account_import_watch_description": "계정을 관찰지갑으로 가져 오기. 관찰지갑은 계정을 모니터링하고 서명되지 않은 거래를 생성할 수 있습니다.",
   "global_account_request_account": "Create New Account",
   "global_accounts_dropdown_no_accounts": "추가 지갑이 생성되지 않았습니다. 시작하려면 '도구' 로 이동 한 다음 '지갑 관리' 로 이동하세요.",
+  "global_accounts_dropdown_upgrade_required": "Requires Upgrade",
   "global_button_account_import_action": "계정(들) 가져오기",
   "global_button_elevate": "허용하기",
   "global_button_elevate_failure_content": "유효하지 않은 암호",

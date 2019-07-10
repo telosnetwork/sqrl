@@ -55,6 +55,7 @@
   "global_account_import_watch_description": "Impordi konto Jälgimise Rahakottiks, mis saab jälgida kontot ja luua allkirjastamata kandeid.",
   "global_account_request_account": "Create New Account",
   "global_accounts_dropdown_no_accounts": "Täiendavaid rahakotte ei loodud. Alustamiseks mine 'Tööriistad', ning 'Halda Rahakotte'.",
+  "global_accounts_dropdown_upgrade_required": "Requires Upgrade",
   "global_button_account_import_action": "Impordi konto(d)",
   "global_button_elevate": "Volita",
   "global_button_elevate_failure_content": "Parool on vale",

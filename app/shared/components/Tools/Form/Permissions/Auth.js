@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { delete as del, set } from 'dot-prop-immutable';
 import { map, values } from 'lodash';
 
-import { Button, Container, Form, Message } from 'semantic-ui-react';
+import { Button, Checkbox, Container, Divider, Form, Message, Segment } from 'semantic-ui-react';
 
 import ToolsFormPermissionsAuthWeightedKey from './Auth/WeightedKey';
 
@@ -40,6 +40,7 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       },
       parent: auth.parent,
       permission: auth.perm_name,
+      selectedActions: [],
       validFields: {},
       validForm: false
     });
@@ -79,20 +80,34 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       validFields
     });
   }
+  toggleAccount = (e, { checked, name }) => {
+    const selectedActions = [...this.state.selectedActions];
+    const existing = selectedActions.indexOf(name);
+    if (checked && existing < 0) {
+      selectedActions.push(name);
+    } else if (!checked && existing >= 0) {
+      selectedActions.splice(existing, 1);
+    }
+    this.setState({ selectedActions });
+
+    console.log('toggled...', selectedActions)
+  }
   onSubmit = () => {
     const {
       actions,
       settings
     } = this.props;
-    const { auth, parent, permission } = this.state;
+    const { auth, parent, permission, selectedActions } = this.state;
     let authorization;
     if (permission === 'owner') {
       authorization = `${settings.account}@owner`;
     }
-    actions.updateauth(permission, parent, auth, authorization);
+    actions.updateauth(permission, parent, auth, authorization, selectedActions);
   }
   render() {
     const {
+      contractActions,
+      linkAuthHistory,
       pubkey,
       settings,
       t,
@@ -104,6 +119,7 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       original,
       parent,
       permission,
+      selectedActions,
       validForm
     } = this.state;
     const isCurrentKey = map(original.keys, 'key').includes(pubkey);
@@ -158,6 +174,25 @@ class ToolsFormPermissionsAuth extends Component<Props> {
             connection={connection}
           />
         ))}
+        <Segment stacked color="blue">
+          {t('tools_form_permissions_auth_linkauth')}
+          <Divider />
+          {(contractActions && contractActions.map((action) => {
+              return (
+                <p>
+                  <Checkbox
+                    label={action.text}
+                    name={action.value}
+                    onChange={this.toggleAccount}
+                    checked={linkAuthHistory.filter( auth => {
+                      return auth.requirement == permission && auth.type == action.text}).length > 0
+                    || selectedActions.indexOf(action.value) !== -1}
+                  />
+                </p>
+              );
+            })
+          )}
+        </Segment>
         {(settings.advancedPermissions)
           ? (
             <Button

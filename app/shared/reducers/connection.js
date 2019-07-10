@@ -12,7 +12,9 @@ const initialState = {
   verbose: false,
   expireInSeconds: 120,
   forceActionDataHex: false,
-  httpEndpoint: null
+  httpEndpoint: null,
+  signMethod: false,
+  signPath: false
 };
 
 export default function connection(state = initialState, action) {
@@ -24,7 +26,12 @@ export default function connection(state = initialState, action) {
     // Update httpEndpoint based on node validation/change
     case types.VALIDATE_NODE_SUCCESS: {
       const chain = action.payload.settings.blockchains.filter( (c) => {return c.chainId===action.payload.info.chain_id})[0];
+      const { account, authorization } = action.payload.settings;
       return Object.assign({}, state, {
+        authorization: [
+          account,
+          authorization || 'active',
+        ].join('@'),
         chain: chain ? chain.blockchain : 'unknown',
         chainId: action.payload.info.chain_id,
         httpEndpoint: action.payload.node
@@ -32,10 +39,28 @@ export default function connection(state = initialState, action) {
     }
     // Remove key from connection if the wallet is locked/removed
     case types.WALLET_LOCK: {
+      if (action.payload && action.payload.settings && 
+        (action.payload.settings.claimGBMRewards === true || settings.autoRefreshVote === true )){
+        return Object.assign({}, state, {
+          authorization: undefined,
+          keyProvider: []
+        });
+      } else {
+        return Object.assign({}, state, {
+          authorization: undefined,
+          keyProvider: [],
+          keyProviderObfuscated: {}
+        });
+      }
+    }
+    case types.HARDWARE_LEDGER_TRANSPORT_SUCCESS: {
       return Object.assign({}, state, {
-        authorization: undefined,
-        keyProvider: [],
-        keyProviderObfuscated: {}
+        signPath: action.payload.signPath,
+      });
+    }
+    case types.HARDWARE_LEDGER_TRANSPORT_FAILURE: {
+      return Object.assign({}, state, {
+        signPath: null,
       });
     }
     // Cold Wallet: increase expiration to 1hr, disable broadcast, enable sign
@@ -44,7 +69,19 @@ export default function connection(state = initialState, action) {
         broadcast: false,
         expireInSeconds: 3600,
         forceActionDataHex: false,
-        sign: true
+        sign: true,
+        signMethod: false
+      });
+    }
+    // Ledger Wallet: increase expiration to 1hr, disable broadcast/sign
+    case types.SET_WALLET_LEDGER: {
+      return Object.assign({}, state, {
+        broadcast: true,
+        expireInSeconds: 3600,
+        keyProvider: [],
+        keyProviderObfuscated: {},
+        sign: true,
+        signMethod: 'ledger',
       });
     }
     // Watch Wallet: increase expiration to 1hr, enable broadcast, disable sign
@@ -53,7 +90,8 @@ export default function connection(state = initialState, action) {
         broadcast: false,
         expireInSeconds: 3600,
         forceActionDataHex: false,
-        sign: false
+        sign: false,
+        signMethod: false
       });
     }
     // Hot Wallet: set expire to 2 minutes, enable broadcast, enable sign
@@ -62,14 +100,18 @@ export default function connection(state = initialState, action) {
         broadcast: true,
         expireInSeconds: 120,
         forceActionDataHex: true,
-        sign: true
+        sign: true,
+        signMethod: false
       });
     }
     // Add key to connection if wallet is set or unlocked
     case types.SET_WALLET_KEYS_ACTIVE:
     case types.SET_WALLET_KEYS_TEMPORARY: {
       return Object.assign({}, state, {
-        authorization: undefined, // getAuthorization(action.payload.accountData, action.payload.pubkey),
+        authorization: [
+          action.payload.account,
+          action.payload.authorization || 'active',
+        ].join('@'),
         keyProviderObfuscated: {
           hash: action.payload.hash,
           key: action.payload.key

@@ -82,6 +82,7 @@
   "tools_form_permissions_auth_key": "Public Key",
   "tools_form_permissions_auth_parent": "Permission Parent",
   "tools_form_permissions_auth_permission": "Permission Name",
+  "tools_form_permissions_auth_linkauth":"If you would like to limit this permission's account to performing specific tasks, please select them from the list below.",
   "tools_form_permissions_auth_submit": "Update Permission",
   "tools_form_permissions_auth_threshold": "Weight Threshold",
   "tools_form_permissions_auth_weight": "Key Weight",
