@@ -64,14 +64,19 @@ class ToolsWallets extends Component<Props> {
           </Table.Header>
           <Table.Body>
             {([].concat(wallets)
-                .sort((a, b) => a.account > b.account)
+                .sort((a, b) => {
+                  const k1 = `${a.account}@${a.authorization}`;
+                  const k2 = `${b.account}@${b.authorization}`;
+                  return k1 > k2;
+                })
                 .map((account) => (
-                  <Table.Row key={account.account + account.chainId}>
+                  <Table.Row key={account.account + account.authorization + account.chainId}>
                     <Table.Cell>
                       <Header size="small">
                       {settings.blockchains.find( c => c.chainId === account.chainId)
                       && settings.blockchains.find( c => c.chainId === account.chainId).blockchain ?
-                      settings.blockchains.find( (c) => c.chainId === account.chainId).blockchain : ''} ({account.account})
+                      settings.blockchains.find( (c) => c.chainId === account.chainId).blockchain : ''} 
+                      ({account.account}@{account.authorization})
                       </Header>
                     </Table.Cell>
                     <Table.Cell textAlign="center">
@@ -94,7 +99,9 @@ class ToolsWallets extends Component<Props> {
                           <Button
                             color="green"
                             content={t('tools_wallets_swap')}
-                            disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
+                            disabled={(account.account === wallet.account && 
+                              account.authorization == wallet.authorization && 
+                              account.chainId === wallet.chainId)}
                             icon="random"
                             onClick={() => this.swapWallet(account)}
                           />
@@ -107,7 +114,9 @@ class ToolsWallets extends Component<Props> {
                               <Button
                                 color="green"
                                 content={t('tools_wallets_swap')}
-                                disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
+                                disabled={(account.account === wallet.account && 
+                                  account.authorization == wallet.authorization && 
+                                  account.chainId === wallet.chainId)}
                                 icon="random"
                               />
                             )}
@@ -120,7 +129,9 @@ class ToolsWallets extends Component<Props> {
                         ? (
                           <Button
                             color="red"
-                            disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
+                            disabled={(account.account === wallet.account && 
+                              account.authorization == wallet.authorization && 
+                              account.chainId === wallet.chainId)}
                             icon="trash"
                             onClick={() => this.removeWallet(account)}
                           />
@@ -132,7 +143,9 @@ class ToolsWallets extends Component<Props> {
                             trigger={(
                               <Button
                                 color="red"
-                                disabled={(account.account === wallet.account && account.chainId === wallet.chainId)}
+                                disabled={(account.account === wallet.account && 
+                                  account.authorization == wallet.authorization && 
+                                  account.chainId === wallet.chainId)}
                                 icon="trash"
                               />
                             )}

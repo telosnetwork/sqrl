@@ -64,8 +64,8 @@ class ProducersTable extends Component<Props> {
 
     const coreSymbol = settings.blockchain.tokenSymbol;
     const isEOSChain = (coreSymbol === 'EOS');
-    const coreToken = contract['eosio.token'][coreSymbol];
-    let tokenSupply = coreToken.supply ? parseFloat(coreToken.supply) : 0;
+    const coreToken = contract['eosio.token'] && contract['eosio.token'][coreSymbol];
+    let tokenSupply = coreToken && coreToken.supply ? parseFloat(coreToken.supply) : 0;
     tokenSupply = isEOSChain ? tokenSupply : tokenSupply - 140279973.0000; // telos supply mins 140279973.0000 exchange pool
 
     const activatedStakePercent = parseFloat((activatedStake / tokenSupply) * 100, 10).toFixed(2);

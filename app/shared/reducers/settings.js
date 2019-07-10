@@ -47,6 +47,15 @@ const initialState = {
       chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
     },
   ],
+  // WAX chain
+  autoRefreshVote: false,
+  autoRefreshVoteDate: '',
+  autoRefreshVoteDays: 7,
+  claimGBMRewards: false,
+  claimGBMRestake: false,
+  claimGBMBuyRAM: false,
+  // The loaded authorization
+  authorization: undefined,
   // List of contacts
   contacts: [],
   // Custom tokens the wallet should be tracking
@@ -59,6 +68,10 @@ const initialState = {
   displayResourcesAvailable: true,
   // Default filter spam transfers to false
   filterSpamTransfersUnder: 0.0000,
+  // Default to Ledger import process
+  hardwareLedgerImport: false,
+  // Enable hardware support for Ledger devices
+  hardwareLedgerSupport: false,
   // Default Idle Timeout
   idleTimeout: 999999999,
   // default IPFS settings
@@ -79,6 +92,8 @@ const initialState = {
   skipLinkModal: false,
   // Window State Management
   setupData: {},
+  // Wallet Password Validity Hash
+  walletHash: false,
   // Wallet Status
   walletInit: false,
   // Wallet Mode (hot/cold/watch)
@@ -93,6 +108,11 @@ export default function settings(state = initialState, action) {
   switch (action.type) {
     case types.RESET_ALL_STATES: {
       return Object.assign({}, initialState);
+    }
+    case types.SET_WALLET_HASH: {
+      return Object.assign({}, state, {
+        walletHash: action.payload.hash
+      });
     }
     case types.WALLET_REMOVE: {
       return Object.assign({}, state, {

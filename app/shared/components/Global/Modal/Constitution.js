@@ -15,6 +15,7 @@ class ModalConstitution extends Component<Props> {
     if (
       isUser
       && !settings.acceptedConstitution
+      && settings.blockchain.tokenSymbol != 'WAX'
     ) {
       this.setState({ open: true });
       if (settings.blockchain.tokenSymbol === 'TLOS'){

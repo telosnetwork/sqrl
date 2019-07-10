@@ -31,5 +31,17 @@
   "have_already_unstaked": "스테이킹 풀 예정 ",
   "update_stake_for_other_header": "Delegating to ",
   "update_staked_account_name": "Account Delegated To",
-  "unstaking_will_be_reset": "이 새로운 값으로 스테이킹 을 푸시면, 전 요청을 대체하고, 기다릴 72시간은 재설정됩니다."
+  "unstaking_will_be_reset": "이 새로운 값으로 스테이킹 을 푸시면, 전 요청을 대체하고, 기다릴 72시간은 재설정됩니다.",
+  "claimgbm_button_cta": "Claim Rewards",
+  "claimgbm_schedule_rewards": "Claim Rewards for Staking & Voting",
+  "claimgbm_total_staked": "Staked {{tokenSymbol}} eligible for rewards",
+  "claimgbm_rewards_due": "Rewards due since last claimed",
+  "claimgbm_last_claimed": "Last time rewards were claimed",
+  "claimgbm_next_eligible_claim": "Next time rewards can be claimed",
+  "claimgbm_explanation1": "As part of the WAX Token Swap - and only during the WAX Token Swap - your ERC-20 WAX Tokens will be converted 1:1 into Genesis WAX Protocol Tokens. For each ERC-20 WAX Token you burn, you will receive 1 Genesis WAX Protocol Token. Each staked Genesis WAX Protocol Token will produce one WAX Protocol Token as a GBM reward over the course of 3 years (i.e. one staked Genesis WAX Protocol Token will produce 1/1096 of a WAX Protocol Token each day for 1,096 days).",
+  "claimgbm_explanation2": "Genesis WAX Protocol Tokens will continue to produce WAX Protocol Token GBM rewards every day as long as they remain staked. By leaving your Genesis WAX Protocol Tokens uninterruptedly staked for 3 years, you will double your WAX Protocol Tokens. If a Genesis WAX Protocol Token is unstaked, it will permanently stop producing WAX Protocol Token GBM rewards. This cannot be reversed.",
+  "claimgbm_claim_now": "Claim Rewards Now",
+  "claimgbm_claim_auto": "Enable AutoClaim",
+  "claimgbm_claim_auto_off": "Disable AutoClaim",
+  "claimgbm_currently_auto": "You're currently setup to claim rewards automatically. Now you can sit back and collect!"
 }

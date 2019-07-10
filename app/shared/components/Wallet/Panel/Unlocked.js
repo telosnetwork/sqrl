@@ -6,6 +6,7 @@ import { Accordion, Menu, Segment } from 'semantic-ui-react';
 import WalletPanelButtonBroadcast from './Button/Broadcast';
 import WalletPanelButtonLock from './Button/Lock';
 import WalletPanelButtonStake from './Button/Stake';
+import WalletPanelButtonAutoClaim from './Button/AutoClaim';
 
 import WalletPanelButtonTransferReceive from './Button/Transfer/Receive';
 import WalletPanelButtonTransferSend from './Button/Transfer/Send';
@@ -66,6 +67,21 @@ class WalletPanelUnlocked extends Component<Props> {
                 active={activeIndex === 0}
               >
                 <Segment.Group>
+                {(settings.blockchain.tokenSymbol === 'WAX')
+                    ? (
+                  <Segment>
+                    <WalletPanelButtonAutoClaim
+                      actions={actions}
+                      accounts={accounts}
+                      balances={balances}
+                      blockExplorers={blockExplorers}
+                      validate={validate}
+                      settings={settings}
+                      system={system}
+                      connection={connection}
+                    />
+                  </Segment>
+                    ) : ''}
                   <Segment>
                     <WalletPanelButtonStake
                       actions={actions}

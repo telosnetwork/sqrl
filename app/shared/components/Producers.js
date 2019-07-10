@@ -13,6 +13,7 @@ import GovernanceTFVoting from './Producers/TFVoting';
 import ProducersVotingPreview from './Producers/BlockProducers/Modal/Preview';
 import Proxies from './Producers/Proxies';
 import ProducersSelector from './Producers/BlockProducers/Selector';
+import GovernanceButtonRefreshVote from './Producers/RefreshVote';
 import SidebarAccount from '../containers/Sidebar/Account';
 import WalletPanel from './Wallet/Panel';
 
@@ -244,6 +245,7 @@ class Producers extends Component<Props> {
     const {
       actions,
       accounts,
+      actionHistories,
       balances,
       blockExplorers,
       connection,
@@ -293,11 +295,36 @@ class Producers extends Component<Props> {
     const modified = (selected.sort().toString() !== producers.selected.sort().toString());
     const currentProxy = (account && account.voter_info && account.voter_info.proxy);
 
-    const columnWidth = (activeTabIndex == 0) ? 10 : 16;
+    const columnWidth = (activeTabIndex == 0 || settings.blockchain.tokenSymbol==='WAX') ? 10 : 16;
     
     if (isValidUser && settings.walletMode !== 'wait') {
       sidebar = (
         <React.Fragment>
+          {(settings.blockchain.tokenSymbol === 'WAX') ? 
+            <div>
+              <GovernanceButtonRefreshVote
+                account={account}
+                accounts={accounts}
+                actions={actions}
+                actionHistories={actionHistories}
+                addProxy={addProxy}
+                balances={balances}
+                blockExplorers={blockExplorers}
+                currentProxy={currentProxy}
+                keys={keys}
+                isProxying={isProxying}
+                isValidUser={isValidUser}
+                onClose={this.onClose}
+                producers={producers}
+                removeProxy={removeProxy}
+                settings={settings}
+                system={system}
+                tables={tables}
+                validate={validate}
+              />
+              <Divider hidden />
+            </div>
+            : '' }
           <ProducersProxy
             account={account}
             accounts={accounts}
@@ -352,7 +379,7 @@ class Producers extends Component<Props> {
       <div ref={this.handleContextRef}>
         <Grid divided>
           <Grid.Row>
-            {( activeTabIndex == 0) ?
+            {( activeTabIndex == 0 || (settings.blockchain.tokenSymbol==='WAX')) ?
             <Grid.Column width={6}>
               <SidebarAccount
                 actions={actions}
@@ -458,7 +485,35 @@ class Producers extends Component<Props> {
                         );
                       }
                     }
-                  ] : [{
+                  ] : (settings.blockchain.tokenSymbol==='WAX') ? [{
+                    menuItem: t('producers_block_producers'),
+                    render: () => {
+                      return (
+                        <Tab.Pane>
+                          <BlockProducers
+                            {...this.props}
+                            addProducer={this.addProducer.bind(this)}
+                            removeProducer={this.removeProducer.bind(this)}
+                            selected={selected}
+                          />
+                        </Tab.Pane>
+                      );
+                    }
+                    },
+                    {
+                      menuItem: t('producers_proxies'),
+                      render: () => {
+                        return (
+                          <Tab.Pane>
+                            <Proxies
+                              {...this.props}
+                              addProxy={this.addProxy.bind(this)}
+                              removeProxy={this.removeProxy.bind(this)}
+                            />
+                          </Tab.Pane>
+                        );
+                      }
+                    }] : [{
                     menuItem: t('producers_block_producers'),
                     render: () => {
                       return (

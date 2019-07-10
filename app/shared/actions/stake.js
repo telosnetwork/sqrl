@@ -32,6 +32,7 @@ export function setStake(accountName, netAmount, cpuAmount) {
         tables.eosio &&
         tables.eosio[prefix] &&
         tables.eosio[prefix][suffix] &&
+        tables.eosio[prefix][suffix].delband &&
         tables.eosio[prefix][suffix].delband.rows;
     }
     const {
@@ -68,9 +69,8 @@ export function setStake(accountName, netAmount, cpuAmount) {
       setTimeout(() => {
         if (accountName === settings.account) {
           dispatch(AccountActions.getAccount(accountName));
-        } else {
-          dispatch(TableActions.getTable('eosio', settings.account, 'delband'));
         }
+        dispatch(TableActions.getTable('eosio', settings.account, 'delband'));
       }, 500);
       return dispatch({
         payload: { tx },

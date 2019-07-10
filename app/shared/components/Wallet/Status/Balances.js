@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { Button, Header, Icon, Popup, Segment, Table } from 'semantic-ui-react';
 import { forEach } from 'lodash';
 import TimeAgo from 'react-timeago';
+import { Decimal } from 'decimal.js';
 
 import GlobalDataBytes from '../../Global/Data/Bytes';
 
@@ -33,6 +34,9 @@ class WalletStatusBalances extends Component<Props> {
       totalTokens
     } = statsFetcher.fetchAll();
     const contracts = balances.__contracts;
+    const genesisbalance = balances.__genesisbal && 
+      balances.__genesisbal.balance && 
+      Decimal(balances.__genesisbal.balance.split(' ')[0]);
     const claimable = (new Date() > refundDate);
     const watchedTokens = (settings.customTokens) ? settings.customTokens.map((token) => token.split(':')[1]) : [];
     const rows = [
@@ -53,6 +57,12 @@ class WalletStatusBalances extends Component<Props> {
                   <Table.Cell width={4}>{t('wallet_status_liquid')}</Table.Cell>
                   <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                 </Table.Row>
+                {(settings.blockchain.tokenSymbol === 'WAX') ?
+                  <Table.Row>
+                    <Table.Cell width={4}>Genesis Tokens</Table.Cell>
+                    <Table.Cell>{(genesisbalance) ? genesisbalance.toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                  </Table.Row>
+                : ''}
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_balances_staked_to_self')}</Table.Cell>
                   <Table.Cell>{totalStakedToSelf.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} </Table.Cell>
@@ -132,28 +142,6 @@ class WalletStatusBalances extends Component<Props> {
     return (
       <Segment vertical basic loading={!tokens}>
         <Header>
-          <Popup
-            content={(
-              <Header size="small">
-                <Icon name="info circle" />
-                <Header.Content>
-                  {t('wallet_status_add_custom_token_header')}
-                  <Header.Subheader>
-                    {t('wallet_status_add_custom_token_action_subheader')}
-                  </Header.Subheader>
-                </Header.Content>
-              </Header>
-            )}
-            inverted
-            trigger={(
-              <Button
-                color="blue"
-                content={t('wallet_status_add_custom_token_action')}
-                floated="right"
-                size="small"
-              />
-            )}
-          />
           {t('wallet_status_add_custom_token_header')}
           <Header.Subheader>
             {t('wallet_status_add_custom_token_subheader')}

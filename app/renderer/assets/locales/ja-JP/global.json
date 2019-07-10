@@ -55,6 +55,7 @@
   "global_account_import_watch_description": "アカウントのモニタと未署名トランザクションの作成が可能なウォッチウォレットとしてアカウントをインポートします。",
   "global_account_request_account": "Create New Account",
   "global_accounts_dropdown_no_accounts": "他のウォレットがありません。開始するには、「ツール」の「ウォレットの管理」へ行きます。",
+  "global_accounts_dropdown_upgrade_required": "Requires Upgrade",
   "global_button_account_import_action": "アカウントをインポート",
   "global_button_elevate": "承認",
   "global_button_elevate_failure_content": "無効なパスワード",

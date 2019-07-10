@@ -23,8 +23,11 @@ export default class ProducersSelector extends Component<Props> {
     const selectedForChain = producers.list
       .filter((p) => {return selected.indexOf(p.owner) !== -1})
       .map((s) => {return s.owner});
-    const showSponsor = selectedForChain.filter((p) => {return p.indexOf('telosmiamibp') !== -1}).length == 0 ||
+    let showSponsor = selectedForChain.filter((p) => {return p.indexOf('telosmiamibp') !== -1}).length == 0 ||
       selectedForChain.filter((p) => {return p.indexOf('goodblocktls') !== -1}).length == 0;
+
+    if (settings.blockchain.tokenSymbol === 'WAX')
+      showSponsor = selectedForChain.filter((p) => {return p.indexOf('zenblockswax') !== -1}).length == 0;
     return (
       <I18n ns="producers">
         {
@@ -52,6 +55,17 @@ export default class ProducersSelector extends Component<Props> {
                 </Message.Header>
                   Please vote for&nbsp;<b><a onClick={() => this.openLink("https://telos.miami")} role="link" style={{ cursor: 'pointer' }}>telosmiamibp</a></b>&nbsp;to help support Sqrl development efforts and 
                   for&nbsp;<b><a onClick={() => this.openLink("https://goodblock.io")} role="link" style={{ cursor: 'pointer' }}>goodblocktls</a></b>, a key sponsor of Telos' core development.
+                  </Message.Content>
+                </Message>
+                :''}
+                { (settings.blockchain.tokenSymbol === 'WAX' && showSponsor) ?
+                <Message icon info>
+                <Icon name='thumbs outline up' />
+                <Message.Content>
+                <Message.Header>
+                  Help us make Sqrl better
+                </Message.Header>
+                  Please vote for&nbsp;<b><a onClick={() => this.openLink("https://zenblocks.io")} role="link" style={{ cursor: 'pointer' }}>zenblockswax</a></b>&nbsp;to help support our development for great tools such as Sqrl.
                   </Message.Content>
                 </Message>
                 :''}

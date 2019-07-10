@@ -4,6 +4,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { forEach } from 'lodash';
+import { Decimal } from 'decimal.js';
+import eos from '../actions/helpers/eos';
+import calculateAmountOfRam from '../components/helpers/calculateAmountOfRam';
 
 import { Segment } from 'semantic-ui-react';
 
@@ -139,16 +142,24 @@ class BasicVoterContainer extends Component<Props> {
 
   tick() {
     const {
+      accounts,
       actions,
+      connection,
       globals,
+      producers,
       settings,
       validate
     } = this.props;
     const {
+      claimGBMRewards,
+      claimVotingRewards,
+      clearSystemState,
       getAccount,
       getCurrencyStats,
       getGlobals,
-      getInfo
+      getInfo,
+      setSetting,
+      voteproducers
     } = actions;
 
     if (validate.NODE === 'SUCCESS') {
@@ -162,6 +173,102 @@ class BasicVoterContainer extends Component<Props> {
 
     if (globals.precision > 0 && settings.tokenPrecision != globals.precision) {
       actions.setSetting('tokenPrecision', globals.precision);
+    }
+
+    if (
+      settings.blockchain.tokenSymbol === 'WAX' && 
+      settings.autoRefreshVote === true && 
+      settings.account && accounts[settings.account]) {
+
+      if (settings.autoRefreshVoteDate != '') {
+        const lastRefreshDate = new Date(settings.autoRefreshVoteDate);
+        const nextRefreshDate = new Date(lastRefreshDate);
+        nextRefreshDate.setHours(lastRefreshDate.getHours() + (24 * parseInt(settings.autoRefreshVoteDays)));
+        const secondsSince = ((new Date().getTime() - lastRefreshDate.getTime()) / 1000);
+
+        if (secondsSince > (86400 * parseInt(settings.autoRefreshVoteDays))){
+          clearSystemState();
+
+          const voter = accounts[settings.account];
+          const currentProxy = voter && voter.voter_info && voter.voter_info.proxy;
+          const selected = voter && voter.voter_info && voter.voter_info.producers;
+
+          if (currentProxy && currentProxy.length > 0) {
+            voteproducers([], currentProxy);
+          } else if (selected && selected.length > 0) {
+            //make sure selected producers weren't kicked
+            //while user was in the research process
+            const compliantProducers = producers.list
+            .filter((p) => {return selected.indexOf(p.owner) !== -1})
+            .map((s) => {return s.owner});
+            voteproducers(compliantProducers);
+          }
+          setSetting('autoRefreshVoteDate', new Date());
+        }
+      }
+    }
+
+    if (
+      settings.blockchain.tokenSymbol === 'WAX' && 
+      settings.claimGBMRewards === true && 
+      settings.account) {
+
+       eos(connection).getAccount(settings.account).then((results) => {
+        const claimer = results;
+        if (claimer.voter_info && claimer.voter_info.last_claim_time) {
+          const lastClaimed = new Date(claimer.voter_info.last_claim_time+'z');
+          const secondsSince = ((new Date().getTime() - lastClaimed.getTime()) / 1000);
+  
+          if (secondsSince > 86401) {
+            (async () => {
+              await Promise.all([claimGBMRewards(), claimVotingRewards()]);
+              
+              setTimeout(() => {
+                eos(connection).getActions(settings.account, -1, -10).then((results) => {
+                    const {
+                      cpu_weight,
+                      net_weight
+                    } = claimer.self_delegated_bandwidth || {
+                      cpu_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol,
+                      net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
+                    };
+                    
+                    const currentCpuWeight = Decimal(cpu_weight.split(' ')[0]);
+                    const currentNetWeight = Decimal(net_weight.split(' ')[0]);
+      
+                    if (results && results.actions) {
+                      results.actions.map(action => {
+                        if (action && action.action_trace && action.action_trace.act) {
+                          const trace = action.action_trace.act;
+                          if (trace.data && trace.data.from == "genesis.wax" && trace.data.memo == "claimgenesis") {
+                            const rewards = Decimal(trace.data.quantity.split(' ')[0]);
+                            if (rewards > 0.10) {
+                              if (settings.claimGBMRestake === true) {
+                                actions.setStake(
+                                  settings.account, 
+                                  currentNetWeight.plus(rewards/2).toFixed(8), 
+                                  currentCpuWeight.plus(rewards/2).toFixed(8)
+                                  );
+                              } else if (settings.claimGBMBuyRAM === true) {
+                                const decPrice = Decimal(rewards - (rewards * 0.0051)); // ram fee
+                                const decBaseBal = Decimal(globals.ram.base_balance);
+                                const decQuoteBal = Decimal(globals.ram.quote_balance);
+                                const decAmount = calculateAmountOfRam(decBaseBal, decQuoteBal, decPrice);
+                                const amountOfRam = decAmount.floor();
+
+                                actions.buyrambytes(amountOfRam);
+                              }
+                            }
+                          }
+                        }
+                      });
+                    }
+                  })
+                }, 2500);
+            })();
+          }
+        }
+      })
     }
   }
 

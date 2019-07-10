@@ -65,6 +65,7 @@ class WalletExchangeStatus extends Component<Props> {
           tables.eosio &&
           tables.eosio[prefix] &&
           tables.eosio[prefix][suffix] &&
+          tables.eosio[prefix][suffix].delband &&
           tables.eosio[prefix][suffix].delband.rows;
     }
 
