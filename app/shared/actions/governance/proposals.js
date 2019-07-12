@@ -26,7 +26,7 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
           name: 'transfer',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             from: account,
@@ -39,7 +39,7 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
           name: 'submit',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             proposer: account,
@@ -81,7 +81,7 @@ export function editProposal(proposal_id, title, ipfs_location, amount, send_to)
           name: 'editproposal',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             sub_id: proposal_id,
@@ -122,7 +122,7 @@ export function actOnProposal(submission_id, actionName, scope = defaultContract
           name: actionName,
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             sub_id: submission_id
@@ -529,7 +529,7 @@ export function registerVoter(voter) {
           name: 'regvoter',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             voter,
@@ -567,7 +567,7 @@ export function mirrorCast(voter) {
           name: 'mirrorcast',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             voter,
@@ -605,7 +605,7 @@ export function voteBallot(voter, ballot_id, direction) {
           name: 'castvote',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             voter,

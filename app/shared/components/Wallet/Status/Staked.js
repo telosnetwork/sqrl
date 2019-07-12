@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 
 import { Segment, Table } from 'semantic-ui-react';
 
-const prettyBytes = require('pretty-bytes');
+const prettyBytes = require('bytes');
 
 class WalletStatusStaked extends Component<Props> {
   render() {

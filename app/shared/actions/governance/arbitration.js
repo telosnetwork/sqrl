@@ -22,7 +22,7 @@ export function registerCandidate(nominee, credentials_link) {
           name: 'regarb',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee,
@@ -34,7 +34,7 @@ export function registerCandidate(nominee, credentials_link) {
           name: 'candaddlead',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee,
@@ -73,7 +73,7 @@ export function unRegisterCandidate(nominee) {
           name: 'candrmvlead',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee
@@ -84,7 +84,7 @@ export function unRegisterCandidate(nominee) {
           name: 'unregnominee',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee
@@ -122,7 +122,7 @@ export function endElection(candidate) {
           name: 'endelection',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             candidate

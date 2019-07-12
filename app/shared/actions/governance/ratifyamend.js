@@ -160,7 +160,7 @@ export function unvoteProposal(scope, voter, proposal_name) {
           name: 'unvote',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             voter,
@@ -201,7 +201,7 @@ export function voteProposal(scope, voter, proposal_name, vote, vote_json) {
           name: 'vote',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             voter,

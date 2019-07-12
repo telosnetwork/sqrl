@@ -95,7 +95,7 @@ export function setregproxyinfo(
           name: 'set',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             proxy:account,
@@ -151,7 +151,7 @@ export function removeregproxyinfo() {
           name: 'remove',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             proxy: account

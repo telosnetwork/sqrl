@@ -200,7 +200,7 @@ export function nominateBoardMember(nominee) {
           name: 'nominate',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee,
@@ -238,7 +238,7 @@ export function acceptNomination(info_link) {
           name: 'addcand',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             nominee: account,
@@ -276,7 +276,7 @@ export function declineNomination() {
           name: 'removecand',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             candidate: account
@@ -313,7 +313,7 @@ export function endTFElection() {
           name: 'endelection',
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data: {
             holder: account

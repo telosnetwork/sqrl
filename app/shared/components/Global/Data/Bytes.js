@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Popup } from 'semantic-ui-react';
 
-const prettyBytes = require('pretty-bytes');
+const prettyBytes = require('bytes');
 
 export default class GlobalDataBytes extends Component<Props> {
   render() {
