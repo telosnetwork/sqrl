@@ -7,7 +7,8 @@ import eos2 from './helpers/eos2';
 export function buildTransaction(contract, action, account, data) {
   return (dispatch: () => void, getState) => {
     const {
-      connection
+      connection,
+      settings
     } = getState();
     // Modify forceActionDataHex to allow for viewing of the action data
     const modified = set(connection, 'forceActionDataHex', false);
@@ -27,7 +28,7 @@ export function buildTransaction(contract, action, account, data) {
           name: action,
           authorization: [{
             actor: account,
-            permission: 'active'
+            permission: settings.authorization || 'active'
           }],
           data
         }

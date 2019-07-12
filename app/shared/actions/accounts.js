@@ -3,6 +3,7 @@ import { forEach } from 'lodash';
 import * as types from './types';
 import eos from './helpers/eos';
 import eos2 from './helpers/eos2';
+const ecc = require('eosjs-ecc');
 
 export function clearAccountCache() {
   return (dispatch: () => void) => {
@@ -349,14 +350,19 @@ export function getAccountByKey(key) {
       type: types.SYSTEM_ACCOUNT_BY_KEY_PENDING,
       payload: { key }
     });
+    // Prevent private keys from submitting
+    if (ecc.isValidPrivate(key)) {
+      return dispatch({
+        type: types.SYSTEM_ACCOUNT_BY_KEY_FAILURE,
+      });
+    }
     const {
       connection,
       settings
     } = getState();
     if (key && (settings.node || settings.node.length !== 0)) {
       eos(connection).getKeyAccounts(key).then((accounts) => {
-        if (accounts.account_names)
-          dispatch(getAccount(accounts.account_names[0]));
+        dispatch(getAccounts(accounts.account_names));
         return dispatch({
         type: types.SYSTEM_ACCOUNT_BY_KEY_SUCCESS,
         payload: { accounts }
@@ -402,7 +408,7 @@ export function claimGBMRewards() {
           name: 'claimgenesis',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             claimer: account
@@ -448,7 +454,7 @@ export function claimVotingRewards() {
           name: 'claimgbmvote',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account

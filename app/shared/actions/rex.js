@@ -24,7 +24,7 @@ export function deposit(amount) {
           name: 'deposit',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account,
@@ -74,7 +74,7 @@ export function withdraw(amount) {
           name: 'withdraw',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account,
@@ -124,7 +124,7 @@ export function buyrex(amount) {
           name: 'buyrex',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -174,7 +174,7 @@ export function sellrex(amount) {
           name: 'sellrex',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -224,7 +224,7 @@ export function unstaketorex(from_net, from_cpu) {
           name: 'unstaketorex',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account,
@@ -275,7 +275,7 @@ export function cnclrexorder() {
           name: 'cnclrexorder',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account
@@ -324,7 +324,7 @@ export function rentcpu(receiver, loan_payment, loan_fund) {
           name: 'rentcpu',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -376,7 +376,7 @@ export function rentnet(receiver, loan_payment, loan_fund) {
           name: 'rentnet',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -428,7 +428,7 @@ export function fundcpuloan(loan_num, payment) {
           name: 'fundcpuloan',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -479,7 +479,7 @@ export function defcpuloan(loan_num, amount) {
           name: 'defcpuloan',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -530,7 +530,7 @@ export function fundnetloan(loan_num, payment) {
           name: 'fundnetloan',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -581,7 +581,7 @@ export function defnetloan(loan_num, amount) {
           name: 'defnetloan',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             from: account,
@@ -631,7 +631,7 @@ export function consolidate() {
           name: 'consolidate',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account
@@ -680,7 +680,7 @@ export function mvtosavings(rex) {
           name: 'mvtosavings',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account,
@@ -730,7 +730,7 @@ export function mvfromsavings(rex) {
           name: 'mvfromsavings',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account,
@@ -779,7 +779,7 @@ export function updaterex() {
           name: 'updaterex',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account
@@ -827,7 +827,7 @@ export function closerex() {
           name: 'closerex',
           authorization: [{
             actor: account,
-            permission: 'active',
+            permission: settings.authorization || 'active',
           }],
           data: {
             owner: account

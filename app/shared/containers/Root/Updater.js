@@ -6,7 +6,7 @@ import compose from 'lodash/fp/compose';
 
 import { Header, Grid, Icon, Segment } from 'semantic-ui-react';
 
-const prettyBytes = require('pretty-bytes');
+const prettyBytes = require('bytes');
 
 class UpdaterContainer extends Component<Props> {
   render() {
