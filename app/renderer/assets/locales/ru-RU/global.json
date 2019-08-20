@@ -55,7 +55,7 @@
   "global_account_import_watch_description": "Импортировать аккаунт как Сторожевой Кошелек, что позволит следить за Аккаунтом и создавать неподписанные транзакции.",
   "global_account_request_account": "Создать Новый Аккаунт",
   "global_accounts_dropdown_no_accounts": "Не было создано доп. кошельков. Для начала вам необходимо перейти в 'Инструменты', а потом 'Управление Кошельками'.",
-  "global_accounts_dropdown_upgrade_required": "Требуется Обновление",
+  "global_accounts_dropdown_upgrade_required": "Reimport Account to Upgrade",
   "global_button_account_import_action": "Импорт Аккаунта(ов)",
   "global_button_elevate": "Авторизовать",
   "global_button_elevate_failure_content": "Неверный Пароль",

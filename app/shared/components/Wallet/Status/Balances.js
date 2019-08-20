@@ -20,6 +20,7 @@ class WalletStatusBalances extends Component<Props> {
     const {
       account,
       balances,
+      globals,
       settings,
       statsFetcher,
       t
@@ -39,6 +40,22 @@ class WalletStatusBalances extends Component<Props> {
       Decimal(balances.__genesisbal.balance.split(' ')[0]);
     const claimable = (new Date() > refundDate);
     const watchedTokens = (settings.customTokens) ? settings.customTokens.map((token) => token.split(':')[1]) : [];
+
+    let liquidUSDValue = 0;
+    let totalUSDValue = 0;
+    let usdPrice = 0;
+    const liquidBalance = (tokens[settings.blockchain.tokenSymbol]) ? 
+      tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : 0;
+    const totalBalance = totalTokens.toFixed(settings.tokenPrecision);
+    if (globals.pricefeed 
+      && globals.pricefeed.CUSD
+      && globals.pricefeed.CUSD.price 
+      && globals.pricefeed.CUSD.base == settings.blockchain.tokenSymbol) {
+      usdPrice = Decimal(globals.pricefeed.CUSD.price).toFixed(settings.tokenPrecision);
+      liquidUSDValue = usdPrice * liquidBalance;
+      totalUSDValue = usdPrice * totalBalance;
+    }
+
     const rows = [
       (
         <Table.Row key={settings.blockchain.tokenSymbol}>
@@ -54,8 +71,12 @@ class WalletStatusBalances extends Component<Props> {
             <Table size="small">
               <Table.Body>
                 <Table.Row>
-                  <Table.Cell width={4}>{t('wallet_status_liquid')}</Table.Cell>
+                  <Table.Cell width={4}>{t('wallet_status_liquid')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell width={4}>Liquid USD</Table.Cell>
+                  <Table.Cell>${liquidUSDValue.toFixed(settings.tokenPrecision)} (${usdPrice}/{settings.blockchain.tokenSymbol})</Table.Cell>
                 </Table.Row>
                 {(settings.blockchain.tokenSymbol === 'WAX') ?
                   <Table.Row>
@@ -95,8 +116,12 @@ class WalletStatusBalances extends Component<Props> {
                   : false
                 }
                 <Table.Row>
-                  <Table.Cell>{t('wallet_status_total_balance')}</Table.Cell>
+                  <Table.Cell>{t('wallet_status_total_balance')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   <Table.Cell>{totalTokens.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Total USD</Table.Cell>
+                  <Table.Cell>${totalUSDValue.toFixed(settings.tokenPrecision)} (${usdPrice}/{settings.blockchain.tokenSymbol})</Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_ram_amount')}</Table.Cell>
