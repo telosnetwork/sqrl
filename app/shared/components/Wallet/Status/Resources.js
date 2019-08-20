@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Grid, Header, Segment } from 'semantic-ui-react';
+import { Grid, Header, Segment, Divider } from 'semantic-ui-react';
 
 import ResourcePercentage from '../../Global/Data/Resource/Percentage';
 
