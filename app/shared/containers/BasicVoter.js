@@ -7,7 +7,7 @@ import { forEach } from 'lodash';
 import { Decimal } from 'decimal.js';
 import eos from '../actions/helpers/eos';
 import calculateAmountOfRam from '../components/helpers/calculateAmountOfRam';
-
+import EOSAccount from '../utils/EOS/Account';
 import { Segment } from 'semantic-ui-react';
 
 import About from '../components/About';
@@ -64,7 +64,7 @@ class BasicVoterContainer extends Component<Props> {
   props: Props;
 
   state = {
-    activeItem: 'producers'
+    activeItem: 'wallet'
   };
 
   componentWillReceiveProps() {
@@ -99,6 +99,7 @@ class BasicVoterContainer extends Component<Props> {
   componentDidMount() {
     const {
       actions,
+      accounts,
       history,
       settings
     } = this.props;
@@ -106,6 +107,8 @@ class BasicVoterContainer extends Component<Props> {
     const {
       getBlockExplorers,
       getCurrencyStats,
+      getExchangeAPI,
+      getRamStats,
       getRexPool,
       getRexFund,
       getRexBalance
@@ -120,8 +123,10 @@ class BasicVoterContainer extends Component<Props> {
         if (!settings.walletInit && !settings.skipImport && !settings.walletTemp) {
           history.push('/');
         } else {
+
           getCurrencyStats();
           getBlockExplorers();
+          getRamStats();
           getRexPool();
           getRexFund();
           getRexBalance();
@@ -129,6 +134,11 @@ class BasicVoterContainer extends Component<Props> {
             const [contract, symbol] = token.split(':');
             getCurrencyStats(contract, symbol.toUpperCase());
           });
+
+          (async () => {
+            await getExchangeAPI();
+            this.lookupExchangeContact();
+          })();
         }
       }
     }
@@ -158,6 +168,9 @@ class BasicVoterContainer extends Component<Props> {
       getCurrencyStats,
       getGlobals,
       getInfo,
+      getPriceFeed,
+      getPriceFeedGecko,
+      getRamStats,
       setSetting,
       voteproducers
     } = actions;
@@ -168,7 +181,17 @@ class BasicVoterContainer extends Component<Props> {
       }
       getCurrencyStats();
       getGlobals();
+      getRamStats();
       getInfo();
+
+      if (settings.blockchain.tokenSymbol === "WAX") {
+        getPriceFeedGecko(settings.blockchain.tokenSymbol, "USD");
+        getPriceFeedGecko(settings.blockchain.tokenSymbol, "EOS");
+      } else {
+        getPriceFeed(settings.blockchain.tokenSymbol, "CUSD");
+        if (settings.blockchain.tokenSymbol != "EOS")
+          {getPriceFeed(settings.blockchain.tokenSymbol, "EOS");}
+      }
     }
 
     if (globals.precision > 0 && settings.tokenPrecision != globals.precision) {
@@ -198,10 +221,10 @@ class BasicVoterContainer extends Component<Props> {
           } else if (selected && selected.length > 0) {
             //make sure selected producers weren't kicked
             //while user was in the research process
-            const compliantProducers = producers.list
+            /*const compliantProducers = producers.list
             .filter((p) => {return selected.indexOf(p.owner) !== -1})
             .map((s) => {return s.owner});
-            voteproducers(compliantProducers);
+            voteproducers(compliantProducers);*/
           }
           setSetting('autoRefreshVoteDate', new Date());
         }
@@ -237,19 +260,24 @@ class BasicVoterContainer extends Component<Props> {
                     const currentNetWeight = Decimal(net_weight.split(' ')[0]);
       
                     if (results && results.actions) {
+                      let claimActionDone = false;
                       results.actions.map(action => {
                         if (action && action.action_trace && action.action_trace.act) {
                           const trace = action.action_trace.act;
-                          if (trace.data && trace.data.from == "genesis.wax" && trace.data.memo == "claimgenesis") {
+                          if (trace.data && trace.data.from == "genesis.wax" && trace.data.memo == "claimgenesis" && !claimActionDone) {
                             const rewards = Decimal(trace.data.quantity.split(' ')[0]);
                             if (rewards > 0.10) {
                               if (settings.claimGBMRestake === true) {
+                                claimActionDone = true;
+
                                 actions.setStake(
                                   settings.account, 
                                   currentNetWeight.plus(rewards/2).toFixed(8), 
                                   currentCpuWeight.plus(rewards/2).toFixed(8)
                                   );
                               } else if (settings.claimGBMBuyRAM === true) {
+                                claimActionDone = true;
+
                                 const decPrice = Decimal(rewards - (rewards * 0.0051)); // ram fee
                                 const decBaseBal = Decimal(globals.ram.base_balance);
                                 const decQuoteBal = Decimal(globals.ram.quote_balance);
@@ -272,7 +300,31 @@ class BasicVoterContainer extends Component<Props> {
     }
   }
 
-  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
+  lookupExchangeContact() {
+    const {
+      actions,
+      connection,
+      settings
+    } = this.props;
+
+    eos(connection).getAccount(settings.account).then((results) => {
+      const model = new EOSAccount(results);
+      if (model) {
+        const keys = model.getKeysForAuthorization(settings.authorization);
+        if (keys && keys.length > 0) {
+          const { pubkey } = keys[0];
+          actions.getContactByPublicKey(pubkey);
+        }
+      }
+    });
+  }
+
+  handleItemClick = (e, { name }) => {
+    this.setState({ activeItem: name });
+    if (name == 'wallet') {
+      this.lookupExchangeContact();
+    };
+  }
 
   render() {
     const {
