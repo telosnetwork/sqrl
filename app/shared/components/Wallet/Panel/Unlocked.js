@@ -8,6 +8,10 @@ import WalletPanelButtonLock from './Button/Lock';
 import WalletPanelButtonStake from './Button/Stake';
 import WalletPanelButtonAutoClaim from './Button/AutoClaim';
 
+import WalletPanelButtonRegisterExchange from './Button/RegisterExchange';
+import WalletPanelButtonBuyFiat from './Button/BuyFiat';
+import WalletPanelButtonSwapToken from './Button/SwapToken';
+
 import WalletPanelButtonTransferReceive from './Button/Transfer/Receive';
 import WalletPanelButtonTransferSend from './Button/Transfer/Send';
 
@@ -32,6 +36,7 @@ class WalletPanelUnlocked extends Component<Props> {
       balances,
       blockExplorers,
       globals,
+      keys,
       validate,
       settings,
       system,
@@ -39,6 +44,9 @@ class WalletPanelUnlocked extends Component<Props> {
       t,
       connection
     } = this.props;
+
+    const carbonRegistered = globals.exchangecontact && globals.exchangecontact.contactId;
+
     return (
       <div>
         {(settings.walletMode !== 'watch' && !settings.walletTemp)
@@ -55,16 +63,77 @@ class WalletPanelUnlocked extends Component<Props> {
             as={Menu}
             fluid
             vertical
+            exclusive={false}
           >
             <Menu.Item>
               <Accordion.Title
-                active={activeIndex === 0}
-                content={t('wallet_actions')}
+                active={activeIndex === 0 || activeIndex === 1}
+                content="Exchange Actions"
                 index={0}
                 onClick={this.handleClick}
               />
               <Accordion.Content
-                active={activeIndex === 0}
+                active={activeIndex === 0 || activeIndex === 1}
+              >
+                <Segment.Group>
+                    <Segment>
+                    <WalletPanelButtonRegisterExchange
+                      actions={actions}
+                      accounts={accounts}
+                      balances={balances}
+                      blockExplorers={blockExplorers}
+                      globals={globals}
+                      keys={keys}
+                      validate={validate}
+                      settings={settings}
+                      system={system}
+                      connection={connection}
+                    />
+                    </Segment>
+                    {(carbonRegistered ?
+                    <Segment>
+                      <WalletPanelButtonBuyFiat
+                        actions={actions}
+                        accounts={accounts}
+                        balances={balances}
+                        blockExplorers={blockExplorers}
+                        globals={globals}
+                        keys={keys}
+                        validate={validate}
+                        settings={settings}
+                        system={system}
+                        connection={connection}
+                      />
+                    </Segment>
+                     :'')}
+                    {(carbonRegistered ?
+                    <Segment>
+                      <WalletPanelButtonSwapToken
+                        actions={actions}
+                        accounts={accounts}
+                        balances={balances}
+                        blockExplorers={blockExplorers}
+                        globals={globals}
+                        keys={keys}
+                        validate={validate}
+                        settings={settings}
+                        system={system}
+                        connection={connection}
+                      />
+                    </Segment>
+                    :'')}
+                  </Segment.Group>
+              </Accordion.Content>
+            </Menu.Item>
+            <Menu.Item>
+              <Accordion.Title
+                active={activeIndex === 0 || activeIndex === 1}
+                content={t('wallet_actions')}
+                index={1}
+                onClick={this.handleClick}
+              />
+              <Accordion.Content
+                active={activeIndex === 0 || activeIndex === 1}
               >
                 <Segment.Group>
                 {(settings.blockchain.tokenSymbol === 'WAX')
@@ -156,13 +225,13 @@ class WalletPanelUnlocked extends Component<Props> {
               ? (
                 <Menu.Item>
                   <Accordion.Title
-                    active={activeIndex === 1}
+                    active={activeIndex === 2}
                     content={t('wallet_actions_advanced')}
-                    index={1}
+                    index={2}
                     onClick={this.handleClick}
                   />
                   <Accordion.Content
-                    active={activeIndex === 1}
+                    active={activeIndex === 2}
                   >
                     <Segment basic>
                       <WalletPanelButtonBroadcast
