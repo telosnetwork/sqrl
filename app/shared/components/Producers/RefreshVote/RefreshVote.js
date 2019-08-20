@@ -60,10 +60,10 @@ class GovernanceFormRefreshVote extends Component<Props> {
     } else if (selected && selected.length > 0) {
       //make sure selected producers weren't kicked
       //while user was in the research process
-      const compliantProducers = producers.list
+      /*const compliantProducers = producers.list
       .filter((p) => {return selected.indexOf(p.owner) !== -1})
       .map((s) => {return s.owner});
-      voteproducers(compliantProducers);
+      voteproducers(compliantProducers);*/
     }
 
     setSetting('autoRefreshVoteDate', new Date());
@@ -129,12 +129,13 @@ class GovernanceFormRefreshVote extends Component<Props> {
             settings={settings}
           />
           <Form>
+          {(settings.blockchain.tokenSymbol === 'WAX') ? 
             <Message
               icon="info circle"
               info
               content={t('claimgbm_explanation2', {tokenSymbol:settings.blockchain.tokenSymbol})}
             />
-            <Divider />
+            :''}
 
             {(settings.autoRefreshVote === true ?
               <div>
@@ -145,7 +146,6 @@ class GovernanceFormRefreshVote extends Component<Props> {
                     content={"You're currently setup to automatically refresh your vote every " 
                       + settings.autoRefreshVoteDays + " day(s). Good job!"}
                   />
-                <Divider />
               </div>
               : '' )}
 

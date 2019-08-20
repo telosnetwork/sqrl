@@ -65,8 +65,8 @@ class ToolsWallets extends Component<Props> {
           <Table.Body>
             {([].concat(wallets)
                 .sort((a, b) => {
-                  const k1 = `${a.account}@${a.authorization}`;
-                  const k2 = `${b.account}@${b.authorization}`;
+                  const k1 = `${a.chainId}-${a.account}@${a.authorization}`;
+                  const k2 = `${b.chainId}-${b.account}@${b.authorization}`;
                   return k1 > k2;
                 })
                 .map((account) => (

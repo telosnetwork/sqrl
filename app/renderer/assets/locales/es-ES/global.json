@@ -55,7 +55,7 @@
   "global_account_import_watch_description": "Import an account as a Watch Wallet, which can monitor the account and create unsigned transactions.",
   "global_account_request_account": "Create New Account",
   "global_accounts_dropdown_no_accounts": "No additional wallets created. To get started go to 'Tools', then 'Manage Wallets'.",
-  "global_accounts_dropdown_upgrade_required": "Requires Upgrade",
+  "global_accounts_dropdown_upgrade_required": "Reimport Account to Upgrade",
   "global_button_account_import_action": "Importar cuenta(s)",
   "global_button_elevate": "Autorizar",
   "global_button_elevate_failure_content": "Contraseña incorrecta",
