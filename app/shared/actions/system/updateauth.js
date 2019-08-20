@@ -97,7 +97,45 @@ export function unlinkauth(auth) {
   }
 }
 
+export function deleteauth(authorization, permission, linkauthActions) {
+  return (dispatch: () => void, getState) => {
+    const { connection, settings } = getState();
+    const { account } = settings;
+    dispatch({
+      type: types.SYSTEM_DELETEAUTH_PENDING
+    });
+    
+    linkauthActions.map( (auth) => {
+      eos(connection, true).unlinkauth({
+        account,
+        code:'eosio',
+        type: auth
+      }, {
+        authorization,
+        forceActionDataHex: false,
+      });
+    });
+
+    return eos(connection, true).deleteauth({
+      account,
+      permission: permission
+    }, {
+      authorization,
+      forceActionDataHex: false,
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_DELETEAUTH_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_DELETEAUTH_FAILURE
+    }));
+  };
+}
+
 export default {
+  deleteauth,
   linkauth,
   updateauth,
   unlinkauth

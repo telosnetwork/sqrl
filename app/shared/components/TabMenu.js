@@ -31,18 +31,6 @@ class TabMenu extends Component<Props> {
       >
         <GlobalBlockchainDropdown />
         <GlobalAccountDropdown />
-        {(settings.walletMode !== 'cold')
-          ? (
-            <Menu.Item
-              name="producers"
-              icon="check square"
-              content={t('producer_voting')}
-              active={activeItem === 'producers'}
-              onClick={handleItemClick}
-            />
-          )
-          : false
-        }
         {(settings.account || settings.walletMode === 'wait')
           ? (
             <Menu.Item
@@ -50,6 +38,18 @@ class TabMenu extends Component<Props> {
               icon="protect"
               content={t('wallet')}
               active={activeItem === 'wallet'}
+              onClick={handleItemClick}
+            />
+          )
+          : false
+        }
+        {(settings.walletMode !== 'cold')
+          ? (
+            <Menu.Item
+              name="producers"
+              icon="check square"
+              content={t('producer_voting')}
+              active={activeItem === 'producers'}
               onClick={handleItemClick}
             />
           )

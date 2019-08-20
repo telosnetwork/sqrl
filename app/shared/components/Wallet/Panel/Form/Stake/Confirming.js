@@ -17,6 +17,7 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
 
   render() {
     const {
+      activeTab,
       account,
       accountName,
       balance,
@@ -29,19 +30,23 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
       t
     } = this.props;
 
+    const unstaking = (activeTab == 'unstake');
+
     const cpuAmount = decimalCpuAmount.toNumber();
     const netAmount = decimalNetAmount.toNumber();
 
-    const cpuDifference = cpuAmount - cpuOriginal.toNumber();
-    const netDifference = netAmount - netOriginal.toNumber();
+    const cpuDifference = unstaking ? 
+      cpuOriginal.toNumber() - cpuAmount : 
+      cpuAmount + cpuOriginal.toNumber();
+    const netDifference = unstaking ? 
+      netOriginal.toNumber() - netAmount: 
+      netAmount + netOriginal.toNumber();
 
     const lessThanOneEosStaked = (cpuAmount < 1 || netAmount < 1);
 
     const statsFetcher = new StatsFetcher(account, balance, settings);
 
     const refundDate = statsFetcher.refundDate();
-
-    const unstaking = (cpuDifference < 0 || netDifference < 0);
 
     const unstakingWhenAmountBeingUnstaked = refundDate && unstaking;
 
@@ -61,53 +66,53 @@ class WalletPanelFormStakeConfirming extends Component<Props> {
             </Header>
           ) : ''}
           <Segment.Group>
-            {(netDifference > 0) ? (
+            {(!unstaking) ? (
               <Segment>
                 <Header textAlign="center">
                   <font color="green">
-                    <Icon name="wifi" />{t('about_to_stake_to_net')} {netDifference.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
+                    <Icon name="wifi" />{t('about_to_stake_to_net')} {netAmount.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {netAmount.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {netDifference.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
             ) : ''}
 
-            {(netDifference < 0) ? (
+            {(unstaking) ? (
               <Segment>
                 <Header textAlign="center">
                   <font color="red">
-                    <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netDifference).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
+                    <Icon name="wifi" />{t('about_to_unstake_from_net')} {(-netAmount).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {netAmount.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {netDifference.toFixed(settings.tokenPrecision)} {t('eos_in_net_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
             ) : ''}
 
-            {(cpuDifference > 0) ? (
+            {(!unstaking) ? (
               <Segment>
                 <Header textAlign="center">
                   <font color="green">
-                    <Icon name="microchip" />{t('about_to_stake_to_cpu')} <b>{cpuDifference.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
+                    <Icon name="microchip" />{t('about_to_stake_to_cpu')} <b>{cpuAmount.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {cpuAmount.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {cpuDifference.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>
             ) : ''}
 
-            {(cpuDifference < 0) ? (
+            {(unstaking) ? (
               <Segment>
                 <Header textAlign="center">
                   <font color="red">
-                    <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuDifference).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
+                    <Icon name="microchip" />{t('about_to_unstake_from_cpu')} <b>{(-cpuAmount).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</b>
                   </font>
                   <Header.Subheader>
-                    ({t('you_will_have')} {cpuAmount.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
+                    ({t('you_will_have')} {cpuDifference.toFixed(settings.tokenPrecision)} {t('eos_in_cpu_after', {tokenSymbol:settings.blockchain.tokenSymbol})})
                   </Header.Subheader>
                 </Header>
               </Segment>

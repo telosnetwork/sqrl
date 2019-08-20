@@ -2,15 +2,14 @@
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Decimal } from 'decimal.js';
-
-import { Segment, Form, Divider, Message, Button, Header } from 'semantic-ui-react';
+import debounce from 'lodash/debounce';
+import { Grid, Segment, Form, Divider, Input, Menu, Message, Button, Header, Container } from 'semantic-ui-react';
 
 import WalletPanelFormStakeStats from './Stake/Stats';
 import WalletPanelFormStakeConfirming from './Stake/Confirming';
 import FormMessageError from '../../../Global/Form/Message/Error';
 
 import GlobalFormFieldAccount from '../../../Global/Form/Field/Account';
-import GlobalFormFieldToken from '../../../Global/Form/Field/Token';
 
 type Props = {
   actions: {},
@@ -38,13 +37,14 @@ class WalletPanelFormStake extends Component<Props> {
     const parsedNetWeight = net_weight.split(' ')[0];
 
     this.state = {
+      activeTab: 'stake',
       accountName: account.account_name,
       accountNameValid: true,
       confirming: false,
       cpuAmountValid: true,
       cpuOriginal: Decimal(parsedCpuWeight),
-      decimalCpuAmount: Decimal(parsedCpuWeight),
-      decimalNetAmount: Decimal(parsedNetWeight),
+      decimalCpuAmount: 0,
+      decimalNetAmount: 0,
       EOSbalance: (props.balance && props.balance[settings.blockchain.tokenSymbol]) 
         ? props.balance[settings.blockchain.tokenSymbol] : 0,
       formError: null,
@@ -68,11 +68,13 @@ class WalletPanelFormStake extends Component<Props> {
       accountName: accountName || '',
       confirming,
       cpuOriginal: cpuOriginal || cpuAmount || Decimal(0),
-      decimalCpuAmount: cpuAmount || Decimal(0),
-      decimalNetAmount: netAmount || Decimal(0),
+      decimalCpuAmount: Decimal(0),
+      decimalNetAmount: Decimal(0),
       netOriginal: netOriginal || netAmount || Decimal(0)
     });
   }
+
+  handleTabClick = (e, { name }) => this.setState({ activeTab: name })
 
   onSubmit = (e) => {
     if (!this.state.submitDisabled) {
@@ -106,15 +108,53 @@ class WalletPanelFormStake extends Component<Props> {
     });
   }
 
+  stakePercentage = (resource, percentage) => {
+    const {
+      EOSbalance
+    } = this.state;
+    const {
+      settings
+    } = this.props;
+    
+    const isCpu = (resource == "cpu");
+    const resourceName = isCpu ? "cpuAmount" : "netAmount";
+    let percentageAmount = isCpu ? 
+      EOSbalance * percentage / 100:
+      EOSbalance * percentage / 100;
+
+    percentageAmount = percentageAmount.toFixed(settings.tokenPrecision);
+
+    this.validateTokenAmount(null, {
+      name: resourceName, 
+      value: percentageAmount
+    });
+  }
+
+  validateTokenAmount = (e, { name, value }) => {
+    const {
+      settings
+    } = this.props;
+    
+    const valid = settings.tokenPrecision == 8 ? 
+      !!(value.match(/^\d+(\.\d{1,8})?$/g)) : !!(value.match(/^\d+(\.\d{1,4})?$/g));
+    this.onChange(e, { name, value: value, valid });
+  }
+
   onChange = (e, { name, value, valid }) => {
     const {
-      actions
+      actions,
+      settings
     } = this.props;
 
     const {
       checkAccountExists
     } = actions;
 
+    if (name == 'cpuAmount' || name == 'netAmount'){
+      if (!value) value = 0;
+      value = Decimal(value).toFixed(settings.tokenPrecision);
+    }
+    
     const newState = {
       [name]: value,
       formError: null,
@@ -125,7 +165,7 @@ class WalletPanelFormStake extends Component<Props> {
       checkAccountExists(value);
     } else {
       const decimalFieldName = `decimal${name.charAt(0).toUpperCase()}${name.slice(1)}`;
-      newState[decimalFieldName] = Decimal(value.split(' ')[0]);
+      newState[decimalFieldName] = Decimal(value);
     }
 
     newState[`${name}Valid`] = valid;
@@ -146,6 +186,7 @@ class WalletPanelFormStake extends Component<Props> {
     const {
       accountName,
       accountNameValid,
+      activeTab,
       cpuAmountValid,
       cpuOriginal,
       decimalCpuAmount,
@@ -167,27 +208,28 @@ class WalletPanelFormStake extends Component<Props> {
       return 'not_valid_account_name';
     }
 
-    if (cpuOriginal.equals(decimalCpuAmount) && netOriginal.equals(decimalNetAmount)) {
-      return true;
+    if (activeTab == 'stake') {
+      if (decimalCpuAmount.greaterThan(EOSbalance) ||
+        decimalNetAmount.greaterThan(EOSbalance) ||
+        decimalCpuAmount.plus(decimalNetAmount).greaterThan(EOSbalance)
+        )
+      {
+        return 'not_enough_balance';
+      }
+    } else {
+      if (decimalCpuAmount.greaterThan(cpuOriginal) ||
+        decimalNetAmount.greaterThan(netOriginal) ||
+        decimalCpuAmount.plus(decimalNetAmount).greaterThan(netOriginal.plus(cpuOriginal))
+        )
+      {
+        return 'not_enough_balance';
+      }
+      if (cpuOriginal.minus(decimalCpuAmount) <=0 ||
+        netOriginal.minus(decimalNetAmount) <=0 ) {
+        return 'no_stake_left';
+        }
     }
-
-    const cpuDifference = cpuOriginal.minus(decimalCpuAmount);
-    const netDifference = netOriginal.minus(decimalNetAmount);
-    const cpuWeightDecimal = Decimal(account.cpu_weight / 10000);
-    const netWeightDecimal = Decimal(account.net_weight / 10000);
-
-    if (account.account_name === accountName &&
-      (cpuWeightDecimal.equals(cpuDifference) || netWeightDecimal.equals(netDifference))) {
-      return 'no_stake_left';
-    }
-
-    const cpuChange = decimalCpuAmount.minus(cpuOriginal);
-    const netChange = decimalNetAmount.minus(netOriginal);
-
-    if (Decimal.max(0, cpuChange).plus(Decimal.max(0, netChange)).greaterThan(EOSbalance)) {
-      return 'not_enough_balance';
-    }
-
+    
     return false;
   }
 
@@ -203,9 +245,12 @@ class WalletPanelFormStake extends Component<Props> {
     } = this.props;
 
     const {
+      activeTab,
       accountName,
       decimalCpuAmount,
-      decimalNetAmount
+      decimalNetAmount,
+      cpuOriginal,
+      netOriginal
     } = this.state;
 
     const {
@@ -216,7 +261,13 @@ class WalletPanelFormStake extends Component<Props> {
       confirming: false
     });
 
-    setStake(accountName, decimalNetAmount, decimalCpuAmount);
+    if (activeTab == 'unstake') {
+      setStake(accountName, netOriginal.minus(decimalNetAmount), cpuOriginal.minus(decimalCpuAmount));
+    }
+    else {
+      setStake(accountName, netOriginal.plus(decimalNetAmount), cpuOriginal.plus(decimalCpuAmount));
+    }
+
   }
 
   render() {
@@ -230,8 +281,11 @@ class WalletPanelFormStake extends Component<Props> {
     } = this.props;
 
     const {
+      activeTab,
       accountName,
       cpuOriginal,
+      cpuAmount,
+      netAmount,
       decimalCpuAmount,
       decimalNetAmount,
       netOriginal,
@@ -273,6 +327,10 @@ class WalletPanelFormStake extends Component<Props> {
                 netOriginal={netOriginal}
                 settings={settings}
               />
+              <Menu tabular>
+                <Menu.Item name="stake" active={activeTab === 'stake'} onClick={this.handleTabClick} />
+                <Menu.Item name="unstake" active={activeTab === 'unstake'} onClick={this.handleTabClick} />
+              </Menu>
               <Form
                 onKeyPress={this.onKeyPress}
                 onSubmit={this.onSubmit}
@@ -289,40 +347,75 @@ class WalletPanelFormStake extends Component<Props> {
                     </Form.Group>
                   ) : ''}
                 <Form.Group widths="equal">
-                  <GlobalFormFieldToken
+                  <Form.Field
                     autoFocus
+                    control={Input}
+                    placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
                     icon="microchip"
-                    label={t('update_staked_cpu_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
+                    label={t('update_staked_cpu_amount', {tokenSymbol:settings.blockchain.tokenSymbol,action:activeTab})}
                     name="cpuAmount"
-                    onChange={this.onChange}
-                    defaultValue={decimalCpuAmount.toFixed(settings.tokenPrecision)}
+                    onChange={this.validateTokenAmount}
                     settings={settings}
+                    value={decimalCpuAmount.toFixed(settings.tokenPrecision)}
                   />
 
-                  <GlobalFormFieldToken
-                    autoFocus
+                  <Form.Field
+                    control={Input}
+                    placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
                     icon="wifi"
-                    label={t('update_staked_net_amount', {tokenSymbol:settings.blockchain.tokenSymbol})}
+                    label={t('update_staked_net_amount', {tokenSymbol:settings.blockchain.tokenSymbol,action:activeTab})}
                     name="netAmount"
-                    onChange={this.onChange}
-                    defaultValue={decimalNetAmount.toFixed(settings.tokenPrecision)}
+                    onChange={this.validateTokenAmount}
                     settings={settings}
+                    value={decimalNetAmount.toFixed(settings.tokenPrecision)}
                   />
-                </Form.Group>
-                <FormMessageError
-                  error={formError}
-                />
-                <Divider />
+                  </Form.Group>
+                    {(activeTab === 'stake')
+                      ? (
+                        <Grid>
+                            <Grid.Row>
+                              <Grid.Column width={8} textAlign="center">
+                                <Button.Group size="mini">
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',25)}>25%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',50)}>50%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',75)}>75%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',100)}>100%</Button>
+                                </Button.Group>
+                              </Grid.Column>
+                              <Grid.Column width={8} textAlign="center">
+                                <Button.Group size="mini">
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',25)}>25%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',50)}>50%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',75)}>75%</Button>
+                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',100)}>100%</Button>
+                                </Button.Group>
+                              </Grid.Column>
+                            </Grid.Row>
+                          </Grid>
+                      ) : ''
+                    }
+                
+                {(activeTab === 'stake')
+                ?
+                <Message
+                  icon="info circle"
+                  info
+                  content={t('delegate_explanation', {tokenSymbol:settings.blockchain.tokenSymbol})}
+                /> :
                 <Message
                   icon="info circle"
                   info
                   content={t('undelegate_explanation', {tokenSymbol:settings.blockchain.tokenSymbol})}
                 />
-                <Divider />
+                  }
+                <FormMessageError
+                  error={formError}
+                />
                 <Button
                   content={t('cancel')}
                   color="grey"
                   onClick={onClose}
+                  style={{marginTop:"15px"}}
                 />
                 <Button
                   content={t('update_staked_coins')}
@@ -330,6 +423,7 @@ class WalletPanelFormStake extends Component<Props> {
                   disabled={submitDisabled}
                   floated="right"
                   primary
+                  style={{marginTop:"15px"}}
                 />
               </Form>
             </div>
@@ -340,6 +434,7 @@ class WalletPanelFormStake extends Component<Props> {
             <WalletPanelFormStakeConfirming
               account={account}
               accountName={accountName}
+              activeTab={activeTab}
               balance={balance}
               decimalCpuAmount={decimalCpuAmount}
               cpuOriginal={cpuOriginal}

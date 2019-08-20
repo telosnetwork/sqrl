@@ -866,7 +866,7 @@ export function getRexFund() {
       code: 'eosio',
       scope: 'eosio',
       table: 'rexfund',
-      lower: account,
+      lower_bound: account,
       limit: 1
     };
     eos(connection).getTableRows(query).then((results) => {
@@ -964,7 +964,7 @@ export function getRexBalance() {
       code: 'eosio',
       scope: 'eosio',
       table: 'rexbal',
-      lower: account,
+      lower_bound: account,
       limit: 1
     };
     eos(connection).getTableRows(query).then((results) => {
