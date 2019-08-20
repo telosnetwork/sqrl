@@ -27,8 +27,15 @@ class ToolsFormPermissionsAuth extends Component<Props> {
     super(props);
     let { auth } = props;
     const newAuth = !(auth);
-    if (!auth) {
+    if (!auth || auth.required_auth.keys.length === 0 && auth.required_auth.accounts.length === 0) {
       auth = Object.assign({}, defaultAuth);
+    }
+    if (!auth || auth.required_auth.keys.length === 0 && auth.required_auth.accounts.length !== 0) {
+      auth = Object.assign({}, auth);
+      auth.required_auth.keys.push({
+        key: '',
+        weight: 1
+      });
     }
     this.state = Object.assign({}, {
       auth: {
@@ -45,6 +52,14 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       validForm: false
     });
   }
+  componentWillMount() {
+    if (this.props.defaultValue) {
+      this.setState({
+        auth: set(this.state.auth, 'keys.0.key', this.props.defaultValue),
+      });
+    }
+    this.validateFields();
+  }
   addKey = () => this.setState({
     auth: set(this.state.auth, `keys.${this.state.auth.keys.length}`, { key: '', weight: 1 }),
     validFields: Object.assign({}, this.state.validFields, {
@@ -56,11 +71,14 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       auth: set(this.state.auth, name, value),
       validFields: Object.assign({}, this.state.validFields, { [name]: valid })
     }, () => {
-      const { validFields } = this.state;
-      const eachFieldValid = values(validFields);
-      this.setState({
-        validForm: eachFieldValid.every((isValid) => isValid === true)
-      });
+      this.validateFields();
+    });
+  }
+  validateFields = () => {
+    const { validFields } = this.state;
+    const eachFieldValid = values(validFields);
+    this.setState({
+      validForm: eachFieldValid.every((isValid) => isValid === true)
     });
   }
   onStringChange = (e, { name, value }) => {
@@ -89,8 +107,6 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       selectedActions.splice(existing, 1);
     }
     this.setState({ selectedActions });
-
-    console.log('toggled...', selectedActions)
   }
   onSubmit = () => {
     const {
@@ -98,11 +114,19 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       settings
     } = this.props;
     const { auth, parent, permission, selectedActions } = this.state;
-    let authorization;
-    if (permission === 'owner') {
-      authorization = `${settings.account}@owner`;
-    }
+    let authorization = `${settings.account}@${settings.authorization}`;
     actions.updateauth(permission, parent, auth, authorization, selectedActions);
+  }
+  deleteAuth = (e) => {
+    e.preventDefault();
+
+    const {
+      actions,
+      settings
+    } = this.props;
+    const { permission, selectedActions } = this.state;
+    let authorization = `${settings.account}@${settings.authorization}`;
+    actions.deleteauth(authorization, permission, selectedActions);
   }
   render() {
     const {
@@ -223,6 +247,13 @@ class ToolsFormPermissionsAuth extends Component<Props> {
           color="orange"
         />
         <Container textAlign="right">
+        {(settings.advancedPermissions)
+          ? (
+            <Button
+            content={t('Delete Permission')}
+            disabled={!validForm || !isCurrentKey}
+            onClick={this.deleteAuth}
+          />):false }
           <Button
             content={t('tools_form_permissions_auth_submit')}
             disabled={!validForm}

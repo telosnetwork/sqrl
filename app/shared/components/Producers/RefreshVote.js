@@ -46,7 +46,7 @@ class GovernanceButtonRefreshVote extends Component<Props> {
         blockExplorers={blockExplorers}
         button={{
           color: 'blue',
-          content: 'Refresh Votes Automatically',
+          content: 'Auto Refresh Proxy Vote',
           fluid: true,
           icon: 'sync'
         }}
@@ -67,7 +67,7 @@ class GovernanceButtonRefreshVote extends Component<Props> {
           />
         )}
         icon="sync"
-        title="Refresh Votes Automatically"
+        title="Auto Refresh Proxy Vote"
         settings={settings}
         system={system}
       />

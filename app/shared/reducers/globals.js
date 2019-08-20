@@ -63,6 +63,59 @@ export default function globals(state = initialState, action) {
         })
       });
     }
+    case types.GET_EXCHANGERATES_SUCCESS: {
+      return Object.assign({}, state, {
+        fiat: Object.assign({}, state.fiat, {
+          rates: action.payload
+        })
+      });
+    }
+    case types.GET_EXCHANGERATES_FAILURE: {
+      return Object.assign({}, state, {
+        fiat: Object.assign({}, state.fiat, {
+          rates: null
+        })
+      });
+    }
+    case types.GET_PRICEFEED_SUCCESS: {
+      return Object.assign({}, state, {
+        pricefeed: Object.assign({}, state.pricefeed, {
+          [action.payload.quote]: action.payload
+        })
+      });
+    }
+    case types.GET_CONTACTBYPUBKEY_SUCCESS:
+    case types.GET_CREATECONTACTBYPUBKEY_SUCCESS: {
+      return Object.assign({}, state, {
+        exchangecontact: Object.assign({}, action.payload)
+      });
+    }
+    case types.GET_CONTACTBYPUBKEY_FAILURE:
+    case types.GET_CREATECONTACTBYPUBKEY_FAILURE: {
+      return Object.assign({}, state, {
+        exchangecontact: Object.assign({}, null)
+      });
+    }
+    case types.GET_CONTACTJWT_SUCCESS: {
+      return Object.assign({}, state, {
+        exchangeapi: action.payload.jwtToken
+      });
+    }
+    case types.GET_CONTACTJWT_FAILURE: {
+      return Object.assign({}, state, {
+        exchangeapi: null
+      });
+    }
+    case types.GET_VERIFYCONTACT_SUCCESS: {
+      return Object.assign({}, state, {
+        exchangeverify: action.payload
+      });
+    }
+    case types.GET_VERIFYCONTACT_FAILURE: {
+      return Object.assign({}, state, {
+        exchangeverify: null
+      });
+    }
     default: {
       return state;
     }

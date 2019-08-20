@@ -1,7 +1,7 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "",
   "main": "./main.prod.js",
   "author": {

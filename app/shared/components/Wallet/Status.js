@@ -6,6 +6,7 @@ import ReactJson from 'react-json-view';
 import { Header, Menu, Segment } from 'semantic-ui-react';
 
 import WalletStatusBalances from './Status/Balances';
+import WalletStatusBalanceSummary from './Status/BalanceSummary';
 import WalletStatusResources from './Status/Resources';
 import WalletStatusStaked from './Status/Staked';
 import WalletStatusActions from './Status/Actions';
@@ -145,6 +146,13 @@ class WalletStatus extends Component<Props> {
     }
     return (
       <div>
+        <WalletStatusBalanceSummary
+          balances={balances}
+          globals={globals}
+          statsFetcher={statsFetcher}
+          connection={connection}
+          settings={settings}
+        />
         <WalletStatusResources
           displayResourcesAvailableSetting={settings.displayResourcesAvailable}
           statsFetcher={statsFetcher}
