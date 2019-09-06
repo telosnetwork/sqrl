@@ -116,6 +116,12 @@ export default function globals(state = initialState, action) {
         exchangeverify: null
       });
     }
+    case types.GET_CHARGECONTACT_ENROLLED:
+    case types.GET_CHARGECONTACT_NOTENROLLED: {
+      return Object.assign({}, state, {
+          chargecard: action.payload
+        });
+    }
     default: {
       return state;
     }

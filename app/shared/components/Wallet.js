@@ -38,6 +38,7 @@ export default class Wallet extends Component<Props> {
       connection,
       globals,
       keys,
+      rex,
       settings,
       system,
       tables,
@@ -48,7 +49,7 @@ export default class Wallet extends Component<Props> {
     return (
       <Grid divided>
         <Grid.Row>
-          <Grid.Column width={6}>
+          <Grid.Column width={5}>
             <SidebarAccount />
             <WalletPanel
               actions={actions}
@@ -57,6 +58,7 @@ export default class Wallet extends Component<Props> {
               blockExplorers={blockExplorers}
               globals={globals}
               keys={keys}
+              rex={rex}
               settings={settings}
               system={system}
               transaction={transaction}
@@ -65,7 +67,7 @@ export default class Wallet extends Component<Props> {
               connection={connection}
             />
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={11}>
             <WalletStatus
               actions={actions}
               actionHistories={actionHistories}
@@ -76,6 +78,7 @@ export default class Wallet extends Component<Props> {
               connection={connection}
               globals={globals}
               keys={keys}
+              rex={rex}
               settings={settings}
               tables={tables}
               validate={validate}

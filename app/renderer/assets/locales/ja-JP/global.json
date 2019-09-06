@@ -119,6 +119,8 @@
   "global_settings_idle_timeout_thirty_minutes": "操作を30分間行わない場合ウォレットを自動的にロックします",
   "global_settings_skip_link_modal_do_not_skip": "リンクをクリックしたときに警告を表示します",
   "global_settings_skip_link_modal_skip": "リンクをクリックしたときに警告を表示しません",
+  "global_settings_mirror_cast_vote_on": "Always rebalance my voting weight before I vote",
+  "global_settings_mirror_cast_vote_off": "Never rebalance my voting weight before I vote",
   "global_settings_filter_spam_transfers_do_not": "Do not filter out spam transfers",
   "global_settings_filter_spam_transfers_0_0002": "Filter out transfers with a 0.0001 amount",
   "global_settings_filter_spam_transfers_0_0010": "Filter out transfers with an amount under 0.0010",

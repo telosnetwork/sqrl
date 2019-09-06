@@ -1,25 +1,31 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
+import ReactDOM from "react-dom";
 import { Container, Dropdown, Form, Grid, Input, Message, Segment, Header } from 'semantic-ui-react';
 import CreditCardInput from 'react-credit-card-input';
 import GlobalFormFieldGeneric from '../../../../Global/Form/Field/Generic';
 import FormMessageError from '../../../../Global/Form/Message/Error';
 
-class WalletPanelFormBuyFiatPurchase extends Component<Props> {
+class WalletPanelFormBuyFiatCCInfo extends Component<Props> {
   onSubmit = () => this.props.onSubmit()
+  onCCInputChange = (e, name) => {
+    const invalidFields = ReactDOM.findDOMNode(this).getElementsByClassName('is-invalid');
+    const isValid = !(invalidFields && invalidFields.length > 0);
+    this.props.onChange(e, {name: name, valid: isValid, value: e.target.value})
+  }
   render() {
     const {
+      charge3dDisabled,
+      charge3dErrorMsg,
       error,
-      isValid,
+      isCCValid,
       onBack,
       onChange,
       settings,
-      shouldShowKYCWarning,
       t,
       values
     } = this.props;
-
     return (
       <Form
         onSubmit={this.onSubmit}
@@ -31,19 +37,10 @@ class WalletPanelFormBuyFiatPurchase extends Component<Props> {
           </Header.Subheader>
         </Header>
 
-        
         <CreditCardInput
-          cardNumberInputProps={{ value: values.cardNumber, onChange: onChange }}
-          cardExpiryInputProps={{ value: values.cardExpiry, onChange: onChange }}
-          cardCVCInputProps={{ value: values.cardCvc, onChange: onChange }}
-          
-        />
-
-        <GlobalFormFieldGeneric
-          label="Name on Card:"
-          name="cardName"
-          onChange={onChange}
-          value={values.cardName} 
+          cardNumberInputProps={{ value: values.cardNumber, onChange: (e) => this.onCCInputChange (e, 'cardNumber'), }}
+          cardExpiryInputProps={{ value: values.cardExpiry, onChange: (e) => this.onCCInputChange (e, 'cardExpiry'), style:{width:'100px'} }}
+          cardCVCInputProps={{ value: values.cardCvc, onChange: (e) => this.onCCInputChange (e, 'cardCvc'), style:{width:'100px'} }}
         />
 
         <GlobalFormFieldGeneric
@@ -54,14 +51,7 @@ class WalletPanelFormBuyFiatPurchase extends Component<Props> {
         />
 
         <GlobalFormFieldGeneric
-          label="Billing Town:"
-          name="cardTown"
-          onChange={onChange}
-          value={values.cardTown} 
-        />
-
-        <GlobalFormFieldGeneric
-          label="Billing Postal:"
+          label="Postal Code:"
           name="cardPostal"
           onChange={onChange}
           value={values.cardPostal} 
@@ -73,14 +63,19 @@ class WalletPanelFormBuyFiatPurchase extends Component<Props> {
           style={{ margin: '1em 0' }}
         />
 
-          {(shouldShowKYCWarning)
-          ? (
-            <Message
-              content={t('wallet_buytoken_request_kyc_warning', {currency:values.currency})}
-              icon="info circle"
-              info
-            />
-          ) : ''}
+        {(charge3dDisabled) ?
+        <Message
+          content={charge3dErrorMsg}
+          icon="info circle"
+          negative
+        />
+        : false}
+
+        <Message
+          content="Important Note: Sqrl does NOT store your information. It simply collects and securely transmits your credit/debit card information to Carbon.Money for processing."
+          icon="info circle"
+          info
+        />
 
         <Grid>
           <Grid.Row columns={2}>
@@ -95,7 +90,7 @@ class WalletPanelFormBuyFiatPurchase extends Component<Props> {
               <Form.Button
                 color="blue"
                 content={t('next')}
-                disabled={!isValid}
+                disabled={!isCCValid}
                 size="small"
               />
             </Grid.Column>
@@ -106,4 +101,4 @@ class WalletPanelFormBuyFiatPurchase extends Component<Props> {
   }
 }
 
-export default translate('wallet')(WalletPanelFormBuyFiatPurchase);
+export default translate('wallet')(WalletPanelFormBuyFiatCCInfo);

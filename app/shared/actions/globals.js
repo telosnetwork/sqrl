@@ -1,11 +1,12 @@
 import { isEmpty } from 'lodash';
-import { Decimal } from 'decimal.js';
 
 import * as types from './types';
 
 import eos from './helpers/eos';
 
-
+const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
+const CARBON_TOKEN = process.env.NODE_ENV === "production" ? '23jlkfjsldfl23r23085ysg' : '895jlj39h2b97g-n-2njf';
+const PRICE_API_SECRET = 'dsjlkfjoi2p3pifs$';
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -105,7 +106,7 @@ export function getExchangeRates(currency = 'usd', amount) {
       type: types.GET_EXCHANGERATES_REQUEST
     });
     const { settings } = getState();
-    return fetch(`${AXIOS_ROOT}/v1/rates?cryptocurrencyArray=${settings.blockchain.tokenSymbol.toLowerCase()}` + 
+    return fetch(`${CARBON_ROOT}/v1/rates?cryptocurrencyArray=${settings.blockchain.tokenSymbol.toLowerCase()}` + 
     `&fiatBaseCurrency=${currency}&fiatChargeAmount=${amount}`, {
       method: 'GET',
       headers: {
@@ -129,7 +130,7 @@ export function getContactByPublicKey(publicKey) {
       type: types.GET_CONTACTBYPUBKEY_REQUEST
     });
     const { globals } = getState();
-    return fetch(`${AXIOS_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
+    return fetch(`${CARBON_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -162,7 +163,7 @@ export function createExchangeContact(publicKey, emailAddress) {
       postBody = new URLSearchParams({
         publicKey: publicKey
       })
-    return await fetch(`${AXIOS_ROOT}/v1/contacts/create`, {
+    return await fetch(`${CARBON_ROOT}/v1/contacts/create`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -178,6 +179,126 @@ export function createExchangeContact(publicKey, emailAddress) {
       type: types.GET_CREATECONTACTBYPUBKEY_FAILURE
     }));    
   };
+}
+
+export function chargeCard(
+  cardNumber, 
+  expiry, 
+  cvc, 
+  billingStreet, 
+  billingPostal, 
+  contactId, 
+  fiatBaseCurrency,
+  fiatChargeAmount,
+  cryptocurrencySymbol,
+  receiveAddress,
+  memo) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_CHARGECONTACT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      cardNumber: cardNumber,
+      expiry: expiry,
+      cvc: cvc,
+      billingPremise: billingStreet,
+      billingStreet: billingStreet,
+      billingPostal: billingPostal,
+      contactId: contactId,
+      fiatBaseCurrency: fiatBaseCurrency,
+      rememberMe: false
+    });
+
+    return await fetch(`${CARBON_ROOT}/v1/card/addNew`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      if (response.details && response.details.creditDebitId){
+        const creditDebitId = response.details.creditDebitId;
+
+        let postBody = new URLSearchParams({
+          creditDebitId: creditDebitId,
+          fiatChargeAmount: fiatChargeAmount,
+          cryptocurrencySymbol: cryptocurrencySymbol,
+          receiveAddress: receiveAddress,
+          memo: memo || '',
+          contactId: contactId,
+          confirmationUrl:`https://sqrlwallet.io/carbon?action=confirm&contactid=${contactId}`,
+          successRedirectUrl:`https://sqrlwallet.io/carbon?action=success&contactid=${contactId}`,
+          errorRedirectUrl:`https://sqrlwallet.io/carbon?action=fail&contactid=${contactId}`
+        });
+        
+        return fetch(`${CARBON_ROOT}/v1/card/charge3d`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${globals.exchangeapi}`
+          },
+          body: postBody
+        }).then(response => response.json()).then((response) => {
+          if (response.charge3denrolled !== 'Y') {
+            return dispatch({
+              payload: response,
+              type: types.GET_CHARGECONTACT_NOTENROLLED
+            });
+          } else {
+            const url = getGeneratedPageURL({
+              html: `
+                <div>
+                  <h3 style="text-align:center;font-family:Tahoma">Connecting to your card provider. Please wait...</h3>
+                  <form style="visibility:hidden;" name="form" id="form" action=${response.acsurl} method="POST">
+                    <input type="hidden" name="PaReq" value=${response.pareq} />
+                    <input type="hidden" name="TermUrl" value=${response.termurl} />
+                    <input type="hidden" name="MD" value=${response.md} /> 
+                  </form>
+                </div>
+              `,
+            });
+            // submit URL
+            return dispatch({
+              payload: url,
+              type: types.GET_CHARGECONTACT_ENROLLED
+            });
+          }
+        });
+      } else {
+        return dispatch({
+          payload: response,
+          type: types.GET_CHARGECONTACT_FAILURE
+        });
+      }
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_CHARGECONTACT_FAILURE
+    }));    
+  };
+}
+
+function getGeneratedPageURL({ html, css, js }) {
+  const getBlobURL = (code, type) => {
+    const blob = new Blob([code], { type });
+    return URL.createObjectURL(blob);
+  };
+
+  const cssURL = getBlobURL(css, 'text/css');
+  const jsURL = getBlobURL(js, 'text/javascript');
+
+  const source = `
+    <html>
+      <head>
+        ${css ? `<link rel="stylesheet" type="text/css" href="${cssURL}" />` : ''}
+        ${js ? `<script src="${jsURL}"></script>` : ''}
+      </head>
+      <body onLoad="document.form.submit();">
+        ${html || ''}
+      </body>
+    </html>
+  `;
+
+  return getBlobURL(source, 'text/html');
 }
 
 export function verifyExchangeContact(
@@ -201,7 +322,7 @@ export function verifyExchangeContact(
       city:city, 
       postalCode:postalCode
     })
-    return await fetch(`${AXIOS_ROOT}/v1/contacts/verify`, {
+    return await fetch(`${CARBON_ROOT}/v1/contacts/verify`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -219,12 +340,90 @@ export function verifyExchangeContact(
   };
 }
 
+export function create2FA(contactId, issuer='SqrlWallet') {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_CREATE2FA_REQUEST
+    });
+    const { globals } = getState();
+    return await fetch(`${CARBON_ROOT}/v1/auth/create2fa?contactId=${contactId}&twoFactorIssuer=${issuer}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      }
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_CREATE2FA_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_CREATE2FA_FAILURE
+    }));    
+  };
+}
+
+export function enable2FA(contactId, token) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ENABLE2FA_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId, 
+      token:token
+    })
+    return await fetch(`${CARBON_ROOT}/v1/auth/enable2fa`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ENABLE2FA_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ENABLE2FA_FAILURE
+    }));    
+  };
+}
+
+export function disable2FA(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_DISABLE2FA_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId
+    })
+    return await fetch(`${CARBON_ROOT}/v1/auth/disable2fa`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_DISABLE2FA_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_DISABLE2FA_FAILURE
+    }));    
+  };
+}
+
 export function getExchangeAPI() {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.GET_CONTACTJWT_REQUEST
     });
-    return fetch(`${AXIOS_ROOT}/v1/users/returnJWT?apikey=${AXIOS_TOKEN}`, {
+    return fetch(`${CARBON_ROOT}/v1/users/returnJWT?apikey=${CARBON_TOKEN}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json'
@@ -296,40 +495,28 @@ export function getPriceFeedGecko(baseToken, quoteToken) {
 export function uploadExchangeKYCDoc(file, contactId, fileType) {
   return (dispatch: () => void, getState) => {
     dispatch({
-      type: types.GET_CONTACTKYCUPLOAD_REQUEST
+      type: types.GET_CONTACTKYCUPLOAD_PENDING
     });
     const { globals } = getState();
 
-    const mime = require('mime');
-    const FormData = require('form-data');
-    let url = `${AXIOS_ROOT}/v1/contacts/upload`;
+    const mime = require('mime-types');
+    let url = `${CARBON_ROOT}/v1/contacts/upload`;
     let formData = new FormData();
 
     formData.append("file", file, {
       filename: file.name,
-      contentType: mime.getType(file.name),
-    } );
-
+      contentType: mime.contentType(file.name),
+    });
     formData.append("fileType", fileType); 
     formData.append("contactId",contactId); 
 
-    //let formDataToBufferObject = formDataToBuffer(formData);
-    //contentType = formData.getHeaders()['content-type'];
-
-    let headers = {
-      headers: {
-        Authorization: `Bearer ${globals.exchangeapi}`
-      }
-    };
-
-    let fileBuffer;
-    let reader = new window.FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onloadend = async () => {
-      fileBuffer = await Buffer.from(reader.result);
-    };
-
-    return axios.post(url, fileBuffer, headers)
+    return fetch(url, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${globals.exchangeapi}`,
+      }),
+      body: formData
+    })
     .then(response => response.json()).then((response) => {
       return dispatch({
         payload: response,
@@ -342,33 +529,11 @@ export function uploadExchangeKYCDoc(file, contactId, fileType) {
   };
 }
 
-function formDataToBuffer( formData ) {
-  let dataBuffer = new Buffer( 0 );
-  let boundary   = formData.getBoundary();
-  for( let i = 0, len = formData._streams.length; i < len; i++ ) {
-      if( typeof formData._streams[i] !== 'function' ) {
-          dataBuffer = bufferWrite( dataBuffer, formData._streams[i] );
-          if( typeof formData._streams[i] !== 'string' || formData._streams[i].substring( 2, boundary.length + 2 ) !== boundary ) {
-              dataBuffer = bufferWrite( dataBuffer, "\r\n" );
-          }
-      }
-  }
-  dataBuffer = bufferWrite( dataBuffer, '--' + boundary + '--' );
-  return dataBuffer;
-}
-
-function bufferWrite( buffer, data ) {
-  let addBuffer;
-  if( typeof data === 'string' ) {
-      addBuffer = Buffer.from( data );
-  }
-  else if( typeof data === 'object' && Buffer.isBuffer( data ) ) {
-      addBuffer = data;
-  }
-  return Buffer.concat( [buffer, addBuffer] );
-}
-
 export default {
+  create2FA,
+  enable2FA,
+  disable2FA,
+  chargeCard,
   createExchangeContact,
   getContactByPublicKey,
   getCurrencyStats,

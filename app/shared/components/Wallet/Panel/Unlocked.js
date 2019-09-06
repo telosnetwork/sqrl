@@ -65,6 +65,8 @@ class WalletPanelUnlocked extends Component<Props> {
             vertical
             exclusive={false}
           >
+            {(settings.walletMode === 'hot')
+              ? (
             <Menu.Item>
               <Accordion.Title
                 active={activeIndex === 0 || activeIndex === 1}
@@ -106,7 +108,7 @@ class WalletPanelUnlocked extends Component<Props> {
                       />
                     </Segment>
                      :'')}
-                    {(carbonRegistered ?
+                    {(carbonRegistered && 0==1 ?
                     <Segment>
                       <WalletPanelButtonSwapToken
                         actions={actions}
@@ -125,6 +127,7 @@ class WalletPanelUnlocked extends Component<Props> {
                   </Segment.Group>
               </Accordion.Content>
             </Menu.Item>
+              ):false}
             <Menu.Item>
               <Accordion.Title
                 active={activeIndex === 0 || activeIndex === 1}

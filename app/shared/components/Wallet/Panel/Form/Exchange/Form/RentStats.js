@@ -10,6 +10,7 @@ class WalletPanelFormExchangeRentStats extends Component<Props> {
     const {
       EOSbalance,
       rex,
+      REXfund,
       settings,
       t
     } = this.props;
@@ -25,6 +26,14 @@ class WalletPanelFormExchangeRentStats extends Component<Props> {
             {(EOSbalance).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
             <Header.Subheader>
               {t('rex_rent_core_balance', {tokenSymbol:settings.blockchain.tokenSymbol})}
+            </Header.Subheader>
+          </Header>
+        </Segment>
+        <Segment>
+          <Header textAlign="center">
+            {(REXfund).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
+            <Header.Subheader>
+              {t('Currently in deposits', {tokenSymbol:settings.blockchain.tokenSymbol})}
             </Header.Subheader>
           </Header>
         </Segment>

@@ -75,7 +75,7 @@ class BasicVoterContainer extends Component<Props> {
       system
     } = this.props;
 
-    if (system.BLOCKEXPLORERS === 'SUCCESS') {
+    if (system.BLOCKEXPLORERS === 'SUCCESS' && !settings.blockExplorer) {
       system.BLOCKEXPLORERS = '';
       
        // look for compatible block explorer based on token, else use first
@@ -96,7 +96,7 @@ class BasicVoterContainer extends Component<Props> {
     }
   }
   
-  componentDidMount() {
+  componentDidMount = async () => {
     const {
       actions,
       accounts,
@@ -135,10 +135,7 @@ class BasicVoterContainer extends Component<Props> {
             getCurrencyStats(contract, symbol.toUpperCase());
           });
 
-          (async () => {
-            await getExchangeAPI();
-            this.lookupExchangeContact();
-          })();
+          await getExchangeAPI();
         }
       }
     }
@@ -300,30 +297,8 @@ class BasicVoterContainer extends Component<Props> {
     }
   }
 
-  lookupExchangeContact() {
-    const {
-      actions,
-      connection,
-      settings
-    } = this.props;
-
-    eos(connection).getAccount(settings.account).then((results) => {
-      const model = new EOSAccount(results);
-      if (model) {
-        const keys = model.getKeysForAuthorization(settings.authorization);
-        if (keys && keys.length > 0) {
-          const { pubkey } = keys[0];
-          actions.getContactByPublicKey(pubkey);
-        }
-      }
-    });
-  }
-
   handleItemClick = (e, { name }) => {
     this.setState({ activeItem: name });
-    if (name == 'wallet') {
-      this.lookupExchangeContact();
-    };
   }
 
   render() {

@@ -3,6 +3,9 @@ import { forEach } from 'lodash';
 import * as types from './types';
 import eos from './helpers/eos';
 import eos2 from './helpers/eos2';
+import { getRexBalance } from './rex';
+import EOSAccount from '../utils/EOS/Account';
+import { getContactByPublicKey } from './globals';
 const ecc = require('eosjs-ecc');
 
 export function clearAccountCache() {
@@ -127,9 +130,17 @@ export function getAccount(account = '') {
         // Trigger the action to load this accounts balances'
         if (settings.account === account) {
           dispatch(getCurrencyBalance(account));
-
+          dispatch(getRexBalance());
           if (settings.blockchain.tokenSymbol==='WAX')
             dispatch(getGenesisBalance(account));
+        }
+        const model = new EOSAccount(results);
+        if (model) {
+          const keys = model.getAuthorizationOptions();
+          if (keys && keys.length > 0) {
+            const { pubkey } = keys[0];
+            dispatch(getContactByPublicKey(pubkey));
+          }
         }
         // PATCH - Force in self_delegated_bandwidth if it doesn't exist
         const modified = Object.assign({}, results);

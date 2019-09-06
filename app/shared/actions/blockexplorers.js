@@ -42,6 +42,15 @@ export function getBlockExplorers() {
         }
       },
       {
+        name: 'telos.bloks.io',
+        tokenSymbol: 'TLOS',
+        patterns: {
+          account: 'https://telos.bloks.io/account/{account}',
+          txid: 'https://telos.bloks.io/transaction/{txid}',
+          tokenSymbol: 'TLOS'
+        }
+      },
+      {
         name: 'bloks.io',
         tokenSymbol: 'EOS',
         patterns: {
@@ -83,7 +92,15 @@ export function getBlockExplorers() {
           txid: 'https://eosweb.net/transaction/{txid}',
           tokenSymbol: 'EOS'
         }
-      }
+      },{
+        name: 'wax.bloks.io',
+        tokenSymbol: 'WAX',
+        patterns: {
+          account: 'https://wax.bloks.io/account/{account}',
+          txid: 'https://wax.bloks.io/transaction/{txid}',
+          tokenSymbol: 'WAX'
+        }
+      },
     ];
 
     const sortedList = sortBy(rows, 'name');

@@ -45,7 +45,15 @@ class WalletPanelButtonExchangeSell extends Component<Props> {
       net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
     };
 
-    const noMaturies = rex.rexbal && rex.rexbal.matured_rex > 0 ? false : true;
+    const rexMaturity = rex && rex.rexbal && rex.rexbal.rex_maturities[0];
+    let claimable = false;
+    if (rexMaturity) {
+      claimable = (new Date() > new Date(rexMaturity.first));
+    }
+
+    if (!claimable) {
+      claimable = rex && rex.rexbal && rex.rexbal.matured_rex > 0;
+    }
 
     return (
       <GlobalTransactionModal
@@ -57,7 +65,7 @@ class WalletPanelButtonExchangeSell extends Component<Props> {
           content: t('rex_sellrex', {tokenSymbol:settings.blockchain.tokenSymbol}),
           fluid: true,
           icon: 'microchip',
-          disabled: noMaturies
+          disabled: !claimable
         }}
         content={(
           <WalletPanelFormExchangeSell

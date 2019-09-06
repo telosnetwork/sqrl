@@ -20,6 +20,7 @@ class WalletPanelButtonFiat extends Component<Props> {
       actions,
       connection,
       globals,
+      keys,
       history,
       settings,
       shouldShowAccountNameWarning,
@@ -36,6 +37,7 @@ class WalletPanelButtonFiat extends Component<Props> {
         actions={actions}
         connection={connection}
         globals={globals}
+        keys={keys}
         history={history}
         onClose={this.onClose}
         open={open}

@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Grid, Header, Segment, Responsive } from 'semantic-ui-react';
 import { bancorConvert } from '../../../actions/rex';
+import { Decimal } from 'decimal.js';
 
 class WalletExchangeStatusBalances extends Component<Props> {
   render() {
@@ -14,7 +15,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
     } = this.props;
 
     let rexConversionRates = {core_rex: 0, rex_core: 0};
-    if (parseFloat(rex.rexpool.total_rex) > 0 && parseFloat(rex.rexpool.total_lendable) > 0) {
+    if (rex && rex.rexpool && parseFloat(rex.rexpool.total_rex) > 0 && parseFloat(rex.rexpool.total_lendable) > 0) {
         rexConversionRates = {
             core_rex: parseFloat(rex.rexpool.total_rex) / parseFloat(rex.rexpool.total_lendable),
             rex_core: parseFloat(rex.rexpool.total_lendable) / parseFloat(rex.rexpool.total_rex)
@@ -29,8 +30,6 @@ class WalletExchangeStatusBalances extends Component<Props> {
       rexbalance.rex_balance = '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' REX';
       rexbalance.matured_rex = '0';
       rexbalance.vote_stake = '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol;
-    } else {
-      rexMaturingEndDate = '[Matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
     }
     
     if (rexfund.length < 1 || rexfund.owner != settings.account) {
@@ -38,11 +37,24 @@ class WalletExchangeStatusBalances extends Component<Props> {
     }
 
     const matured_rex = rexbalance.matured_rex > 0 ? parseFloat(rex.rexbal.matured_rex / 100000000).toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0');
-    const totalRent = rex.rexpool.total_rent.split(' ')[0];
-    const totalUnlent = rex.rexpool.total_unlent.split(' ')[0];
-
+    const totalRent = rex && rex.rexpool && rex.rexpool.total_rent.split(' ')[0];
+    const totalUnlent = rex && rex.rexpool && rex.rexpool.total_unlent.split(' ')[0];
+    
     const sellRatio = bancorConvert(totalRent, totalUnlent, 1);
 
+    const totalLendable = rex && rex.rexpool && rex.rexpool.total_lendable.split(' ')[0];
+    const annualPercentageRate = Decimal(12000000 / totalLendable).toFixed(2);
+    const tokensInRex = Decimal(rexbalance.vote_stake.split(' ')[0]);
+    const returnOnRexBal = Decimal(tokensInRex).plus(annualPercentageRate * tokensInRex).toFixed(settings.tokenPrecision);
+    const REXbalance = Decimal(rexbalance.rex_balance.split(' ')[0]);
+    const totalRex = rex.rexpool.total_rex.split(' ')[0];
+    const rexProfits = totalRex > 0 ? (parseFloat(totalLendable) / parseFloat(totalRex) * REXbalance) - tokensInRex : 0;
+    
+    if (tokensInRex > 0 && rexbalance.rex_maturities[0]) {
+      rexMaturingEndDate = '['+ Decimal(rexProfits).toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol +
+        ' matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
+    }
+    
     return (
       <Segment stacked>
         <Header dividing size="small">
@@ -114,7 +126,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
                 subheader={t('rex_status_fund_interest_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}
               />
             <div className="rexlabel">
-            {rexConversionRates.core_rex.toFixed(settings.tokenPrecision)} REX
+            {(annualPercentageRate * 100)}% APR [{returnOnRexBal} {settings.blockchain.tokenSymbol}]
               <Responsive as="span" minWidth={800} />
             </div>
             </Grid.Column>

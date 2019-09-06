@@ -21,6 +21,7 @@ class WalletStatusBalances extends Component<Props> {
       account,
       balances,
       globals,
+      rex,
       settings,
       statsFetcher,
       t
@@ -32,7 +33,8 @@ class WalletStatusBalances extends Component<Props> {
       totalBeingUnstaked,
       totalStakedToSelf,
       totalStakedToOthers,
-      totalTokens
+      totalTokens,
+      totalREX
     } = statsFetcher.fetchAll();
     const contracts = balances.__contracts;
     const genesisbalance = balances.__genesisbal && 
@@ -41,18 +43,14 @@ class WalletStatusBalances extends Component<Props> {
     const claimable = (new Date() > refundDate);
     const watchedTokens = (settings.customTokens) ? settings.customTokens.map((token) => token.split(':')[1]) : [];
 
-    let liquidUSDValue = 0;
     let totalUSDValue = 0;
     let usdPrice = 0;
-    const liquidBalance = (tokens[settings.blockchain.tokenSymbol]) ? 
-      tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : 0;
     const totalBalance = totalTokens.toFixed(settings.tokenPrecision);
     if (globals.pricefeed 
       && globals.pricefeed.CUSD
       && globals.pricefeed.CUSD.price 
       && globals.pricefeed.CUSD.base == settings.blockchain.tokenSymbol) {
       usdPrice = Decimal(globals.pricefeed.CUSD.price).toFixed(settings.tokenPrecision);
-      liquidUSDValue = usdPrice * liquidBalance;
       totalUSDValue = usdPrice * totalBalance;
     }
 
@@ -74,14 +72,16 @@ class WalletStatusBalances extends Component<Props> {
                   <Table.Cell width={4}>{t('wallet_status_liquid')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                 </Table.Row>
-                <Table.Row>
-                  <Table.Cell width={4}>Liquid USD</Table.Cell>
-                  <Table.Cell>${liquidUSDValue.toFixed(settings.tokenPrecision)} (${usdPrice}/{settings.blockchain.tokenSymbol})</Table.Cell>
-                </Table.Row>
                 {(settings.blockchain.tokenSymbol === 'WAX') ?
                   <Table.Row>
                     <Table.Cell width={4}>Genesis Tokens</Table.Cell>
                     <Table.Cell>{(genesisbalance) ? genesisbalance.toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                  </Table.Row>
+                : ''}
+                {(totalREX > 0 && rex && rex.rexpool) ?
+                  <Table.Row>
+                    <Table.Cell width={4}>Staked to REX</Table.Cell>
+                    <Table.Cell>{(totalREX) ? totalREX.toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   </Table.Row>
                 : ''}
                 <Table.Row>

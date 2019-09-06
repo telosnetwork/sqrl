@@ -27,12 +27,20 @@ export default function wallets(state = initialState, action) {
       ];
     }
     case types.REMOVE_WALLET: {
-      const [, other] = partition(state, { 
-        account: action.payload.account,
-        authorization: action.payload.authorization,
-        chainId: action.payload.chainId
-      });
-      return other;
+      if (action.payload.authorization) {
+        const [, other] = partition(state, { 
+          account: action.payload.account,
+          authorization: action.payload.authorization,
+          chainId: action.payload.chainId
+        });
+        return other;
+      } else {
+        const [, other] = partition(state, { 
+          account: action.payload.account,
+          chainId: action.payload.chainId
+        });
+        return other;
+      }
     }
     case types.UPGRADE_WALLET: {
       const partitionQuery = {

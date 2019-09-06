@@ -14,6 +14,7 @@
   "tools_change_language2": "Язык интерфейса",
   "tools_change_node": "Сменить API ноду",
   "tools_change_resource_display_format": "Формат отображения Ресурсов",
+  "tools_change_mirror_cast_vote": "Recalculate voting weight prior to voting",
   "tools_change_skip_link_modal": "Отображать предупреждения при переходе по ссылкам",
   "tools_change_spam_transfer_filter": "Фильтровать спам переводы (переводы меньше 0.0005 {{tokenSymbol}} отправленные вам не будут отображаться в истории)",
   "tools_change_timeout": "Заблокировать кошелек после периода неактивности",

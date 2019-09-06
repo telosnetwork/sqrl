@@ -24,14 +24,18 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
         dlFrontMessage: null,
         dlBackFile: null,
         dlBackPreview: null,
-        dlBackMessage: null
+        dlBackMessage: null,
+        loading: false,
+        verifiedError: null
       }
   }
   onSubmit = () => this.props.onSubmit()
   submitFiles = async () => {
     const {
       actions,
-      globals
+      globals,
+      keys,
+      values
     } = this.props;
     const {
       passportFile,
@@ -41,10 +45,15 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
     } = this.state;
 
     const contact = globals.exchangecontact && globals.exchangecontact.data;
-    //await actions.getContactByPublicKey(keys.pubkey); // fetch full contact record
+    let uploadPassport = '';
+    let uploadSelfie = '';
+    let uploadDLFront = '';
+    let uploadDLBack = '';
+    
+    this.setState({loading: true, verifiedError: null});
+
     if (passportFile) {
-      console.log('uploading passport:', passportFile);
-      const uploadPassport = await actions.uploadExchangeKYCDoc(passportFile, contact.id, 'passport');
+      uploadPassport = await actions.uploadExchangeKYCDoc(passportFile, contact.id, 'passport');
       if (uploadPassport && uploadPassport.payload && uploadPassport.payload.message) {
         this.setState({passportMessage: uploadPassport.payload.message});
       } else {
@@ -52,8 +61,7 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
       }
     }
     if (selfiePhotoFile) {
-      console.log('uploading selfie:', selfiePhotoFile);
-      const uploadSelfie = await actions.uploadExchangeKYCDoc(selfiePhotoFile, contact.id, 'livePhoto');
+      uploadSelfie = await actions.uploadExchangeKYCDoc(selfiePhotoFile, contact.id, 'livePhoto');
       if (uploadSelfie && uploadSelfie.payload && uploadSelfie.payload.message) {
         this.setState({selfieMessage: uploadSelfie.payload.message});
       } else {
@@ -61,23 +69,64 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
       }
     }
     if (dlFrontFile) {
-      console.log('uploading dlFront:', dlFrontFile);
-      const upDLFront = await actions.uploadExchangeKYCDoc(dlFrontFile, contact.id, 'driverLicenseFront');
-      if (upDLFront && upDLFront.payload && upDLFront.payload.message) {
-        this.setState({dlFrontMessage: upDLFront.payload.message});
+      uploadDLFront = await actions.uploadExchangeKYCDoc(dlFrontFile, contact.id, 'driverLicenseFront');
+      if (uploadDLFront && uploadDLFront.payload && uploadDLFront.payload.message) {
+        this.setState({dlFrontMessage: uploadDLFront.payload.message});
       } else {
         this.setState({dlFrontMessage: "Something went wrong while attempting to upload the front of your ID. Please try again."});
       }
     }
-    if (dlFrontFile) {
-      console.log('uploading dlBack:', dlBackFile);
-      const upDLBack = await actions.uploadExchangeKYCDoc(dlBackFile, contact.id, 'driverLicenseBack');
-      if (upDLBack && upDLBack.payload && upDLBack.payload.message) {
-        this.setState({dlBackMessage: upDLBack.payload.message});
+    if (dlBackFile) {
+      uploadDLBack = await actions.uploadExchangeKYCDoc(dlBackFile, contact.id, 'driverLicenseBack');
+      if (uploadDLBack && uploadDLBack.payload && uploadDLBack.payload.message) {
+        this.setState({dlBackMessage: uploadDLBack.payload.message});
       } else {
         this.setState({dlBackMessage: "Something went wrong while attempting to upload the back of your ID. Please try again."});
       }
     }
+
+    if (
+        (
+        uploadPassport.payload && uploadPassport.payload.message && uploadPassport.payload.message.indexOf('successful') > 0 &&
+        uploadSelfie.payload && uploadSelfie.payload.message && uploadSelfie.payload.message.indexOf('successful') > 0
+        ) || 
+        (
+          dlFrontFile.payload && dlFrontFile.payload.message && dlFrontFile.payload.message.indexOf('successful') > 0 &&
+          dlBackFile.payload && dlBackFile.payload.message && dlBackFile.payload.message.indexOf('successful') > 0 &&
+          uploadSelfie.payload && uploadSelfie.payload.message && uploadSelfie.payload.message.indexOf('successful') > 0
+        )
+      )
+    {
+      const getCountryISO3 = require("country-iso-2-to-3");
+      let iso3Code = getCountryISO3(values.country);
+      if (!iso3Code) {
+        iso3Code = values.country;
+      }
+      const submitKYC = await actions.verifyExchangeContact(
+        contact.id, values.firstName, values.lastName, 
+        values.dob, iso3Code, values.buildingNumber, 
+        values.street, values.state.toUpperCase(), values.city, values.postalCode);
+
+      this.setState({verifiedError:null});
+
+      const kycVerified = submitKYC.payload 
+        && submitKYC.payload.details 
+        && submitKYC.payload.details.token
+        && submitKYC.payload.details.token.length > 0;
+      if (kycVerified) {
+        this.props.onCompleted();
+      } else if (submitKYC.payload && submitKYC.payload.error) {
+        let errorResponse = submitKYC.payload.error
+          && submitKYC.payload.error.error
+          && submitKYC.payload.error.error.message;
+        if (!errorResponse || errorResponse == '') {
+          errorResponse = submitKYC.payload.details;
+        }
+        errorResponse += '. Please go back to review your information and try again (e.g. State/Zip/Country).'
+        this.setState({verifiedError: errorResponse});
+      }
+    }
+    this.setState({loading: false});
   }
   imageChange(e) {
     e.preventDefault();
@@ -99,12 +148,12 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
     const {
       globals,
       onBack,
-      onChange,
-      settings,
+      system,
       t
     } = this.props;
 
     let {
+      loading,
       passportFile,
       passportPreview,
       passportMessage,
@@ -116,7 +165,8 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
       dlBackMessage,
       selfiePhotoFile,
       selfiePhotoPreview,
-      selfieMessage
+      selfieMessage,
+      verifiedError
     } = this.state;
 
     let $passportPreview = null;
@@ -137,11 +187,11 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
     
     const contact = globals.exchangecontact && globals.exchangecontact.data;
     const kycStatus = 
-      contact.kycPassOnfido==5?"Blocked":
-      contact.kycPassOnfido==4?"Resubmitted - Pending":
-      contact.kycPassOnfido==3?"Application Error - Resubmit":
-      contact.kycPassOnfido==2?"Verified":
-      contact.kycPassOnfido==1?"Submitted - Pending":"Not Submitted";
+      contact.kycPassOnfido=='5'?"Blocked":
+      contact.kycPassOnfido=='4'?"Resubmitted - Pending":
+      contact.kycPassOnfido=='3'?"Application Error - Resubmit":
+      contact.kycPassOnfido=='2'?"Verified":
+      contact.kycPassOnfido=='1'?"Submitted - Pending":"Not Submitted";
 
     let error = '';
     if ( (!passportFile && !selfiePhotoFile) ||
@@ -151,7 +201,7 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
     }
 
     return (
-      <Form>
+      <Form loading={loading}>
         <Header>
           {t('wallet_registercarbon_request_step_3_header1')} - {kycStatus}
           <Header.Subheader>
@@ -229,6 +279,14 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
             </form>
           </Segment>
         </Segment.Group>
+
+        {(verifiedError ?
+          <Message
+            content={verifiedError}
+            icon="info circle"
+            negative
+          />
+        :'')}
 
         {(passportMessage ?
           <Message
