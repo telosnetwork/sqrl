@@ -7,45 +7,56 @@ import WalletPanelFormRegisterExchangeWelcome from '../../Form/RegisterExchange/
 import WalletPanelFormRegisterExchangeAccount from '../../Form/RegisterExchange/Account';
 import WalletPanelFormRegisterExchangeKYC from '../../Form/RegisterExchange/KYC';
 import WalletPanelFormRegisterExchangeKYCUpload from '../../Form/RegisterExchange/KYCUpload';
+import WalletPanelFormRegisterExchangeKYCSubmitted from '../../Form/RegisterExchange/KYCSubmitted';
 
 const WELCOME = 1;
 const ACCOUNT = 2;
 const KYC = 3;
 const KYC_DOCS = 4;
+const KYC_SENT = 5;
+
 class WalletPanelModalRegisterExchange extends Component<Props> {
-  state = {
-    confirming: false,
-    open: true,
-    stage: WELCOME,
-    values: {
-      firstName: '',
-      lastName:'',
-      dob:'',
-      buildingNumber:'',
-      street:'',
-      city:'',
-      state:'',
-      postalCode:'',
-      country:'',
-      emailAddress: ''
-    },
-    validated: {
-      firstName: false,
-      lastName:false,
-      dob:false,
-      buildingNumber:false,
-      street:false,
-      city:false,
-      state:false,
-      postalCode:false,
-      country:false,
-      emailAddress: false
-    },
-    location: ''
+  constructor(props) {
+    super(props);
+      const {
+        keys,
+        settings
+      } = this.props;
+      const kycSubmitted = settings['kycSubmitted' + keys.pubkey];
+      this.state = {
+        confirming: false,
+        kycSubmitted: kycSubmitted || false,
+        open: true,
+        stage: WELCOME,
+        values: {
+          firstName: '',
+          lastName:'',
+          dob:'',
+          buildingNumber:'',
+          street:'',
+          city:'',
+          state:'',
+          postalCode:'',
+          country:'',
+          emailAddress: ''
+        },
+        validated: {
+          firstName: false,
+          lastName:false,
+          dob:false,
+          buildingNumber:false,
+          street:false,
+          city:false,
+          state:false,
+          postalCode:false,
+          country:false,
+          emailAddress: false
+        },
+        location: ''
+      }
   }
-  componentDidMount() {
-    (async () => {
-      await fetch('http://ip-api.com/json')
+  componentDidMount = async () => {
+    await fetch('http://ip-api.com/json')
       .then(response=>{
         return response.json();
       }).then(data =>{
@@ -53,8 +64,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
           location: data
         });
       }).catch(error => {
-      });
-    })();
+    });
   }
   onChange = (e, { name, valid, value }) => {
     const values = { ...this.state.values };
@@ -111,7 +121,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     } else {
       const contactRequest = await actions.createExchangeContact(keys.pubkey, values.emailAddress);
       if (contactRequest && contactRequest.payload && contactRequest.payload.code == 200) {
-        await actions.getContactByPublicKey(keys.pubkey); // fetch full contact record
+        await actions.getContactByPublicKey(keys.pubkey);
         this.onStageSelect(KYC);
       } else {
         this.onStageSelect(ACCOUNT);
@@ -132,18 +142,40 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     if (contact && contact.onfidoId) {
       this.onStageSelect(KYC_DOCS);
     } else {
+      const getCountryISO3 = require("country-iso-2-to-3");
+      let iso3Code = getCountryISO3(values.country);
+      if (!iso3Code) {
+        iso3Code = values.country;
+      }
       const verifyRequest = await actions.verifyExchangeContact(
         contact.id, values.firstName, values.lastName, 
-        values.dob, values.country, values.buildingNumber, 
-        values.street, values.state, values.city, values.postalCode);
+        values.dob, iso3Code.toUpperCase(), values.buildingNumber, 
+        values.street, values.state.toUpperCase(), values.city, values.postalCode);
       if (verifyRequest && verifyRequest.payload 
         && verifyRequest.payload.details && verifyRequest.payload.details.applicantId) {
-          await actions.getContactByPublicKey(keys.pubkey); // fetch full contact record
+          await actions.getContactByPublicKey(keys.pubkey);
         this.onStageSelect(KYC_DOCS);
       } else {
         this.onStageSelect(KYC);
       }
     }
+  }
+  onCompleted = () => {
+    const {
+      actions,
+      keys
+    } = this.props;
+    actions.setSetting('kycSubmitted' + keys.pubkey, true);
+    this.onStageSelect(KYC_SENT);
+  }
+  onResubmit = () => {
+    const {
+      actions,
+      keys
+    } = this.props;
+    this.setState({ ['kycSubmitted' + keys.pubkey]: false })
+    actions.setSetting('kycSubmitted' + keys.pubkey, false);
+    this.onStageSelect(KYC);
   }
   onConfirm = () => this.setState({ confirming: true });
   onCancel = () => this.setState({ confirming: false });
@@ -165,6 +197,10 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
       stage,
       values
     } = this.state;
+
+    let {
+      kycSubmitted,
+    } = this.state;
     
     let carbonRegistered = false;
     if (globals.exchangecontact && globals.exchangecontact.contactId) {
@@ -172,12 +208,26 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     }
     let carbonKYCFido = false;
     const contact = globals.exchangecontact && globals.exchangecontact.data;
-    if (contact && contact.kycPassOnfido == 2) {
+
+    if (contact && contact.onfidoId && contact.publicKey == keys.pubkey) {
+      kycSubmitted = true;
+    }
+    
+    if (contact && contact.kycPassOnfido == '2') {
       carbonKYCFido = true;
+    }
+
+    if ((kycSubmitted || carbonKYCFido) && (stage != KYC_SENT && stage != KYC && stage != KYC_DOCS)) {
+        this.onStageSelect(KYC_SENT);
+    }
+
+    if (stage == KYC_SENT && !(kycSubmitted || carbonKYCFido)){
+      this.onStageSelect(WELCOME);
     }
 
     let stageElement = (
       <WalletPanelFormRegisterExchangeWelcome
+        kycSubmitted={kycSubmitted}
         location={location}
         onChange={this.onChange}
         onSubmit={() => this.onStageSelect(ACCOUNT)}
@@ -191,6 +241,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
         <WalletPanelFormRegisterExchangeAccount
           globals={globals}
           keys={keys}
+          kycSubmitted={kycSubmitted}
           onBack={() => this.onStageSelect(WELCOME)}
           onCancel={this.onCancel}
           onChange={this.onChange}
@@ -207,6 +258,9 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
         <WalletPanelFormRegisterExchangeKYC
           actions={actions}
           globals={globals}
+          keys={keys}
+          kycSubmitted={kycSubmitted}
+          location={location}
           onBack={() => this.onStageSelect(ACCOUNT)}
           onCancel={this.onCancel}
           onChange={this.onChange}
@@ -224,11 +278,30 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
         <WalletPanelFormRegisterExchangeKYCUpload
           actions={actions}
           globals={globals}
+          keys={keys}
+          kycSubmitted={kycSubmitted}
           onBack={() => this.onStageSelect(KYC)}
           onCancel={this.onCancel}
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onSubmit={this.onSubmit}
+          onCompleted={this.onCompleted}
+          settings={settings}
+          system={system}
+          values={values}
+        />
+      );
+    }
+    
+    if (stage === KYC_SENT) {
+      stageElement = (
+        <WalletPanelFormRegisterExchangeKYCSubmitted
+          actions={actions}
+          globals={globals}
+          keys={keys}
+          kycSubmitted={kycSubmitted}
+          onCancel={this.onCancel}
+          onResubmit={this.onResubmit}
           settings={settings}
           system={system}
           values={values}
@@ -271,6 +344,13 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
                     <Step.Content>
                       <Step.Title>{t('wallet_registercarbon_request_step_3')}</Step.Title>
                       <Step.Description>{t('wallet_registercarbon_request_step_3_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
+                    </Step.Content>
+                  </Step>
+                  <Step active={stage === KYC_SENT} completed={stage === KYC_SENT}>
+                    <Icon name="flag checkered" />
+                    <Step.Content>
+                      <Step.Title>{t('wallet_registercarbon_request_step_4')}</Step.Title>
+                      <Step.Description>{t('wallet_registercarbon_request_step_4_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
                     </Step.Content>
                   </Step>
                 </Step.Group>

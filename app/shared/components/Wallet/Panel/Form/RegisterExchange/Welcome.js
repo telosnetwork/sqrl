@@ -30,7 +30,7 @@ class WalletPanelFormRegisterExchangeWelcome extends Component<Props> {
             have the option to use the service with or without KYC/AML verification.
           </p>
           <p>
-          Account limits for non-verified accounts is $100.00 USD per week, while verified accounts can trade up to $1000.00 USD per week.
+          Account limits for non-verified accounts is $250.00 USD per day, while verified accounts can trade up to $2500.00 USD per day.
           </p>
           <p>
             Ready to get started? Click the button below to begin!

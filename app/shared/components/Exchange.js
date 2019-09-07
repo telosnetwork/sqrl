@@ -51,7 +51,7 @@ export default class Exchange extends Component<Props> {
     return (
       <Grid divided>
         <Grid.Row>
-          <Grid.Column width={6}>
+          <Grid.Column width={5}>
             <SidebarAccount />
             <WalletPanel
               actions={actions}
@@ -70,7 +70,7 @@ export default class Exchange extends Component<Props> {
               connection={connection}
             />
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={11}>
             <WalletExchangeStatus
               actions={actions}
               actionHistories={actionHistories}

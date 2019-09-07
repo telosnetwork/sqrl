@@ -80,6 +80,8 @@ const initialState = {
   ipfsProtocol: 'https',
   // Default language
   lang: '',
+  // Mirror cast votes before voting on proposals/elections
+  mirrorCastOnVote: true,
   // The node to connect to
   node: '',
   // Recent contracts the wallet has used

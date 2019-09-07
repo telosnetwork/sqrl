@@ -11,6 +11,7 @@ import GlobalSettingsIPFSNode from './Global/Settings/IPFSNode';
 import GlobalSettingsSkipLinkModal from './Global/Settings/SkipLinkModal';
 import GlobalSettingsResourceDisplayFormat from './Global/Settings/ResourceDisplayFormat';
 import GlobalSettingsFilterSpamTransfers from './Global/Settings/FilterSpamTransfers';
+import GlobalSettingsMirrorCastVote from './Global/Settings/MirrorCastVote';
 
 class Tools extends Component<Props> {
   render() {
@@ -22,6 +23,7 @@ class Tools extends Component<Props> {
       t
     } = this.props;
 
+    console.log('mirror cast settings:', settings.mirrorCastOnVote)
     return (
       <React.Fragment>
         <Segment attached="top">
@@ -93,6 +95,14 @@ class Tools extends Component<Props> {
               <GlobalSettingsResourceDisplayFormat
                 actions={actions}
                 defaultValue={settings.displayResourcesAvailable}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_mirror_cast_vote')}</label>
+              <GlobalSettingsMirrorCastVote
+                actions={actions}
+                defaultValue={settings.mirrorCastOnVote}
                 selection
               />
             </Form.Field>

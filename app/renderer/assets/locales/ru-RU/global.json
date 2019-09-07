@@ -119,6 +119,8 @@
   "global_settings_idle_timeout_thirty_minutes": "Автоматически блокировать кошелек через 30 минут неактивности",
   "global_settings_skip_link_modal_do_not_skip": "Отображать предупреждения при переходе по ссылкам",
   "global_settings_skip_link_modal_skip": "Не отображать предупреждения при переходе по ссылкам",
+  "global_settings_mirror_cast_vote_on": "Always rebalance my voting weight before I vote",
+  "global_settings_mirror_cast_vote_off": "Never rebalance my voting weight before I vote",
   "global_settings_filter_spam_transfers_do_not": "Не фильтровать спам рассылки",
   "global_settings_filter_spam_transfers_0_0002": "Фильтровать расссылки с количеством 0.0001",
   "global_settings_filter_spam_transfers_0_0010": "Фильтровать расссылки с количеством менее 0.0010",

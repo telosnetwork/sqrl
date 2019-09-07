@@ -53,8 +53,8 @@ export default class ProducersSelector extends Component<Props> {
                 <Message.Header>
                   Help us make Sqrl better
                 </Message.Header>
-                  Please vote for&nbsp;<b><a onClick={() => this.openLink("https://telos.miami")} role="link" style={{ cursor: 'pointer' }}>telosmiamibp</a></b>&nbsp;to help support Sqrl development efforts and 
-                  for&nbsp;<b><a onClick={() => this.openLink("https://goodblock.io")} role="link" style={{ cursor: 'pointer' }}>goodblocktls</a></b>, a key sponsor of Telos' core development.
+                  Please vote for&nbsp;<b><a onClick={() => this.openLink("https://telos.miami")} role="link" style={{ cursor: 'pointer' }}>telosmiamibp</a></b>&nbsp;to help support Sqrl development and 
+                  for&nbsp;<b><a onClick={() => this.openLink("https://goodblock.io")} role="link" style={{ cursor: 'pointer' }}>goodblocktls</a></b>, a key sponsor of Telos.
                   </Message.Content>
                 </Message>
                 :''}

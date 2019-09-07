@@ -40,6 +40,7 @@ class WalletStatus extends Component<Props> {
       chain,
       connection,
       globals,
+      rex,
       settings,
       t,
       tables,
@@ -73,8 +74,12 @@ class WalletStatus extends Component<Props> {
         tables.eosio[prefix][suffix].delband &&
         tables.eosio[prefix][suffix].delband.rows;
     }
+
+    let rexbal = {}
+    if (rex && rex.rexbal)
+      rexbal = rex.rexbal;
     
-    const statsFetcher = new StatsFetcher(account, balance, settings, delegations);
+    const statsFetcher = new StatsFetcher(account, balance, settings, delegations, rexbal);
 
     let activeTab = (
       <Segment stacked>
@@ -93,6 +98,7 @@ class WalletStatus extends Component<Props> {
               actions={actions}
               balances={balances}
               globals={globals}
+              rex={rex}
               statsFetcher={statsFetcher}
               settings={settings}
               connection={connection}

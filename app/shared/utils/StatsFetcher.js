@@ -1,11 +1,12 @@
 import { Decimal } from 'decimal.js';
 
 export default class StatsFetcher {
-  constructor(account, balance, settings, delegations) {
+  constructor(account, balance, settings, delegations, rexbalance) {
     this.account = account;
     this.balance = balance;
     this.settings = settings;
     this.delegations = delegations;
+    this.rexbalance = rexbalance;
   }
 
   fetchAll() {
@@ -16,7 +17,8 @@ export default class StatsFetcher {
       totalStakedToSelf: this.totalStakedToSelf(),
       totalStakedToOthers: this.totalStakedToOthers(),
       totalStaked: this.totalStakedToSelf(), // TODO: remove
-      totalTokens: this.totalTokens()
+      totalTokens: this.totalTokens(),
+      totalREX: this.totalREX()
     };
   }
 
@@ -31,6 +33,20 @@ export default class StatsFetcher {
     const net_amount = Decimal(self_delegated_bandwidth.net_weight.split(' ')[0]);
 
     return cpu_amount.plus(net_amount);
+  }
+
+  totalREX() {
+    if (!this.rexbalance) return Decimal(0);
+    
+    const {
+      vote_stake
+    } = this.rexbalance;
+
+    if (!vote_stake) return Decimal(0);
+
+    const rex_balance = Decimal(vote_stake.split(' ')[0]);
+
+    return rex_balance;
   }
 
   totalStakedToOthers() {
@@ -84,8 +100,9 @@ export default class StatsFetcher {
     const totalStaked = this.totalStakedToSelf().plus(this.totalStakedToOthers());
     const totalBeingUnstaked = this.totalBeingUnstaked();
     const totalTokens = this.tokens()[this.settings.blockchain.tokenSymbol] || new Decimal(0);
+    const totalREX = this.totalREX();
 
-    return totalStaked.plus(totalBeingUnstaked).plus(totalTokens);
+    return totalStaked.plus(totalBeingUnstaked).plus(totalTokens).plus(totalREX);
   }
 
   resourceUsage() {

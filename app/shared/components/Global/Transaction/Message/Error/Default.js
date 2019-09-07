@@ -19,6 +19,7 @@ class GlobalTransactionMessageErrorDefault extends Component<Props> {
       errorMessage = errorMessage || errorMessageArray[0];
       messageDetails = errorMessageArray[1];
     }
+    if (!messageDetails) messageDetails = errorMessage;
 
     return (
       <div>

@@ -71,7 +71,7 @@
   "rex_status_pool_totalrent_desc": "Получено с Аренд",
   "rex_status_pool_totalrex_title": "Итого REX",
   "rex_status_pool_totalrex_desc": "REX выпущено",
-  "rex_status_pool_totallendable_title": "Всего Займов",
+  "rex_status_pool_totallendable_title": "Total {{tokenSymbol}} Staked",
   "rex_status_pool_totallendable_desc": "Одолжено (дали + вернули)",
   "rex_status_pool_totallent_title": "Дали",
   "rex_status_pool_totallent_desc": "Количество займов",
@@ -88,6 +88,6 @@
   "rex_status_fund_matured_desc": "Созревших REX доступных для продажи за {{tokenSymbol}}",
   "rex_status_fund_profit_title": "REX/{{tokenSymbol}} стоимость",
   "rex_status_fund_profit_desc": "{{tokenSymbol}} прибыть от сдачи токенов пуле REX",
-  "rex_status_fund_interest_title": "{{tokenSymbol}}/REX котировка",
-  "rex_status_fund_interest_desc": "Курс обмена {{tokenSymbol}}/REX токенов"
+  "rex_status_fund_interest_title": "{{tokenSymbol}}/REX APR",
+  "rex_status_fund_interest_desc": "Annual percentage rate for {{tokenSymbol}}/REX"
 }

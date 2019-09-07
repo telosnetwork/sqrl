@@ -27,7 +27,7 @@ class WalletPanelFormExchangeSell extends Component<Props> {
       confirming: false,
       sellAmountValid: true,
       decimalSellAmount: 0,
-      REXbalance: rex.rexbal ? Decimal(rex.rexbal.rex_balance.split(' ')[0]) : 0,
+      REXbalance: rex && rex.rexbal ? Decimal(rex.rexbal.rex_balance.split(' ')[0]) : 0,
       formError: null,
       submitDisabled: true
     };

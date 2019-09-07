@@ -16,7 +16,6 @@ class WalletPanelFormBuyFiatAccount extends Component<Props> {
       onBack,
       onChange,
       shouldShowAccountNameWarning,
-      shouldShowKYCWarning,
       t,
       values
     } = this.props;
@@ -47,14 +46,6 @@ class WalletPanelFormBuyFiatAccount extends Component<Props> {
           ? (
             <Message
               content={t('wallet_buytoken_request_accountname_warning')}
-              icon="info circle"
-              info
-            />
-          ) : ''}
-        {(shouldShowKYCWarning)
-          ? (
-            <Message
-              content={t('wallet_buytoken_request_kyc_warning', {currency: values.currency})}
               icon="info circle"
               info
             />

@@ -71,7 +71,7 @@
   "rex_status_pool_totalrent_desc": "Received from lending",
   "rex_status_pool_totalrex_title": "Total REX",
   "rex_status_pool_totalrex_desc": "REX tokens issued",
-  "rex_status_pool_totallendable_title": "Total Lent",
+  "rex_status_pool_totallendable_title": "Total {{tokenSymbol}} Staked",
   "rex_status_pool_totallendable_desc": "Lent (lent + unlent)",
   "rex_status_pool_totallent_title": "Lent",
   "rex_status_pool_totallent_desc": "Amount of open loans",
@@ -88,6 +88,6 @@
   "rex_status_fund_matured_desc": "Matured REX available to sell in exchange for {{tokenSymbol}}",
   "rex_status_fund_profit_title": "REX/{{tokenSymbol}} Value",
   "rex_status_fund_profit_desc": "{{tokenSymbol}} gains from lending tokens to REX pool",
-  "rex_status_fund_interest_title": "{{tokenSymbol}}/REX Rate",
-  "rex_status_fund_interest_desc": "Exchange rate for {{tokenSymbol}}/REX token"
+  "rex_status_fund_interest_title": "{{tokenSymbol}}/REX APR",
+  "rex_status_fund_interest_desc": "Annual percentage rate for {{tokenSymbol}}/REX"
 }

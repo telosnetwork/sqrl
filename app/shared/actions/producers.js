@@ -34,7 +34,8 @@ export function getProducers(previous = false) {
       limit: 1000,
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].owner;
+      const owner = previous[previous.length - 1].owner;
+      query.lower_bound =  isNaN(owner) ? owner : ' ' + owner;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
@@ -123,7 +124,8 @@ export function getProducersInfo(previous = false) {
       limit: 1000
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].owner;
+      const owner = previous[previous.length - 1].owner;
+      query.lower_bound =  isNaN(owner) ? owner : ' ' + owner;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;

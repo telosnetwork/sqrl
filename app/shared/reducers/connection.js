@@ -40,7 +40,7 @@ export default function connection(state = initialState, action) {
     // Remove key from connection if the wallet is locked/removed
     case types.WALLET_LOCK: {
       if (action.payload && action.payload.settings && 
-        (action.payload.settings.claimGBMRewards === true || settings.autoRefreshVote === true )){
+        (action.payload.settings.claimGBMRewards === true || action.payload.settings.autoRefreshVote === true )){
         return Object.assign({}, state, {
           authorization: undefined,
           keyProvider: []
