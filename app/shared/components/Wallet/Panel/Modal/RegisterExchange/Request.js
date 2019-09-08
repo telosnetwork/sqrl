@@ -8,6 +8,7 @@ import WalletPanelFormRegisterExchangeAccount from '../../Form/RegisterExchange/
 import WalletPanelFormRegisterExchangeKYC from '../../Form/RegisterExchange/KYC';
 import WalletPanelFormRegisterExchangeKYCUpload from '../../Form/RegisterExchange/KYCUpload';
 import WalletPanelFormRegisterExchangeKYCSubmitted from '../../Form/RegisterExchange/KYCSubmitted';
+import EOSAccount from '../../../../../utils/EOS/Account';
 
 const WELCOME = 1;
 const ACCOUNT = 2;
@@ -19,14 +20,22 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
   constructor(props) {
     super(props);
       const {
+        accounts,
         keys,
         settings
       } = this.props;
-      const kycSubmitted = settings['kycSubmitted' + keys.pubkey];
+      const model = new EOSAccount(accounts[settings.account]);
+      const auth = settings.authorization || 'active';
+      const accountKey = model.getKeysForAuthorization(auth);
+      let { pubkey } = accountKey[0];
+      if (!pubkey) pubkey = keys.pubkey;
+      const kycSubmitted = settings['kycSubmitted' + pubkey];
+
       this.state = {
         confirming: false,
         kycSubmitted: kycSubmitted || false,
         open: true,
+        pubkey: pubkey,
         stage: WELCOME,
         values: {
           firstName: '',
@@ -110,18 +119,18 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     const {
       actions,
       globals,
-      keys
     } = this.props;
     const {
+      pubkey,
       values
     } = this.state;
 
     if (globals.exchangecontact && globals.exchangecontact.contactId) {
       this.onStageSelect(KYC);
     } else {
-      const contactRequest = await actions.createExchangeContact(keys.pubkey, values.emailAddress);
+      const contactRequest = await actions.createExchangeContact(pubkey, values.emailAddress);
       if (contactRequest && contactRequest.payload && contactRequest.payload.code == 200) {
-        await actions.getContactByPublicKey(keys.pubkey);
+        await actions.getContactByPublicKey(pubkey);
         this.onStageSelect(KYC);
       } else {
         this.onStageSelect(ACCOUNT);
@@ -132,9 +141,9 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     const {
       actions,
       globals,
-      keys
     } = this.props;
     const {
+      pubkey,
       values
     } = this.state;
 
@@ -153,7 +162,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
         values.street, values.state.toUpperCase(), values.city, values.postalCode);
       if (verifyRequest && verifyRequest.payload 
         && verifyRequest.payload.details && verifyRequest.payload.details.applicantId) {
-          await actions.getContactByPublicKey(keys.pubkey);
+          await actions.getContactByPublicKey(pubkey);
         this.onStageSelect(KYC_DOCS);
       } else {
         this.onStageSelect(KYC);
@@ -162,19 +171,23 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
   }
   onCompleted = () => {
     const {
-      actions,
-      keys
+      actions
     } = this.props;
-    actions.setSetting('kycSubmitted' + keys.pubkey, true);
+    const {
+      pubkey
+    } = this.state;
+    actions.setSetting('kycSubmitted' + pubkey, true);
     this.onStageSelect(KYC_SENT);
   }
   onResubmit = () => {
     const {
-      actions,
-      keys
+      actions
     } = this.props;
-    this.setState({ ['kycSubmitted' + keys.pubkey]: false })
-    actions.setSetting('kycSubmitted' + keys.pubkey, false);
+    const {
+      pubkey
+    } = this.state;
+    this.setState({ ['kycSubmitted' + pubkey]: false })
+    actions.setSetting('kycSubmitted' + pubkey, false);
     this.onStageSelect(KYC);
   }
   onConfirm = () => this.setState({ confirming: true });
@@ -200,6 +213,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
 
     let {
       kycSubmitted,
+      pubkey
     } = this.state;
     
     let carbonRegistered = false;
@@ -209,7 +223,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
     let carbonKYCFido = false;
     const contact = globals.exchangecontact && globals.exchangecontact.data;
 
-    if (contact && contact.onfidoId && contact.publicKey == keys.pubkey) {
+    if (contact && contact.onfidoId && contact.publicKey == pubkey) {
       kycSubmitted = true;
     }
     
@@ -240,7 +254,7 @@ class WalletPanelModalRegisterExchange extends Component<Props> {
       stageElement = (
         <WalletPanelFormRegisterExchangeAccount
           globals={globals}
-          keys={keys}
+          pubkey={pubkey}
           kycSubmitted={kycSubmitted}
           onBack={() => this.onStageSelect(WELCOME)}
           onCancel={this.onCancel}
