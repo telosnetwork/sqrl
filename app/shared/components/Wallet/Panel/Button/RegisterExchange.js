@@ -16,6 +16,7 @@ class WalletPanelButtonRegisterExchange extends Component<Props> {
 
   render() {
     const {
+      accounts,
       actions,
       connection,
       keys,
@@ -32,6 +33,7 @@ class WalletPanelButtonRegisterExchange extends Component<Props> {
 
     return (
       <WalletPanelModalRegisterExchange
+        accounts={accounts}
         actions={actions}
         connection={connection}
         globals={globals}

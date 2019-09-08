@@ -91,8 +91,8 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
         uploadSelfie.payload && uploadSelfie.payload.message && uploadSelfie.payload.message.indexOf('successful') > 0
         ) || 
         (
-          dlFrontFile.payload && dlFrontFile.payload.message && dlFrontFile.payload.message.indexOf('successful') > 0 &&
-          dlBackFile.payload && dlBackFile.payload.message && dlBackFile.payload.message.indexOf('successful') > 0 &&
+          uploadDLFront.payload && uploadDLFront.payload.message && uploadDLFront.payload.message.indexOf('successful') > 0 &&
+          uploadDLBack.payload && uploadDLBack.payload.message && uploadDLBack.payload.message.indexOf('successful') > 0 &&
           uploadSelfie.payload && uploadSelfie.payload.message && uploadSelfie.payload.message.indexOf('successful') > 0
         )
       )

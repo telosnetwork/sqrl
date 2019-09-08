@@ -133,13 +133,15 @@ export function getAccount(account = '') {
           dispatch(getRexBalance());
           if (settings.blockchain.tokenSymbol==='WAX')
             dispatch(getGenesisBalance(account));
-        }
-        const model = new EOSAccount(results);
-        if (model) {
-          const keys = model.getAuthorizationOptions();
-          if (keys && keys.length > 0) {
-            const { pubkey } = keys[0];
-            dispatch(getContactByPublicKey(pubkey));
+
+          const model = new EOSAccount(results);
+          if (model) {
+            const auth = settings.authorization || 'active';
+            const keys = model.getKeysForAuthorization(auth);
+            if (keys && keys.length > 0) {
+              const { pubkey } = keys[0];
+              dispatch(getContactByPublicKey(pubkey));
+            }
           }
         }
         // PATCH - Force in self_delegated_bandwidth if it doesn't exist

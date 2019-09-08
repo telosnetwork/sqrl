@@ -9,6 +9,7 @@ import WalletPanelFormBuyFiatAmount from '../../Form/BuyFiat/Amount';
 import WalletPanelFormBuyFiatAccount from '../../Form/BuyFiat/Account';
 import WalletPanelFormBuyFiatCCInfo from '../../Form/BuyFiat/CCInfo';
 import WalletPanelFormBuyFiatConfirm from '../../Form/BuyFiat/Confirm';
+import EOSAccount from '../../../../../utils/EOS/Account';
 
 const AMOUNT = 1;
 const ACCOUNT = 2;
@@ -121,8 +122,8 @@ class WalletPanelModalBuyFiat extends Component<Props> {
   }
   onBeforeClose = async () => {
     const {
+      accounts,
       actions,
-      keys,
       onClose, 
       settings
     } = this.props;
@@ -167,7 +168,13 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         token: false
       },
     });
-    await actions.getContactByPublicKey(keys.pubkey);
+    const auth = settings.authorization || 'active';
+    const model = new EOSAccount(accounts[settings.account]);
+    const keys = model.getKeysForAuthorization(auth);
+    if (keys && keys.length > 0) {
+      const { pubkey } = keys[0];
+      await actions.getContactByPublicKey(pubkey);
+    }
     onClose();
   }
   onCompletePurchase = async () => {
