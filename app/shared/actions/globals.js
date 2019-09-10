@@ -5,8 +5,8 @@ import * as types from './types';
 import eos from './helpers/eos';
 
 const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
-const CARBON_TOKEN = process.env.NODE_ENV === "production" ? '23jlkfjsldfl23r23085ysg' : '895jlj39h2b97g-n-2njf';
-const PRICE_API_SECRET = 'dsjlkfjoi2p3pifs$';
+const CARBON_TOKEN = process.env.NODE_ENV === "production" ? '5tu8orjwlkfwr0j4i4nr308' : 'fjioj23rfji230js';
+const PRICE_API_SECRET = 'fasdf134t3nh5$';
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -340,6 +340,33 @@ export function verifyExchangeContact(
   };
 }
 
+export function submitExchangeKYC(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_SUBMITCONTACTKYC_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId
+    });
+    return await fetch(`${CARBON_ROOT}/v1/contacts/submitCheck`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_SUBMITCONTACTKYC_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_SUBMITCONTACTKYC_FAILURE
+    }));    
+  };
+}
+
 export function create2FA(contactId, issuer='SqrlWallet') {
   return async (dispatch: () => void, getState) => {
     dispatch({
@@ -543,6 +570,7 @@ export default {
   getPriceFeed,
   getPriceFeedGecko,
   getRamStats,
+  submitExchangeKYC,
   uploadExchangeKYCDoc,
   verifyExchangeContact
 };

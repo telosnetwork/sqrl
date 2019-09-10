@@ -102,28 +102,24 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
       if (!iso3Code) {
         iso3Code = values.country;
       }
-      const submitKYC = await actions.verifyExchangeContact(
-        contact.id, values.firstName, values.lastName, 
-        values.dob, iso3Code, values.buildingNumber, 
-        values.street, values.state.toUpperCase(), values.city, values.postalCode);
+      const submitKYC = await actions.submitExchangeKYC(contact.id);
 
       this.setState({verifiedError:null});
 
-      const kycVerified = submitKYC.payload 
-        && submitKYC.payload.details 
-        && submitKYC.payload.details.token
-        && submitKYC.payload.details.token.length > 0;
-      if (kycVerified) {
+      const kycCheckSubmitted = submitKYC.payload 
+        && submitKYC.payload.message 
+        && submitKYC.payload.message.indexOf('Submitted') != -1;
+      if (kycCheckSubmitted) {
         this.props.onCompleted();
       } else if (submitKYC.payload && submitKYC.payload.error) {
-        let errorResponse = submitKYC.payload.error
-          && submitKYC.payload.error.error
-          && submitKYC.payload.error.error.message;
+        let errorResponse = submitKYC.payload.error.message;
         if (!errorResponse || errorResponse == '') {
-          errorResponse = submitKYC.payload.details;
+          errorResponse = submitKYC.payload.error;
         }
         errorResponse += '. Please go back to review your information and try again (e.g. State/Zip/Country).'
         this.setState({verifiedError: errorResponse});
+      } else {
+        this.setState({verifiedError: 'An error occured while submitting your KYC check. Please go back, verify your info and try again.'});
       }
     }
     this.setState({loading: false});
