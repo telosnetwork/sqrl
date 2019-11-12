@@ -99,14 +99,16 @@ class BasicVoterContainer extends Component<Props> {
   componentDidMount = async () => {
     const {
       actions,
-      accounts,
+      globals,
       history,
       settings
     } = this.props;
 
     const {
+      addCustomToken,
       getBlockExplorers,
       getCurrencyStats,
+      getCustomTokensRemote,
       getExchangeAPI,
       getProfiles,
       getRamStats,
@@ -132,6 +134,16 @@ class BasicVoterContainer extends Component<Props> {
           getRexPool();
           getRexFund();
           getRexBalance();
+
+          // fetch and add any remote tokens not present
+          await getCustomTokensRemote();
+          forEach(globals.remotetokens, (token) => {
+            const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==token.account)[0];
+            if (!tokenTracked) {
+              addCustomToken(token.account, token.symbol);
+            }
+          });
+
           forEach(settings.customTokens, (token) => {
             const [contract, symbol] = token.split(':');
             getCurrencyStats(contract, symbol.toUpperCase());

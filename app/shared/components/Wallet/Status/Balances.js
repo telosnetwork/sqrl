@@ -149,6 +149,9 @@ class WalletStatusBalances extends Component<Props> {
     // Add rows for remaining tokens
     forEach(tokens, (amount, token) => {
       if (token === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
+      const tokenLogo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain==settings.blockchain.tokenSymbol)[0];
+      const cellWidth = tokenLogo ? 4 : 5;
+      
       let contract = 'unknown';
       let precision = {
         [token]: 4
@@ -158,7 +161,12 @@ class WalletStatusBalances extends Component<Props> {
       }
       rows.push((
         <Table.Row key={token}>
-          <Table.Cell width={5}>
+          {(tokenLogo) ?
+          <Table.Cell>
+            <Image src={tokenLogo} />
+          </Table.Cell>
+          :false}
+          <Table.Cell width={cellWidth}>
             <Header>
               {token}
               <Header.Subheader>
