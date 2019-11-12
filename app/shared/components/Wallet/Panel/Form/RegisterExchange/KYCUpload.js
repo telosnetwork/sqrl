@@ -108,7 +108,8 @@ class WalletPanelFormRegisterExchangeKYCUpload extends Component<Props> {
 
       const kycCheckSubmitted = submitKYC.payload 
         && submitKYC.payload.message 
-        && submitKYC.payload.message.indexOf('Submitted') != -1;
+        && (submitKYC.payload.message.indexOf('Submitted') != -1 ||
+            submitKYC.payload.message.indexOf('Success') != -1);
       if (kycCheckSubmitted) {
         this.props.onCompleted();
       } else if (submitKYC.payload && submitKYC.payload.error) {

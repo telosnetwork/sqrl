@@ -15,6 +15,7 @@
   "tools_change_node": "API 노드 변경",
   "tools_change_resource_display_format": "Resource Display Format",
   "tools_change_mirror_cast_vote": "Recalculate voting weight prior to voting",
+  "tools_change_show_resources": "Show network resources in wallet",
   "tools_change_skip_link_modal": "Display a warning when clicking links to external sites",
   "tools_change_spam_transfer_filter": "Filter out spam transfers (won't display on history any transfers with less than 0.0005 {{tokenSymbol}} sent to you)",
   "tools_change_timeout": "Lock wallet automatically based on inactivity",

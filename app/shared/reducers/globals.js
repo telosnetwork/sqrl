@@ -122,6 +122,11 @@ export default function globals(state = initialState, action) {
           chargecard: action.payload
         });
     }
+    case types.SYSTEM_GET_PROFILE_SUCCESS: {
+      return Object.assign({}, state, {
+        profiles: action.payload.profiles
+      });
+    }
     default: {
       return state;
     }

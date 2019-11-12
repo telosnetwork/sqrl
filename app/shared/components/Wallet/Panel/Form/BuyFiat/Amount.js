@@ -11,7 +11,9 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
   onSubmit = () => this.props.onSubmit()
   render() {
     const {
+      cusdSymbol,
       error,
+      globals,
       isValid,
       onChange,
       onChangeFast,
@@ -21,6 +23,8 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
       t,
       values
     } = this.props;
+
+    const contactDetails = globals.exchangecontact && globals.exchangecontact.details;
 
     const currencies = [
       { key: 'usd', value: 'usd', text: 'US Dollar' },
@@ -32,26 +36,23 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
 
     tokens.push({key: 'tlos',value: 'tlos',text: 'Telos'});
 
-    const tokenSymbolLower = settings.blockchain.tokenSymbol.toLowerCase();
-    let cusdSymbol = tokenSymbolLower + 'd';
-
-    tokens.push({
-      key: cusdSymbol,
-      value: cusdSymbol,
-      text: cusdSymbol.toUpperCase()
-    });
+    if (contactDetails && contactDetails.kycStatusStablecoin == true) {
+      tokens.push({
+        key: cusdSymbol,
+        value: cusdSymbol,
+        text: cusdSymbol.toUpperCase()
+      });
+    }
 
     tokens.push({key: 'btc',value: 'btc',text: 'Bitcoin'});
     tokens.push({key: 'eos',value: 'eos',text: 'EOS'});
 
     return (
-      <Form
-        onSubmit={this.onSubmit}
-      >
+      <Form onSubmit={this.onSubmit}>
         <Header>
-          {t('wallet_buytoken_request_step_1_header', {tokenSymbol:settings.blockchain.tokenSymbol})}
+          {t('wallet_buytoken_request_step_1_header', {tokenSymbol:values.token.toUpperCase()})}
           <Header.Subheader>
-            {t('wallet_buytoken_request_step_1_subheader', {tokenSymbol:settings.blockchain.tokenSymbol})}
+            {t('wallet_buytoken_request_step_1_subheader', {tokenSymbol:values.token.toUpperCase()})}
           </Header.Subheader>
         </Header>
 

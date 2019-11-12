@@ -18,7 +18,7 @@ class WalletPanelFormAutoClaimStats extends Component<Props> {
     } = this.props;
 
     return (
-      <Grid columns={2} celled>
+      <Grid celled>
         <Grid.Row>
           <Grid.Column>
             <Header textAlign="center">
@@ -28,16 +28,8 @@ class WalletPanelFormAutoClaimStats extends Component<Props> {
               </Header.Subheader>
             </Header>
           </Grid.Column>
-          <Grid.Column>
-            <Header textAlign="center">
-              {(rewardsDue).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
-              <Header.Subheader>
-                {t('claimgbm_rewards_due', {tokenSymbol:settings.blockchain.tokenSymbol})}
-              </Header.Subheader>
-            </Header>
-          </Grid.Column>
         </Grid.Row>
-        <Grid.Row>
+        <Grid.Row columns={2} >
           <Grid.Column>
             <Header textAlign="center">
               <Moment fromNow>{lastClaimTime}</Moment>

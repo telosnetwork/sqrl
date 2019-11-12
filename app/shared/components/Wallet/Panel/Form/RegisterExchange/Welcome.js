@@ -30,7 +30,8 @@ class WalletPanelFormRegisterExchangeWelcome extends Component<Props> {
             have the option to use the service with or without KYC/AML verification.
           </p>
           <p>
-          Account limits for non-verified accounts is $250.00 USD per day, while verified accounts can trade up to $2500.00 USD per day.
+          Card purchasing limits for non-verified accounts is $250.00 USD per day, while verified accounts can trade up to $2500.00 USD per day. 
+          Bank wires for verified accounts have a minimum transaction amount of $100.00 USD with NO deposit or withdrawal limits.
           </p>
           <p>
             Ready to get started? Click the button below to begin!

@@ -108,6 +108,7 @@ class BasicVoterContainer extends Component<Props> {
       getBlockExplorers,
       getCurrencyStats,
       getExchangeAPI,
+      getProfiles,
       getRamStats,
       getRexPool,
       getRexFund,
@@ -126,6 +127,7 @@ class BasicVoterContainer extends Component<Props> {
 
           getCurrencyStats();
           getBlockExplorers();
+          getProfiles();
           getRamStats();
           getRexPool();
           getRexFund();
@@ -181,13 +183,13 @@ class BasicVoterContainer extends Component<Props> {
       getRamStats();
       getInfo();
 
-      if (settings.blockchain.tokenSymbol === "WAX") {
+      if (settings.blockchain.tokenSymbol === "TLOS") {
+        getPriceFeedGecko("TELOS", "USD", settings.blockchain.tokenSymbol);
+        getPriceFeedGecko("TELOS", "EOS", settings.blockchain.tokenSymbol);
+      }
+      else {
         getPriceFeedGecko(settings.blockchain.tokenSymbol, "USD");
         getPriceFeedGecko(settings.blockchain.tokenSymbol, "EOS");
-      } else {
-        getPriceFeed(settings.blockchain.tokenSymbol, "CUSD");
-        if (settings.blockchain.tokenSymbol != "EOS")
-          {getPriceFeed(settings.blockchain.tokenSymbol, "EOS");}
       }
     }
 
