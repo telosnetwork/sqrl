@@ -28,6 +28,7 @@ export default class WalletPanelLocked extends Component<Props> {
               loading={validate.WALLET_PASSWORD === 'PENDING'}
               padded
               stacked
+              style={{marginTop:'10px'}}
             >
               <Header
                 icon
