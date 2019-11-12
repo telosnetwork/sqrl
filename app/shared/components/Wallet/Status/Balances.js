@@ -55,18 +55,19 @@ class WalletStatusBalances extends Component<Props> {
       totalUSDValue = usdPrice * totalBalance;
     }
 
-    const coreTokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==settings.blockchain.tokenSymbol)[0];
+    let coreTokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==settings.blockchain.tokenSymbol)[0];
     let coreTokenName = settings.blockchain.tokenSymbol;
-    if (coreTokenInfo) coreTokenName = tokenInfo.name;
+    if (coreTokenInfo) 
+      coreTokenName = coreTokenInfo.name;
+    else 
+      coreTokenInfo = {logo:null};
 
     const rows = [
       (
         <Table.Row key={settings.blockchain.tokenSymbol}>
           <Table.Cell width={2}>
             <Header>
-            {(coreTokenInfo) ?
-              <Image src={coreTokenInfo.logo} rounded bordered size="mini" />
-              :false}&nbsp;{coreTokenName}
+              <Image src={coreTokenInfo.logo} rounded bordered size="mini" />&nbsp;{coreTokenName}
             </Header>
           </Table.Cell>
           <Table.Cell width={10}>
@@ -152,7 +153,7 @@ class WalletStatusBalances extends Component<Props> {
     // Add rows for remaining tokens
     forEach(tokens, (amount, token) => {
       if (token.toUpperCase() === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
-      const tokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain.toUpperCase()==settings.blockchain.tokenSymbol)[0];
+      let tokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain.toUpperCase()==settings.blockchain.tokenSymbol)[0];
       
       let tokenName = token;
       let contract = 'unknown';
@@ -164,13 +165,13 @@ class WalletStatusBalances extends Component<Props> {
       }
       if (tokenInfo)
         tokenName = tokenInfo.name;
+      else
+        tokenInfo = {logo:null};
       rows.push((
         <Table.Row key={token}>
           <Table.Cell width={5}>
             <Header>
-              {(tokenInfo) ?
-              <Image src={tokenInfo.logo} rounded bordered size="mini" />
-              :false}&nbsp;{tokenName}
+              <Image src={tokenInfo.logo} rounded bordered size="mini" />&nbsp;{tokenName}
             </Header>
           </Table.Cell>
           <Table.Cell>
