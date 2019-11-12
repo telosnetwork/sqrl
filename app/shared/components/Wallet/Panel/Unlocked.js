@@ -88,18 +88,10 @@ class WalletPanelUnlocked extends Component<Props> {
 
     return (
       <div>
-        {(settings.walletMode !== 'watch' && !settings.walletTemp)
-          ? (
-            <WalletPanelButtonLock
-              lockWallet={actions.lockWallet}
-            />
-          )
-          : ''
-        }
         <Segment vertical>
           <Menu compact icon='labeled' className="walletmenuoption" vertical style={{width:'100% !important'}}>
-            <Dropdown item fluid text='Buy, Sell, Swap Tokens' icon='dollar'>
-              <Dropdown.Menu>
+            <Dropdown item simple text='Buy, Sell, Swap Tokens' icon='dollar'>
+              <Dropdown.Menu style={{marginTop:'-75px'}}>
                 {(hotWallet) ?
                 <Dropdown.Item icon='settings' text='  Account Settings' onClick={()=>this.onOpen(WIN_ACCOUNT_SETTINGS)} />:false}
                 {(hotWallet && carbonRegistered) ?
@@ -111,13 +103,13 @@ class WalletPanelUnlocked extends Component<Props> {
               </Dropdown.Menu>
             </Dropdown>
 
-            <Dropdown item fluid text='Send, Receive, Save Tokens' icon='exchange'>
-              <Dropdown.Menu>
+            <Dropdown item simple text='Send, Receive, Save Tokens' icon='exchange'>
+              <Dropdown.Menu style={{marginTop:'-75px'}}>
                 {(settings.blockchain.tokenSymbol === 'WAX') ?
                 <Dropdown.Item icon='dollar' text='Claim Rewards' onClick={()=>this.onOpen(WIN_CLAIM_REWARDS)} />:false}
                 <Dropdown.Item icon='arrow circle up' text='Send Tokens' onClick={()=>this.onOpen(WIN_SEND_TOKENS)} />
                 <Dropdown.Item icon='arrow circle down' text='Receive Tokens' onClick={()=>this.onOpen(WIN_RECEIVE_TOKENS)} />
-                <Dropdown.Item icon='microchip' text='Manage Savings' onClick={()=>this.onOpen(WIN_UPDATE_STAKED)} />
+                <Dropdown.Item icon='microchip' text='Manage Staked' onClick={()=>this.onOpen(WIN_UPDATE_STAKED)} />
                 <Dropdown.Item icon='database' text='Buy RAM' onClick={()=>this.onOpen(WIN_BUY_RAM)} />
                 <Dropdown.Item icon='database' text='Sell RAM' onClick={()=>this.onOpen(WIN_SELL_RAM)} />
                 {(settings.walletMode === 'watch') ?
@@ -126,8 +118,8 @@ class WalletPanelUnlocked extends Component<Props> {
             </Dropdown>
                 
             {(hotWallet) ?
-            <Dropdown style={menuMargin} item text='Advanced Actions' icon='code'>
-              <Dropdown.Menu>
+            <Dropdown style={menuMargin} item simple text='Advanced Actions' icon='code'>
+              <Dropdown.Menu style={{marginTop:'-75px'}}>
                 <Dropdown.Item icon='wifi' text=' Broadcast Signed Transaction' onClick={()=>this.onOpen(WIN_BROADCAST_TX)} />
               </Dropdown.Menu>
             </Dropdown>:false}
@@ -337,6 +329,15 @@ class WalletPanelUnlocked extends Component<Props> {
         />:false}
 
         </Segment>
+
+        {(settings.walletMode !== 'watch' && !settings.walletTemp)
+          ? (
+            <WalletPanelButtonLock
+              lockWallet={actions.lockWallet}
+            />
+          )
+          : ''
+        }
       </div>
     );
   }

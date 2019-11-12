@@ -7,13 +7,13 @@ import debounce from 'lodash/debounce';
 import GlobalFormFieldAccount from '../../../Global/Form/Field/Account';
 import GlobalFormFieldGeneric from '../../../Global/Form/Field/Generic';
 import FormMessageError from '../../../Global/Form/Message/Error';
-import WalletStatusProfileFormConfirm from './Profile/Confirming';
+import WalletStatusVIPFormConfirm from './VIP/Confirming';
 
 import ipfs from '../../../../actions/helpers/ipfs';
 
 const formAttributes = ['avatar', 'bio'];
 
-class WalletStatusProfileForm extends Component<Props> {
+class WalletStatusVIPForm extends Component<Props> {
   constructor(props) {
     super(props);
 
@@ -291,7 +291,7 @@ class WalletStatusProfileForm extends Component<Props> {
           ) : ''}
         {(confirming)
           ? (
-            <WalletStatusProfileFormConfirm
+            <WalletStatusVIPFormConfirm
               actions={actions}
               
               avatar={avatar}
@@ -314,4 +314,4 @@ class WalletStatusProfileForm extends Component<Props> {
   }
 }
 
-export default translate('wallet')(WalletStatusProfileForm);
+export default translate('wallet')(WalletStatusVIPForm);
