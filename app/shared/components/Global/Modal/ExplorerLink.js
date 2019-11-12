@@ -16,10 +16,11 @@ export default class GlobalModalExplorerLink extends Component<Props> {
     // look for default block explorer based on token, else find compatible
     const blockExplorerKeys = Object.keys(blockExplorers);
     let blockExplorer = blockExplorers[settings.blockExplorer];
-    if (!blockExplorer) {
+    if (!blockExplorer || blockExplorer.tokenSymbol != settings.blockchain.tokenSymbol) {
       blockExplorerKeys.forEach( (blockExplorerKey) => {
         const explorer = blockExplorers[blockExplorerKey];
-        if (explorer.tokenSymbol == settings.blockchain.tokenSymbol){
+        if (explorer.tokenSymbol == settings.blockchain.tokenSymbol && 
+          blockExplorer.tokenSymbol != settings.blockchain.tokenSymbol) {
           blockExplorer = Object.assign({name: blockExplorerKey}, explorer);
           return;
         }

@@ -25,7 +25,8 @@ class WalletStatus extends Component<Props> {
       settings
     } = this.props;
 
-    actions.getTable('eosio', settings.account, 'delband');
+    if (settings.account)
+      actions.getTable('eosio', settings.account, 'delband');
   }
 
   handleItemClick = (e, { name }) => this.setState({ activeItem: name });
@@ -159,11 +160,14 @@ class WalletStatus extends Component<Props> {
           connection={connection}
           settings={settings}
         />
+
+        {(settings.showResourcesInWallet === true) ?
         <WalletStatusResources
           displayResourcesAvailableSetting={settings.displayResourcesAvailable}
           statsFetcher={statsFetcher}
           connection={connection}
         />
+        :false}
         <Segment>
           <Menu
             pointing

@@ -5,6 +5,7 @@ import { Button, Header, Icon, Popup, Segment, Table } from 'semantic-ui-react';
 import { forEach } from 'lodash';
 import TimeAgo from 'react-timeago';
 import { Decimal } from 'decimal.js';
+import NumberFormat from 'react-number-format';
 
 import GlobalDataBytes from '../../Global/Data/Bytes';
 
@@ -70,27 +71,48 @@ class WalletStatusBalances extends Component<Props> {
               <Table.Body>
                 <Table.Row>
                   <Table.Cell width={4}>{t('wallet_status_liquid')} {settings.blockchain.tokenSymbol}</Table.Cell>
-                  <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                  <Table.Cell>{(tokens[settings.blockchain.tokenSymbol]) ? 
+                    <NumberFormat value={tokens[settings.blockchain.tokenSymbol].toFixed(settings.tokenPrecision)} 
+                      displayType={'text'}
+                      thousandSeparator={true}
+                    /> : 
+                    '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                 </Table.Row>
                 {(settings.blockchain.tokenSymbol === 'WAX') ?
                   <Table.Row>
                     <Table.Cell width={4}>Genesis Tokens</Table.Cell>
-                    <Table.Cell>{(genesisbalance) ? genesisbalance.toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                    <Table.Cell>{(genesisbalance) ? 
+                      <NumberFormat value={genesisbalance.toFixed(settings.tokenPrecision)} 
+                        displayType={'text'}
+                        thousandSeparator={true}
+                      /> : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   </Table.Row>
                 : ''}
                 {(totalREX > 0 && rex && rex.rexpool) ?
                   <Table.Row>
                     <Table.Cell width={4}>Staked to REX</Table.Cell>
-                    <Table.Cell>{(totalREX) ? totalREX.toFixed(settings.tokenPrecision) : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
+                    <Table.Cell>{(totalREX) ? 
+                      <NumberFormat value={totalREX.toFixed(settings.tokenPrecision)} 
+                        displayType={'text'}
+                        thousandSeparator={true}
+                      /> : '0.'.padEnd(settings.tokenPrecision + 2, '0')} {settings.blockchain.tokenSymbol}</Table.Cell>
                   </Table.Row>
                 : ''}
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_balances_staked_to_self')}</Table.Cell>
-                  <Table.Cell>{totalStakedToSelf.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} </Table.Cell>
+                  <Table.Cell>
+                    <NumberFormat value={totalStakedToSelf.toFixed(settings.tokenPrecision)} 
+                        displayType={'text'}
+                        thousandSeparator={true}
+                      /> {settings.blockchain.tokenSymbol} </Table.Cell>
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell>{t('wallet_status_balances_staked_to_others')}</Table.Cell>
-                  <Table.Cell>{totalStakedToOthers.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} </Table.Cell>
+                  <Table.Cell>
+                    <NumberFormat value={totalStakedToOthers.toFixed(settings.tokenPrecision)} 
+                        displayType={'text'}
+                        thousandSeparator={true}
+                      /> {settings.blockchain.tokenSymbol} </Table.Cell>
                 </Table.Row>
                 {(refundDate)
                   ? (
@@ -109,29 +131,15 @@ class WalletStatusBalances extends Component<Props> {
                           )
                           : false
                         }
-                        {totalBeingUnstaked.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} (<TimeAgo date={refundDate} />)
+                        <NumberFormat value={totalBeingUnstaked.toFixed(settings.tokenPrecision)} 
+                        displayType={'text'}
+                        thousandSeparator={true}
+                      /> {settings.blockchain.tokenSymbol} (<TimeAgo date={refundDate} />)
                       </Table.Cell>
                     </Table.Row>
                   )
                   : false
                 }
-                <Table.Row>
-                  <Table.Cell>{t('wallet_status_total_balance')} {settings.blockchain.tokenSymbol}</Table.Cell>
-                  <Table.Cell>{totalTokens.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}</Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>Total USD</Table.Cell>
-                  <Table.Cell>${totalUSDValue.toFixed(settings.tokenPrecision)} (${usdPrice}/{settings.blockchain.tokenSymbol})</Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>{t('wallet_status_ram_amount')}</Table.Cell>
-                  <Table.Cell>
-                    <GlobalDataBytes
-                      bytes={account.ram_quota}
-                    />
-
-                  </Table.Cell>
-                </Table.Row>
               </Table.Body>
             </Table>
           </Table.Cell>
@@ -140,7 +148,7 @@ class WalletStatusBalances extends Component<Props> {
     ];
     // Add rows for remaining tokens
     forEach(tokens, (amount, token) => {
-      if (token === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1) return;
+      if (token === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
       let contract = 'unknown';
       let precision = {
         [token]: 4
@@ -159,7 +167,10 @@ class WalletStatusBalances extends Component<Props> {
             </Header>
           </Table.Cell>
           <Table.Cell>
-            {amount.toFixed(precision[token])}
+            <NumberFormat value={amount.toFixed(precision[token])}
+              displayType={'text'}
+              thousandSeparator={true}
+            />
           </Table.Cell>
         </Table.Row>
       ));

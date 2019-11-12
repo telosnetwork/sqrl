@@ -6,9 +6,6 @@ import { Button, Container, Grid, Header, Icon, Modal, Segment, Step } from 'sem
 import WalletPanelFormAccountRequest from '../../../../Wallet/Panel/Form/Account/Request';
 import WalletPanelModalAccountRequestBackup from './Request/Backup';
 import WalletPanelModalAccountRequestCode from './Request/Code';
-import WalletPanelModalAccountRequestImport from './Request/Import';
-
-const { ipcRenderer } = require('electron');
 
 class WalletPanelModalAccountRequest extends Component<Props> {
   state = {

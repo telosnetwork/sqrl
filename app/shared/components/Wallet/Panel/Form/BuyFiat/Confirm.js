@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Form, Grid, List, Message, Segment, Header } from 'semantic-ui-react';
+import { Form, Grid, List, Message, Segment, Table, Header } from 'semantic-ui-react';
 import { Decimal } from 'decimal.js';
 import Countdown from 'react-countdown-now';
 
@@ -9,29 +9,54 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
   onSubmit = () => this.props.onSubmit()
   render() {
     const {
+      bankAccountErrDisabled,
+      bankAccountErrorMsg,
+      bankTransactionSent,
+      bankTransactionSentMsg,
       charge3dDisabled,
       charge3dErrorMsg,
+      cusdSymbol,
       loading,
       onBack,
+      paymentMethods,
       purchaseAmount,
       rates,
       settings,
       t,
       totalCost,
+      tokenSymbolLower,
       transactionFee,
       values
     } = this.props;
 
-    const symbolLower = settings.blockchain.tokenSymbol.toLowerCase();
-    const fiatSymbol = values.currency + "/" + symbolLower;
+    const fiatSymbol = values.currency + "/" + values.token;
 
+    let bankInfo = {
+      bankName: values.bankName,
+      bankAccountNumber: values.bankAccountNumber,
+      bankAccountType: values.bankAccountType,
+      routingNumber: values.routingNumber
+    }
+    if (values.existingPaymentMethodId) {
+      const paymentMethod = paymentMethods.filter((payment) => (payment.id == values.existingPaymentMethodId))[0];
+      bankInfo = {
+        bankName: paymentMethod.bankName,
+        bankAccountNumber: paymentMethod.accountNumber,
+        bankAccountType: paymentMethod.bankAccountType ? paymentMethod.bankAccountType : "checking",
+        routingNumber: paymentMethod.routingNumber
+      }
+    }
+
+    const confirmButtonText = bankTransactionSent ? "Close" : "Confirm Purchase";
+    const showBankInfoInSummary = values.bankACHTransfer === true || 
+      (!bankTransactionSent && values.bankWireTransfer === true);
     return (
       <Form
         loading={loading}
         onSubmit={this.onSubmit}
       >
         <Header>
-          {t('wallet_buytoken_request_step_4_header', {tokenSymbol:settings.blockchain.tokenSymbol})}
+          {t('wallet_buytoken_request_step_4_header', {tokenSymbol:values.token.toUpperCase()})}
           <Header.Subheader>
             {t('wallet_buytoken_request_step_4_subheader')}
           </Header.Subheader>
@@ -40,15 +65,73 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
         {(charge3dDisabled) ?
         <Message
           content={charge3dErrorMsg}
-          icon="info circle"
+          icon="exclamation circle"
           negative
         />
+        : false}
+
+        {(bankAccountErrDisabled) ?
+          <Message
+            content={bankAccountErrorMsg}
+            icon="exclamation circle"
+            negative
+          />
+          : false}
+
+        {(bankTransactionSent) ?
+          <Message
+            content={bankTransactionSentMsg}
+            icon="info circle"
+            info
+          />
+          : false}
+
+        {(bankTransactionSent && values.bankWireTransfer) ?
+          <Table definition>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>Beneficiary Name</Table.Cell>
+                <Table.Cell>Prime Trust, LLC</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Beneficiary Address</Table.Cell>
+                <Table.Cell>330 S Rampart Ave, Suite 260 Las Vegas, NV, 89145</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Bank Name</Table.Cell>
+                <Table.Cell>Pacific Mercantile Bank</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Bank Address</Table.Cell>
+                <Table.Cell>949 South Coast Drive, Third Floor Costa Mesa, CA 92626</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Routing Number</Table.Cell>
+                <Table.Cell>122242869</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Account Number</Table.Cell>
+                <Table.Cell>45585603</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Swift Code</Table.Cell>
+                <Table.Cell>PMERUS66</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Bank Phone</Table.Cell>
+                <Table.Cell>+1-714-438-2500</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
         : false}
 
         <Grid unstackable="true">
           <Grid.Row>
             <Grid.Column>
               <Segment>
+                { (!bankTransactionSent 
+                  && values.bankWireTransfer !== true 
+                  && values.bankACHTransfer !== true) ?
                 <Message
                 content={(
                   <Grid>
@@ -67,7 +150,9 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
                   )}
                 icon="info circle"
                 info
-              />
+              />:false}
+
+              {(values.token != cusdSymbol) ?
                 <List divided relaxed size='medium'>
                   <List.Item>
                     <List.Icon name='credit card' verticalAlign='middle' />
@@ -100,7 +185,7 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
                   <List.Item>
                     <List.Icon name='exchange' verticalAlign='middle' />
                     <List.Content>
-                      <List.Header as='p'>{Decimal(rates.estimatedCryptoPurchase).toFixed(4)} {settings.blockchain.tokenSymbol}</List.Header>
+                      <List.Header as='p'>{Decimal(rates.estimatedCryptoPurchase).toFixed(4)} {values.token.toUpperCase()}</List.Header>
                       <List.Description as='p'>Estimated Purchase</List.Description>
                     </List.Content>
                   </List.Item>
@@ -115,7 +200,7 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
                     <List.Icon name={values.currency} verticalAlign='middle' />
                     <List.Content>
                       <List.Header as='p'>{rates[fiatSymbol]} {values.currency.toUpperCase()}</List.Header>
-                      <List.Description as='p'>{values.currency.toUpperCase()}/{settings.blockchain.tokenSymbol}</List.Description>
+                      <List.Description as='p'>{values.currency.toUpperCase()}/{values.token.toUpperCase()}</List.Description>
                     </List.Content>
                   </List.Item>
                   <List.Item>
@@ -126,6 +211,79 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
                     </List.Content>
                   </List.Item>
               </List>
+              :<List divided relaxed size='medium'>
+                  {(showBankInfoInSummary) ?
+                  <List.Item>
+                    <List.Icon name='building' verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{bankInfo.bankName}</List.Header>
+                      <List.Description as='p'>Bank Name</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  :false}
+                  {(showBankInfoInSummary) ?
+                  <List.Item>
+                    <List.Icon name='check square' verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{bankInfo.bankAccountType[0].toUpperCase() + bankInfo.bankAccountType.slice(1)}</List.Header>
+                      <List.Description as='p'>Account Type</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  :false}
+                  {(showBankInfoInSummary) ?
+                  <List.Item>
+                    <List.Icon name='id card' verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>XXXX-XXXX-{bankInfo.bankAccountNumber.substring(bankInfo.bankAccountNumber.length - 4)}</List.Header>
+                      <List.Description as='p'>Account Number</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  :false}
+                  {(showBankInfoInSummary) ?
+                  <List.Item>
+                    <List.Icon name='road' verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{bankInfo.routingNumber}</List.Header>
+                      <List.Description as='p'>Routing Number</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  :false}
+                  <List.Item>
+                    <List.Icon name={values.currency} verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{Decimal(purchaseAmount).toFixed(2)} {values.currency.toUpperCase()}</List.Header>
+                      <List.Description as='p'>Purchase Amount</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  <List.Item>
+                    <List.Icon name='exchange' verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{Decimal(rates.estimatedCryptoPurchase).toFixed(4)} {values.token.toUpperCase()}</List.Header>
+                      <List.Description as='p'>Estimated Purchase</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  <List.Item>
+                    <List.Icon name={values.currency} verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{Decimal(transactionFee).toFixed(2)} {values.currency.toUpperCase()}</List.Header>
+                      <List.Description as='p'>Carbon Fee</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  <List.Item>
+                    <List.Icon name={values.currency} verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{rates[fiatSymbol]} {values.currency.toUpperCase()}</List.Header>
+                      <List.Description as='p'>{values.currency.toUpperCase()}/{values.token.toUpperCase()}</List.Description>
+                    </List.Content>
+                  </List.Item>
+                  <List.Item>
+                    <List.Icon name={values.currency} verticalAlign='middle' />
+                    <List.Content>
+                      <List.Header as='p'>{Decimal(totalCost).toFixed(2)} {values.currency.toUpperCase()}</List.Header>
+                      <List.Description as='p'><strong>Total Cost</strong></List.Description>
+                    </List.Content>
+                  </List.Item>
+              </List>}
               </Segment>
             </Grid.Column>
           </Grid.Row>
@@ -134,16 +292,17 @@ class WalletPanelFormBuyFiatConfirm extends Component<Props> {
         <Grid>
           <Grid.Row columns={2}>
             <Grid.Column textAlign="left">
+              {(!bankTransactionSent) ?
               <Form.Button
                 content={t('back')}
                 onClick={onBack}
                 size="small"
-              />
+              />:false}
             </Grid.Column>
             <Grid.Column textAlign="right">
               <Form.Button
                 color="blue"
-                content={t('Confirm Purchase')}
+                content={confirmButtonText}
                 size="medium"
               />
             </Grid.Column>
