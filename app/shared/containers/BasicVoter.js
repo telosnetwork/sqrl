@@ -183,6 +183,7 @@ class BasicVoterContainer extends Component<Props> {
       getInfo,
       getPriceFeed,
       getPriceFeedGecko,
+      getProfiles,
       getRamStats,
       setSetting,
       voteproducers
@@ -196,6 +197,7 @@ class BasicVoterContainer extends Component<Props> {
       getGlobals();
       getRamStats();
       getInfo();
+      getProfiles();
 
       if (settings.blockchain.tokenSymbol === "TLOS") {
         getPriceFeedGecko("TELOS", "USD", settings.blockchain.tokenSymbol);
