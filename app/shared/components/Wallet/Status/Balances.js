@@ -167,6 +167,7 @@ class WalletStatusBalances extends Component<Props> {
         tokenName = tokenInfo.name;
       else
         tokenInfo = {logo:null};
+      
       rows.push((
         <Table.Row key={token}>
           <Table.Cell width={5}>
