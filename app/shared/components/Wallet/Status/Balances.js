@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Button, Header, Icon, Popup, Segment, Table } from 'semantic-ui-react';
+import { Button, Header, Icon, Image, Popup, Segment, Table } from 'semantic-ui-react';
 import { forEach } from 'lodash';
 import TimeAgo from 'react-timeago';
 import { Decimal } from 'decimal.js';
@@ -55,15 +55,18 @@ class WalletStatusBalances extends Component<Props> {
       totalUSDValue = usdPrice * totalBalance;
     }
 
+    const coreTokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==settings.blockchain.tokenSymbol)[0];
+    let coreTokenName = settings.blockchain.tokenSymbol;
+    if (coreTokenInfo) coreTokenName = tokenInfo.name;
+
     const rows = [
       (
         <Table.Row key={settings.blockchain.tokenSymbol}>
           <Table.Cell width={2}>
             <Header>
-            {settings.blockchain.tokenSymbol}
-              <Header.Subheader>
-                eosio.token
-              </Header.Subheader>
+            {(coreTokenInfo) ?
+              <Image src={coreTokenInfo.logo} rounded bordered size="mini" />
+              :false}&nbsp;{coreTokenName}
             </Header>
           </Table.Cell>
           <Table.Cell width={10}>
@@ -148,10 +151,10 @@ class WalletStatusBalances extends Component<Props> {
     ];
     // Add rows for remaining tokens
     forEach(tokens, (amount, token) => {
-      if (token === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
-      const tokenLogo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain==settings.blockchain.tokenSymbol)[0];
-      const cellWidth = tokenLogo ? 4 : 5;
+      if (token.toUpperCase() === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
+      const tokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain.toUpperCase()==settings.blockchain.tokenSymbol)[0];
       
+      let tokenName = token;
       let contract = 'unknown';
       let precision = {
         [token]: 4
@@ -159,26 +162,22 @@ class WalletStatusBalances extends Component<Props> {
       if (contracts && contracts[token]) {
         ({ contract, precision } = contracts[token]);
       }
+      if (tokenInfo)
+        tokenName = tokenInfo.name;
       rows.push((
         <Table.Row key={token}>
-          {(tokenLogo) ?
-          <Table.Cell>
-            <Image src={tokenLogo} />
-          </Table.Cell>
-          :false}
-          <Table.Cell width={cellWidth}>
+          <Table.Cell width={5}>
             <Header>
-              {token}
-              <Header.Subheader>
-                {contract}
-              </Header.Subheader>
+              {(tokenInfo) ?
+              <Image src={tokenInfo.logo} rounded bordered size="mini" />
+              :false}&nbsp;{tokenName}
             </Header>
           </Table.Cell>
           <Table.Cell>
             <NumberFormat value={amount.toFixed(precision[token])}
               displayType={'text'}
               thousandSeparator={true}
-            />
+            /> {token}
           </Table.Cell>
         </Table.Row>
       ));

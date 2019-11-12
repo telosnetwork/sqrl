@@ -137,10 +137,12 @@ class BasicVoterContainer extends Component<Props> {
 
           // fetch and add any remote tokens not present
           await getCustomTokensRemote();
-          forEach(globals.remotetokens, (token) => {
-            const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==token.account)[0];
-            if (!tokenTracked) {
-              addCustomToken(token.account, token.symbol);
+          forEach(globals.remotetokens, (remoteToken) => {
+            if (remoteToken.chain.toUpperCase()==settings.blockchain.tokenSymbol) {
+              const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==remoteToken.account)[0];
+              if (!tokenTracked) {
+                addCustomToken(remoteToken.account, remoteToken.symbol);
+              }
             }
           });
 
