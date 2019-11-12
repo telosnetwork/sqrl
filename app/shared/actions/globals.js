@@ -5,8 +5,8 @@ import * as types from './types';
 import eos from './helpers/eos';
 
 const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
-const CARBON_TOKEN = process.env.NODE_ENV === "production" ? 'fsdafdsfs' : 'fdasfds';
-const PRICE_API_SECRET = 'fsadfds$';
+const CARBON_TOKEN = process.env.NODE_ENV === "production" ? 'dfsd' : 'fsdfds';
+const PRICE_API_SECRET = 'fsdfsd$';
 const sqrlcontract = 'sqrlwalletio';
 
 export function getGlobals() {
