@@ -5,8 +5,8 @@ import * as types from './types';
 import eos from './helpers/eos';
 
 const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
-const CARBON_TOKEN = process.env.NODE_ENV === "production" ? 'dsfdfdsfdsf' : 'dsfdfsdf';
-const PRICE_API_SECRET = 'dsfadfsddsf$';
+const CARBON_TOKEN = process.env.NODE_ENV === "production" ? 'fsdafdsfs' : 'fdasfds';
+const PRICE_API_SECRET = 'fsadfds$';
 const sqrlcontract = 'sqrlwalletio';
 
 export function getGlobals() {
@@ -1019,6 +1019,24 @@ export function setProfileAvatar(avatar, bio) {
   };
 }
 
+export function getCustomTokensRemote() {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_CUSTOMTOKENSREMOTE_REQUEST
+    });
+    return fetch('https://raw.githubusercontent.com/telos-foundation/sqrl/master/resources/tokens.json')
+    .then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_CUSTOMTOKENSREMOTE_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_CUSTOMTOKENSREMOTE_FAILURE
+    }));    
+  };
+}
+
 export default {
   addACHAccount,
   addACHDeposit,
@@ -1034,6 +1052,7 @@ export default {
   createExchangeContact,
   getContactByPublicKey,
   getCurrencyStats,
+  getCustomTokensRemote,
   getDeposits,
   getExchangeAPI,
   getExchangeRates,

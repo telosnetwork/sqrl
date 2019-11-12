@@ -127,6 +127,11 @@ export default function globals(state = initialState, action) {
         profiles: action.payload.profiles
       });
     }
+    case types.GET_CUSTOMTOKENSREMOTE_SUCCESS: {
+      return Object.assign({}, state, {
+        remotetokens: action.payload
+      });
+    }
     default: {
       return state;
     }

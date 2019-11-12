@@ -63,16 +63,7 @@ const initialState = {
     // Always track the contract for the core system token
     // actual token symbol changes based on current chain
     // todo: move to github json format
-    'eosio.token:',
-    'sqrlwalletio:SQRL',
-    'qubicletoken:QBE',
-    'acornaccount:ACORN',
-    'mailcontract:MAIL',
-    'proxibotstkn:ROBO',
-    'revelation21:HEART',
-    'stablecarbon:TLOSD',
-    'teachology14:TEACH',
-    'telosdacdrop:TLOSDAC'
+    'eosio.token:'
   ],
   // Defaults to displaying resources remaining
   displayResourcesAvailable: true,
