@@ -1,6 +1,7 @@
 import * as types from '../types';
 import * as AccountActions from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function delegatebw(delegator, receiver, netAmount, cpuAmount) {
   return (dispatch: () => void, getState) => {
@@ -13,8 +14,23 @@ export function delegatebw(delegator, receiver, netAmount, cpuAmount) {
       type: types.SYSTEM_DELEGATEBW_PENDING
     });
 
-    return eos(connection, true).transaction(tr => {
-      tr.delegatebw(delegatebwParams(delegator, receiver, netAmount, cpuAmount, 0, settings));
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'delegatebw',
+        authorization: [{
+          actor: delegator,
+          permission: settings.authorization || 'active'
+        }],
+        data: delegatebwParams(delegator, receiver, netAmount, cpuAmount, 0, settings)
+      }
+    ];
+
+    const payforaction = payforcpunet(delegator, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       dispatch(AccountActions.getAccount(delegator));
       return dispatch({

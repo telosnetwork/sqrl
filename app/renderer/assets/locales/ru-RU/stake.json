@@ -9,7 +9,7 @@
   "eos_in_cpu_after": "{{tokenSymbol}} на CPU после",
   "eos_in_net_after": "{{tokenSymbol}} на NET после",
   "net_staked": "{{tokenSymbol}} в стейке на NET",
-  "stake_button_cta": "Обновить Стейк {{tokenSymbol}}",
+  "stake_button_cta": "Обновить Стейк",
   "stake_cpu_amount": "Количество CPU",
   "stake_modal_title": "Обновить значения {{tokenSymbol}} в Стейке",
   "stake_net_amount": "Количество NET",

@@ -97,6 +97,8 @@ const initialState = {
   skipLinkModal: false,
   // Window State Management
   setupData: {},
+  // Use SQRL tokens to pay for transactions
+  useSQRLtoken: true,
   // Wallet Password Validity Hash
   walletHash: false,
   // Wallet Status

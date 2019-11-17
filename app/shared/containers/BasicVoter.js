@@ -43,6 +43,7 @@ import * as ValidateActions from '../actions/validate';
 import * as VoteProducerActions from '../actions/system/voteproducer';
 import * as WalletActions from '../actions/wallet';
 import * as SystemStateActions from '../actions/system/systemstate';
+import { isArray } from 'util';
 
 type Props = {
   accounts: {},
@@ -135,22 +136,21 @@ class BasicVoterContainer extends Component<Props> {
           getRexFund();
           getRexBalance();
 
-          // fetch and add any remote tokens not present
-          await getCustomTokensRemote();
-          forEach(globals.remotetokens, (remoteToken) => {
-            if (remoteToken.chain.toUpperCase()==settings.blockchain.tokenSymbol) {
-              const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==remoteToken.account)[0];
-              if (!tokenTracked) {
-                addCustomToken(remoteToken.account, remoteToken.symbol);
+          // open profile for user if not exists ?
+
+          const remoteTokensResult = await getCustomTokensRemote();
+          if (remoteTokensResult && remoteTokensResult.payload && isArray(remoteTokensResult.payload)) {
+            for (var i = 0; i < remoteTokensResult.payload.length; i++) {
+              const remoteToken = remoteTokensResult.payload[i];
+              if (remoteToken.chain.toUpperCase()==settings.blockchain.tokenSymbol) {
+                const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==remoteToken.account)[0];
+                if (!tokenTracked) {
+                  await addCustomToken(remoteToken.account, remoteToken.symbol);
+                }
               }
-            }
-          });
-
-          forEach(settings.customTokens, (token) => {
-            const [contract, symbol] = token.split(':');
-            getCurrencyStats(contract, symbol.toUpperCase());
-          });
-
+            };
+          }
+          
           await getExchangeAPI();
         }
       }

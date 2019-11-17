@@ -3,6 +3,7 @@ import * as types from '../../types';
 import { getTable } from '../../table';
 import { getAccount } from '../../accounts';
 import eos from '../../helpers/eos';
+import { payforcpunet } from '../../helpers/eos';
 
 export function regproxy() {
   return (dispatch: () => void, getState) => {
@@ -17,9 +18,26 @@ export function regproxy() {
       type: types.SYSTEM_REGPROXY_PENDING
     });
 
-    return eos(connection, true).regproxy({
-      proxy: account,
-      isproxy: 1
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'regproxy',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proxy: account,
+          isproxy: 1
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       // Refresh the account
       setTimeout(dispatch(getAccount(account)), 500);
@@ -45,9 +63,27 @@ export function unregproxy() {
     dispatch({
       type: types.SYSTEM_UNREGPROXY_PENDING
     });
-    return eos(connection, true).regproxy({
-      proxy: account,
-      isproxy: 0
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'regproxy',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proxy: account,
+          isproxy: 0
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       // Refresh the account
       setTimeout(dispatch(getAccount(account)), 500);
@@ -88,33 +124,38 @@ export function setregproxyinfo(
 
     const { account } = settings;
 
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'tlsproxyinfo',
-          name: 'set',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            proxy:account,
-            name,
-            website,
-            slogan,
-            philosophy,
-            background,
-            logo_256,
-            telegram: telegram || '',
-            steemit: steemit  || '',
-            twitter: twitter  || '',
-            wechat: wechat  || '',
-            reserved_1: reserved_1 || '',
-            reserved_2: reserved_2 || '',
-            reserved_3: reserved_3 || ''
-          }
+    let actions = [
+      {
+        account: 'tlsproxyinfo',
+        name: 'set',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proxy:account,
+          name,
+          website,
+          slogan,
+          philosophy,
+          background,
+          logo_256,
+          telegram: telegram || '',
+          steemit: steemit  || '',
+          twitter: twitter  || '',
+          wechat: wechat  || '',
+          reserved_1: reserved_1 || '',
+          reserved_2: reserved_2 || '',
+          reserved_3: reserved_3 || ''
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       setTimeout(() => {
         dispatch(getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies'));
@@ -144,20 +185,25 @@ export function removeregproxyinfo() {
 
     const { account } = settings;
 
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'tlsproxyinfo',
-          name: 'remove',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            proxy: account
-          }
+    let actions = [
+      {
+        account: 'tlsproxyinfo',
+        name: 'remove',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proxy: account
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       setTimeout(() => {
         dispatch(getTable('tlsproxyinfo', 'tlsproxyinfo', 'proxies'));

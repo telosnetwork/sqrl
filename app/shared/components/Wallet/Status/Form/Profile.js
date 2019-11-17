@@ -297,8 +297,10 @@ class WalletStatusProfileForm extends Component<Props> {
               avatar={avatar}
               bio={bio}
 
+              hasError={hasError}
               fileInfo={fileInfo}
               ipfsHash={ipfsHash}
+              ipfsError={ipfsError}
               onBack={this.onBack}
               onClose={this.onClose}
               onConfirm={this.onConfirm}

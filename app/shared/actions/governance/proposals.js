@@ -4,6 +4,7 @@ import sortBy from 'lodash/sortBy';
 import * as types from '../types';
 import eos from '../helpers/eos';
 import { getLeaderBoards } from './arbitration';
+import { payforcpunet } from '../helpers/eos';
 
 const defaultContract = 'eosio.saving';
 
@@ -19,38 +20,43 @@ export function createProposal(title, ipfs_location, cycles, amount, send_to) {
     if (feeAmount < 50 || isNaN(feeAmount))
       feeAmount = 50;
 
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'eosio.token',
-          name: 'transfer',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            from: account,
-            to:'eosio.saving',
-            quantity: feeAmount.toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol,
-            memo: "WPS deposit ("+title+")"
-          }
-        },{
-          account: defaultContract,
-          name: 'submit',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            proposer: account,
-            title,
-            cycles,
-            ipfs_location,
-            amount: amount + ' ' + settings.blockchain.tokenSymbol,
-            receiver:send_to
-          }
+    let actions = [
+      {
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          from: account,
+          to:'eosio.saving',
+          quantity: feeAmount.toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol,
+          memo: "WPS deposit ("+title+")"
         }
-      ]
+      },{
+        account: defaultContract,
+        name: 'submit',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proposer: account,
+          title,
+          cycles,
+          ipfs_location,
+          amount: amount + ' ' + settings.blockchain.tokenSymbol,
+          receiver:send_to
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -74,24 +80,30 @@ export function editProposal(proposal_id, title, ipfs_location, amount, send_to)
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: defaultContract,
-          name: 'editproposal',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            sub_id: proposal_id,
-            title: title,
-            ipfs_location: ipfs_location,
-            amount: amount,
-            receiver:send_to
-          }
+
+    let actions = [
+      {
+        account: defaultContract,
+        name: 'editproposal',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          sub_id: proposal_id,
+          title: title,
+          ipfs_location: ipfs_location,
+          amount: amount,
+          receiver:send_to
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -115,20 +127,26 @@ export function actOnProposal(submission_id, actionName, scope = defaultContract
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: scope,
-          name: actionName,
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            sub_id: submission_id
-          }
+
+    let actions = [
+      {
+        account: scope,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          sub_id: submission_id
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -522,21 +540,27 @@ export function registerVoter(voter) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'eosio.trail',
-          name: 'regvoter',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            voter,
-            token_symbol:'0.'.padEnd(settings.tokenPrecision + 2, '0') + ' VOTE'
-          }
+
+    let actions = [
+      {
+        account: 'eosio.trail',
+        name: 'regvoter',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          voter,
+          token_symbol:'0.'.padEnd(settings.tokenPrecision + 2, '0') + ' VOTE'
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -560,21 +584,27 @@ export function mirrorCast(voter) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'eosio.trail',
-          name: 'mirrorcast',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            voter,
-            token_symbol: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
-          }
+
+    let actions = [
+      {
+        account: 'eosio.trail',
+        name: 'mirrorcast',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          voter,
+          token_symbol: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -598,22 +628,28 @@ export function voteBallot(voter, ballot_id, direction) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: 'eosio.trail',
-          name: 'castvote',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            voter,
-            ballot_id,
-            direction
-          }
+
+    let actions = [
+      {
+        account: 'eosio.trail',
+        name: 'castvote',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          voter,
+          ballot_id,
+          direction
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,

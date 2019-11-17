@@ -45,9 +45,10 @@ class WalletStatusProfileFormConfirm extends Component<Props> {
     const {
       avatar,
       bio,
-
+      hasError,
       fileInfo,
       ipfsHash,
+      ipfsError,
       onBack,
       onClose,
       settings,
@@ -95,6 +96,16 @@ class WalletStatusProfileFormConfirm extends Component<Props> {
           </Table.Body>
         </Table>
         <Divider style={{ marginTop: '40px' }} />
+        {(hasError === true)
+            ? (
+              <Message
+              color="red"
+              header={ipfsError.message}
+              icon="x"
+              />
+            )
+            : false
+          }
 
         {(lastError && system.SET_PROFILEAVATAR !== 'SUCCESS')
           ? (

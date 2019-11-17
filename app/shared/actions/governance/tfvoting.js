@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 
 import * as types from '../types';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 const defaultContract = 'tf';
 

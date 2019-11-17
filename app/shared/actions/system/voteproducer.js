@@ -2,6 +2,7 @@ import * as types from '../types';
 
 import { getAccounts } from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function voteproducers(producers = [], proxy = '') {
   return (dispatch: () => void, getState) => {
@@ -15,8 +16,29 @@ export function voteproducers(producers = [], proxy = '') {
     const { account } = settings;
     // sort (required by most EOSIO networks)
     producers.sort();
-    return eos(connection, true).voteproducer(account, proxy, producers)
-      .then((tx) => {
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'voteproducer',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          voter:account, 
+          proxy:proxy, 
+          producers:producers
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions 
+    }).then((tx) => {
         const accounts = [account];
         // If a proxy is set, that account also needs to be loaded
         if (proxy) {

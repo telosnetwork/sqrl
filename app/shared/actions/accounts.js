@@ -7,6 +7,7 @@ import { getRexBalance } from './rex';
 import EOSAccount from '../utils/EOS/Account';
 import { getContactByPublicKey } from './globals';
 const ecc = require('eosjs-ecc');
+import { payforcpunet } from './helpers/eos';
 
 export function clearAccountCache() {
   return (dispatch: () => void) => {
@@ -32,13 +33,32 @@ export function refreshAccountBalances(account, requestedTokens) {
 export function claimUnstaked(owner) {
   return (dispatch: () => void, getState) => {
     const {
-      connection
+      connection,
+      settings
     } = getState();
     dispatch({
       type: types.SYSTEM_REFUND_PENDING
     });
-    return eos(connection, true).refund({
-      owner
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'refund',
+        authorization: [{
+            actor: owner,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          owner
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(owner, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions: actions
     }).then((tx) => {
       // Reload the account
       dispatch(getAccount(owner));

@@ -18,5 +18,9 @@
   "transfer_close": "Закрыть",
   "transfer_header_available": "доступно к отправке.",
   "transfer_send_exchange_in_memo_one": "Хотите отправить Токены на биржу? Тогда введите",
-  "transfer_send_exchange_in_memo_two": "в поле получателя и введите полученное с биржи содержимое поля Memo."
+  "transfer_send_exchange_in_memo_two": "в поле получателя и введите полученное с биржи содержимое поля Memo.",
+  "transfer_swap_modal_title": "Swap Tokens",
+  "transfer_swap_from_token": "Swap From:",
+  "transfer_swap_to_token": "Swap To:",
+  "transfer_swap_available": "Available"
 }
