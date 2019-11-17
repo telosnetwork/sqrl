@@ -44,7 +44,7 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
         }
 
         if (macaddresses.length > 0)
-          {actions.createFreeAccount(values.accountName, values.owner, values.active, macaddresses);}
+          {actions.createFreeAccount(values.accountName, values.owner, values.active, macaddresses, values.referredby);}
       });
     }
   }
@@ -73,7 +73,9 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
     if (system.CREATEACCOUNT === 'FAILURE' && system[`CREATEACCOUNT_LAST_ERROR`]) {
       if (system[`CREATEACCOUNT_LAST_ERROR`].error)
         lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR.error.code + ':' + system.CREATEACCOUNT_LAST_ERROR.error.what;
-      else {
+      else if (system.CREATEACCOUNT_LAST_ERROR.message) {
+        lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR.message;
+      } else {
         lastErrorMessage = system.CREATEACCOUNT_LAST_ERROR;
       }
     }
@@ -118,7 +120,7 @@ class WalletPanelModalAccountRequestCode extends Component<Props> {
               warning
             />
           ) : ''}
-          {(lastErrorMessage.length > 0)
+          {(lastErrorMessage && lastErrorMessage.length > 0)
           ? (
             <Message
               content={lastErrorMessage}

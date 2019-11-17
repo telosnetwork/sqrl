@@ -1,13 +1,10 @@
 import { isEmpty } from 'lodash';
 
 import * as types from './types';
+import * as config from './config';
 
 import eos from './helpers/eos';
-
-const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
-const CARBON_TOKEN = process.env.NODE_ENV === "production" ? 'fsdfdsfds' : 'fdsfsdfdsf';
-const PRICE_API_SECRET = 'dfsdfds$';
-const sqrlcontract = 'sqrlwalletio';
+import { payforcpunet } from './helpers/eos';
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -46,8 +43,9 @@ export function getCurrencyStats(contractName = "eosio.token", symbolName) {
       }
 
       const supply = results[symbol].supply && results[symbol].supply.split(' ')[0];
-      const precision = supply && supply.split('.')[1] && supply.split('.')[1].length;
-      if (!precision) precision = 4;
+      let precision = supply.indexOf('.') == -1 ? 0 :
+        supply && supply.split('.')[1] && supply.split('.')[1].length;
+      if (precision==null) precision = 4;
       
       return dispatch({
         type: types.GET_CURRENCYSTATS_SUCCESS,
@@ -107,7 +105,7 @@ export function getExchangeRates(token, currency = 'usd', amount) {
       type: types.GET_EXCHANGERATES_REQUEST
     });
     const { settings } = getState();
-    return fetch(`${CARBON_ROOT}/v1/rates?cryptocurrencyArray=${token.toLowerCase()}` + 
+    return fetch(`${config.CARBON_ROOT}/v1/rates?cryptocurrencyArray=${token.toLowerCase()}` + 
     `&fiatBaseCurrency=${currency}&fiatChargeAmount=${amount}`, {
       method: 'GET',
       headers: {
@@ -131,7 +129,7 @@ export function getContactByPublicKey(publicKey) {
       type: types.GET_CONTACTBYPUBKEY_REQUEST
     });
     const { globals } = getState();
-    return fetch(`${CARBON_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
+    return fetch(`${config.CARBON_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -164,7 +162,7 @@ export function createExchangeContact(publicKey, emailAddress) {
       postBody = new URLSearchParams({
         publicKey: publicKey
       })
-    return await fetch(`${CARBON_ROOT}/v1/contacts/create`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/create`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -211,7 +209,7 @@ export function chargeCard(
       rememberMe: false
     });
 
-    return await fetch(`${CARBON_ROOT}/v1/card/addNew`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/card/addNew`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -233,7 +231,7 @@ export function chargeCard(
           errorRedirectUrl:`https://sqrlwallet.io/carbon?action=fail&contactid=${contactId}`
         });
         
-        return fetch(`${CARBON_ROOT}/v1/card/charge3d`, {
+        return fetch(`${config.CARBON_ROOT}/v1/card/charge3d`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${globals.exchangeapi}`
@@ -323,7 +321,7 @@ export function verifyExchangeContact(
       city:city, 
       postalCode:postalCode
     })
-    return await fetch(`${CARBON_ROOT}/v1/contacts/verify`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/verify`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -350,7 +348,7 @@ export function submitExchangeKYC(contactId) {
     let postBody = new URLSearchParams({
       contactId:contactId
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/submitCheck`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/submitCheck`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -392,7 +390,7 @@ export function submitOfframpKYC(
       taxId: taxId,
       sex: sex
     })
-    return await fetch(`${CARBON_ROOT}/v1/contacts/submitKYC`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/submitKYC`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -419,7 +417,7 @@ export function approveOfframpKYC(contactId) {
     let postBody = new URLSearchParams({
       contactId:contactId
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/approveKYC`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/approveKYC`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -451,7 +449,7 @@ export function addACHAccount(contactId, bankAccountNumber,
       bankName: bankName,
       bankAccountType: bankAccountType
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/paymentMethods/ach`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/paymentMethods/ach`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -486,7 +484,7 @@ export function addACHDeposit(contactId, bankAccountNumber,
       address: address,
       amount: amount
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/deposits/ach`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/ach`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -518,7 +516,7 @@ export function addACHWithdrawal(contactId, chain, address, amount, paymentMetho
       paymentMethodId: paymentMethodId,
       txtHash: txtHash
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/withdrawals/ach`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/withdrawals/ach`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -560,7 +558,7 @@ export function addWireAccount(contactId, isBankInternational,
         'postal-code': beneficiaryAddressZip
       }
     };
-    return await fetch(`${CARBON_ROOT}/v1/contacts/paymentMethods/wire`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/paymentMethods/wire`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -590,7 +588,7 @@ export function addWireDeposit(contactId, chain, address, amount) {
       address: address,
       amount: amount
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/deposits/wire`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/wire`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -622,7 +620,7 @@ export function addWireWithdrawal(contactId, chain, address, amount, paymentMeth
       paymentMethodId: paymentMethodId,
       txtHash: txtHash
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/withdrawals/wire`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/withdrawals/wire`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -646,7 +644,7 @@ export function getPaymentMethods(contactId) {
       type: types.GET_GETPAYMENTMETHODS_REQUEST
     });
     const { globals } = getState();
-    return await fetch(`${CARBON_ROOT}/v1/contacts/stablecoinPaymentMethods/all?contactId=${contactId}`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/stablecoinPaymentMethods/all?contactId=${contactId}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -669,7 +667,7 @@ export function getDeposits(contactId) {
       type: types.GET_GETDEPOSITS_REQUEST
     });
     const { globals } = getState();
-    return await fetch(`${CARBON_ROOT}/v1/contacts/deposits/all?contactId=${contactId}`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/all?contactId=${contactId}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -696,7 +694,7 @@ export function settleDeposit(contactId, depositId) {
       contactId:contactId,
       depositId: depositId
     });
-    return await fetch(`${CARBON_ROOT}/v1/contacts/settleDeposit`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/settleDeposit`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -720,7 +718,7 @@ export function create2FA(contactId, issuer='SqrlWallet') {
       type: types.GET_CREATE2FA_REQUEST
     });
     const { globals } = getState();
-    return await fetch(`${CARBON_ROOT}/v1/auth/create2fa?contactId=${contactId}&twoFactorIssuer=${issuer}`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/create2fa?contactId=${contactId}&twoFactorIssuer=${issuer}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -747,7 +745,7 @@ export function enable2FA(contactId, token) {
       contactId:contactId, 
       token:token
     })
-    return await fetch(`${CARBON_ROOT}/v1/auth/enable2fa`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/enable2fa`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -774,7 +772,7 @@ export function disable2FA(contactId) {
     let postBody = new URLSearchParams({
       contactId:contactId
     })
-    return await fetch(`${CARBON_ROOT}/v1/auth/disable2fa`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/disable2fa`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -797,7 +795,7 @@ export function getExchangeAPI() {
     dispatch({
       type: types.GET_CONTACTJWT_REQUEST
     });
-    return fetch(`${CARBON_ROOT}/v1/users/returnJWT?apikey=${CARBON_TOKEN}`, {
+    return fetch(`${config.CARBON_ROOT}/v1/users/returnJWT?apikey=${config.CARBON_TOKEN}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json'
@@ -823,7 +821,7 @@ export function getPriceFeed(baseToken, quoteToken) {
     {
       method: 'GET',
       headers: {
-          'api_secret': PRICE_API_SECRET
+          'api_secret': config.PRICE_API_SECRET
       }
     }).then(response => response.json()).then((response) => {
       return dispatch({
@@ -874,7 +872,7 @@ export function uploadExchangeKYCDoc(file, contactId, fileType) {
     const { globals } = getState();
 
     const mime = require('mime-types');
-    let url = `${CARBON_ROOT}/v1/contacts/upload`;
+    let url = `${config.CARBON_ROOT}/v1/contacts/upload`;
     let formData = new FormData();
 
     formData.append("file", file, {
@@ -911,7 +909,7 @@ export function uploadOfframpKYCDoc(file, contactId) {
     const { globals } = getState();
 
     const mime = require('mime-types');
-    let url = `${CARBON_ROOT}/v1/contacts/uploadDocument`;
+    let url = `${config.CARBON_ROOT}/v1/contacts/uploadDocument`;
     let formData = new FormData();
 
     formData.append("file", file, {
@@ -946,8 +944,8 @@ export function getProfiles(account) {
     });
     const { connection } = getState();
     const query = {
-      scope: sqrlcontract,
-      code: sqrlcontract,
+      scope: config.SQRL_CONTRACT,
+      code: config.SQRL_CONTRACT,
       table: 'profiles',
       json: true
     };
@@ -987,23 +985,27 @@ export function setProfileAvatar(avatar, bio) {
 
     const { account } = settings;
 
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: sqrlcontract,
-          name: 'setavatar',
-          authorization: [{
+    let actions = [
+      {
+        account: config.SQRL_CONTRACT,
+        name: 'setavatar',
+        authorization: [{
             actor: account,
             permission: settings.authorization || 'active'
           }],
-          data: {
-            account: account,
-            avatar: avatar,
-            bio: bio
-          }
+        data: {
+          account: account,
+          avatar: avatar,
+          bio: bio
         }
-      ]
-    }).then((tx) => {
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
       setTimeout(() => {
         dispatch(getProfiles());
       }, 1000);
@@ -1015,6 +1017,58 @@ export function setProfileAvatar(avatar, bio) {
     }).catch((err) => dispatch({
       payload: { err },
       type: types.SYSTEM_SET_PROFILEAVATAR_FAILURE
+    }));
+  };
+}
+
+export function openProfile() {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_OPENPROFILE_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [{
+      account: config.SQRL_CONTRACT,
+      name: 'payforcpunet',
+      authorization: [{
+          actor: config.SQRL_CONTRACT,
+          permission: 'payforcpunet'
+        }],
+      data: {
+        account: account
+      }
+    },{
+      account: config.SQRL_CONTRACT,
+      name: 'openprofile',
+      authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+      data: {
+        account: account
+      }
+    }];
+
+    return eos(connection, true, true).transaction({actions: actions})
+    .then((tx) => {
+      setTimeout(() => {
+        dispatch(getProfiles());
+      }, 1000);
+
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_OPENPROFILE_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_OPENPROFILE_FAILURE
     }));
   };
 }
@@ -1062,6 +1116,7 @@ export default {
   getPriceFeedGecko,
   getProfiles,
   getRamStats,
+  openProfile,
   setProfileAvatar,
   submitExchangeKYC,
   submitOfframpKYC,

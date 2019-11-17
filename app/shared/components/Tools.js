@@ -13,6 +13,7 @@ import GlobalSettingsResourceDisplayFormat from './Global/Settings/ResourceDispl
 import GlobalSettingsFilterSpamTransfers from './Global/Settings/FilterSpamTransfers';
 import GlobalSettingsMirrorCastVote from './Global/Settings/MirrorCastVote';
 import GlobalSettingsResourceDisplay from './Global/Settings/ResourceDisplay';
+import GlobalSettingsSqrlToken from './Global/Settings/SqrlToken';
 
 class Tools extends Component<Props> {
   render() {
@@ -103,6 +104,14 @@ class Tools extends Component<Props> {
               <GlobalSettingsMirrorCastVote
                 actions={actions}
                 defaultValue={settings.mirrorCastOnVote}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_use_sqrl_token')}</label>
+              <GlobalSettingsSqrlToken
+                actions={actions}
+                defaultValue={settings.useSQRLtoken}
                 selection
               />
             </Form.Field>

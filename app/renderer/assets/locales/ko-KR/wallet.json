@@ -33,6 +33,7 @@
   "wallet_account_request_form_create_account_account_name_warning": "Account names typically require exactly 12 characters. The creation of the account will fail unless the creating account has access to a premium namespace.",
   "wallet_account_request_form_create_account_active_key": "Active Public Key",
   "wallet_account_request_form_create_account_owner_key": "Owner Public Key",
+  "wallet_account_request_form_create_account_referred_by": "Referral Code (Optional)",
   "wallet_account_request_header": "계정 요청",
   "wallet_account_request_step_generate": "계정 이름 및 키",
   "wallet_account_request_step_generate_desc": "이름을 선택하고 키를 생성하세요.",
@@ -68,7 +69,7 @@
   "wallet_panel_waiting_header": "생성 기다리는중",
   "wallet_panel_waiting_instructions": "이 프로그램은 새 계정 생성을 관찰할 것입니다. 새 계정이 만들어지면 백업 암호를 한 번 더 입력하라는 메시지를 표시합니다. 그 다음 로컬 라이트 지갑 생성합니다.",
   "wallet_panel_waiting_subheader": "이 계정은 아직 생성되지 않았습니다.",
-  "wallet_panel_wallet_broadcast": "서명된 거래 방송(브로드캐스트) 하기",
+  "wallet_panel_wallet_broadcast": "  서명된 거래 방송(브로드캐스트) 하기",
   "wallet_panel_wallet_lock": "지갑 잠금",
   "wallet_panel_wallet_remove": "지갑 관련 정보 삭제",
   "wallet_panel_wallet_save": "로컬 지갑 저장",
@@ -78,6 +79,9 @@
   "wallet_panel_wallet_unlock_failure_header": "지갑 잠금을 해제하지 못했습니다.",
   "wallet_panel_wallet_unlock_modal_description": "잠금을 해제하려면 로컬 지갑 비밀번호를 입력하십시오.",
   "wallet_panel_wallet_unlock_modal_title": "비밀번호",
+  "wallet_panel_wallet_buy_sell_actions": "Buy. Sell. Swap.",
+  "wallet_panel_wallet_send_receive_actions": "Send. Receive. Stake.",
+  "wallet_panel_wallet_advanced_actions": "Advanced.",
   "wallet_status_add_custom_token_action": "사용자 지정 토큰 추가",
   "wallet_status_add_custom_token_action_header": "이 기능은 이동 했습니다!",
   "wallet_status_add_custom_token_action_subheader": "이 지갑에서 사용자 지정 토큰을 관리하려면 도구 섹션을 클릭하고 'Airdrops / 사용자 지정 토큰' 보세요.",
@@ -110,8 +114,9 @@
   "wallet_status_total_balance": "총",
   "wallet_exchange_actions": "Exchange Actions",
   "wallet_buytoken_button_cta": "Buy {{tokenSymbol}}",
+  "wallet_exchange_settings_button_cta": "  Account Settings",
   "wallet_buytoken_button_title": "Buy {{tokenSymbol}} with a Card or Bank Account",
-  "wallet_selltoken_button_cta": "Sell {{tokenSymbol}}",
+  "wallet_selltoken_button_cta": "  Sell {{tokenSymbol}}",
   "wallet_selltoken_button_title": "Sell {{tokenSymbol}} and Withdraw to Bank Account",
   "wallet_buytoken_request_step_1": "Purchase Amount",
   "wallet_buytoken_request_step_1_desc": "How much {{tokenSymbol}} would you like to buy?",
@@ -165,6 +170,9 @@
   "wallet_registercarbon_request_step_3_header2a": "KYC Verification for Bank Transfers",
   "wallet_registercarbon_request_step_3_header2b": "KYC Documentation for Bank Transfers",
   "wallet_registercarbon_request_step_4_header": "KYC Request",
-  "wallet_registercarbon_request_acct_registered_header": "Account Registered Successfully"
+  "wallet_registercarbon_request_acct_registered_header": "Account Registered Successfully",
+
+  "wallet_panel_profile_refer": "Refer your friends using your Personal Referral Link below and earn free tokens!",
+  "wallet_panel_profile_earn": "You and your friend will both earn 5 SQRL tokens when their account is created."
   
 }

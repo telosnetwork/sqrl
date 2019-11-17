@@ -1,17 +1,32 @@
 // @flow
 import React, { Component } from 'react';
-import { Dropdown, Input } from 'semantic-ui-react';
+import { Dropdown, Image, Input } from 'semantic-ui-react';
 import { debounce, find } from 'lodash';
 
 export default class GlobalFormFieldMultiToken extends Component<Props> {
   constructor(props) {
     super(props);
     const [quantity, asset] = props.value.split(' ');
-    const { connection, settings } = this.props;
+    const { settings } = this.props;
     this.state = {
       asset: asset || settings.blockchain.tokenSymbol,
+      logo: '',
       quantity
     };
+  }
+  componentDidMount () {
+    this.setTokenLogo(this.state.asset);
+  }
+  setTokenLogo (asset) {
+    const { balances, globals, hideIcon } = this.props;
+    if (!hideIcon) {
+      const { contract } = balances.__contracts[asset];
+      const tokenInfo = globals && globals.remotetokens 
+        && globals.remotetokens.filter((token) => token.account==contract && token.symbol==asset)[0];
+      if (tokenInfo && tokenInfo.logo) {
+        this.setState({logo: tokenInfo.logo});
+      }
+    }
   }
   onChange = debounce((e, { name, value }) => {
     this.setState({
@@ -23,17 +38,22 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
       const parsed = (quantity > 0)
         ? `${parseFloat(quantity).toFixed(precision[asset])} ${asset}`
         : `${parseFloat(0).toFixed(precision[asset])} ${asset}`;
+      this.setTokenLogo(asset);
       this.props.onChange(e, { name: this.props.name, value: parsed });
     });
   }, 300)
   render() {
     const {
-      balances,
       autoFocus,
+      balances,
+      dropdownStyle,
+      globals,
       label,
       loading,
       name,
+      reverseInputs,
       settings,
+      showAll,
       style
     } = this.props;
     const assets = Object.keys(balances[settings.account]);
@@ -41,24 +61,35 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
     // Determine which tokens are being tracked
     const trackedTokens = (customTokens) ? customTokens.map((tokenName) => {
       const [contract, symbol] = tokenName.split(':');
-      return { contract, symbol };
+
+      // find logo
+      const tokenInfo = globals && globals.remotetokens 
+        && globals.remotetokens.filter((token) => token.account==contract && token.symbol==symbol)[0];
+      
+      return { 
+        contract, 
+        symbol, 
+        logo: tokenInfo ? tokenInfo.logo : null 
+      };
     }) : [{
       contract: 'eosio',
-      symbol: settings.blockchain.tokenSymbol
+      symbol: settings.blockchain.tokenSymbol,
+      logo: null
     }];
     const options = [];
     // Iterate assets and build the options list based on tracked tokens
     assets.forEach((asset) => {
       const assetDetails = find(trackedTokens, { symbol: asset });
       if (assetDetails) {
-        const { contract, symbol } = find(trackedTokens, { symbol: asset });
+        const { contract, symbol, logo } = find(trackedTokens, { symbol: asset });
         if (
           (contract && symbol)
-          && (balances[settings.account] && balances[settings.account][asset] > 0)
+          && (balances[settings.account] && balances[settings.account][asset] > 0 || showAll === true)
         ) {
           options.push({
             key: asset,
-            text: `${symbol} (${contract})`,
+            image: logo,
+            text: `${symbol}`,
             value: asset
           });
         }
@@ -79,15 +110,22 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
           placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
           style={style}
         >
+          {(reverseInputs === true) ? 
+            <input />
+          :false}
           <Dropdown
             defaultValue={this.state.asset || settings.blockchain.tokenSymbol}
+            icon={<Image src={this.state.logo} style={{width:'16px',float:'left',marginRight:'5px'}} />}
             name="asset"
             onChange={this.onChange}
             options={options}
             search
             selection
+            style={dropdownStyle}
           />
-          <input />
+          {(!reverseInputs) ? 
+            <input />
+          :false}
         </Input>
       </div>
     );

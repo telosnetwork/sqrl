@@ -31,6 +31,7 @@
   "wallet_account_request_form_create_account_account_name_warning": "Account names typically require exactly 12 characters. The creation of the account will fail unless the creating account has access to a premium namespace.",
   "wallet_account_request_form_create_account_active_key": "Active Public Key",
   "wallet_account_request_form_create_account_owner_key": "Owner Public Key",
+  "wallet_account_request_form_create_account_referred_by": "Referral Code (Optional)",
   "wallet_account_request_header": "Requesting an Account",
   "wallet_account_request_step_generate": "Account Name & Keys",
   "wallet_account_request_step_generate_desc": "Pick a name and generate keys.",
@@ -66,7 +67,7 @@
   "wallet_panel_waiting_header": "Ootab Loomist",
   "wallet_panel_waiting_instructions": "The application will monitor for the creation of this new account. Once the new account has been created, the application will prompt you to enter your backup password once more, and then establish a local hot wallet.",
   "wallet_panel_waiting_subheader": "This account has not yet been created.",
-  "wallet_panel_wallet_broadcast": "Broadcast Signed Transaction",
+  "wallet_panel_wallet_broadcast": "  Broadcast Signed Transaction",
   "wallet_panel_wallet_lock": "Lock Wallet",
   "wallet_panel_wallet_remove": "Destroy Wallet Credentials",
   "wallet_panel_wallet_save": "Save Local Wallet",
@@ -76,6 +77,9 @@
   "wallet_panel_wallet_unlock_failure_header": "Failed to unlock wallet",
   "wallet_panel_wallet_unlock_modal_description": "Enter the local wallet password to unlock.",
   "wallet_panel_wallet_unlock_modal_title": "Password",
+  "wallet_panel_wallet_buy_sell_actions": "Buy. Sell. Swap.",
+  "wallet_panel_wallet_send_receive_actions": "Send. Receive. Stake.",
+  "wallet_panel_wallet_advanced_actions": "Advanced.",
   "wallet_status_add_custom_token_action": "Add Custom Token",
   "wallet_status_add_custom_token_action_header": "This feature has moved!",
   "wallet_status_add_custom_token_action_subheader": "To manage Custom Tokens in this wallet, click on the Tools section, and look under the 'Airdrops / Custom Tokens' section.",
@@ -108,8 +112,9 @@
   "wallet_status_total_balance": "Total",
   "wallet_exchange_actions": "Exchange Actions",
   "wallet_buytoken_button_cta": "Buy {{tokenSymbol}}",
+  "wallet_exchange_settings_button_cta": "  Account Settings",
   "wallet_buytoken_button_title": "Buy {{tokenSymbol}} with a Card or Bank Account",
-  "wallet_selltoken_button_cta": "Sell {{tokenSymbol}}",
+  "wallet_selltoken_button_cta": "  Sell {{tokenSymbol}}",
   "wallet_selltoken_button_title": "Sell {{tokenSymbol}} and Withdraw to Bank Account",
   "wallet_buytoken_request_step_1": "Purchase Amount",
   "wallet_buytoken_request_step_1_desc": "How much {{tokenSymbol}} would you like to buy?",
@@ -163,6 +168,9 @@
   "wallet_registercarbon_request_step_3_header2a": "KYC Verification for Bank Transfers",
   "wallet_registercarbon_request_step_3_header2b": "KYC Documentation for Bank Transfers",
   "wallet_registercarbon_request_step_4_header": "KYC Request",
-  "wallet_registercarbon_request_acct_registered_header": "Account Registered Successfully"
+  "wallet_registercarbon_request_acct_registered_header": "Account Registered Successfully",
+
+  "wallet_panel_profile_refer": "Refer your friends using your Personal Referral Link below and earn free tokens!",
+  "wallet_panel_profile_earn": "You and your friend will both earn 5 SQRL tokens when their account is created."
   
 }

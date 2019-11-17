@@ -9,6 +9,7 @@ import { undelegatebwParams } from './system/undelegatebw';
 import * as AccountActions from './accounts';
 import * as TableActions from './table';
 import eos from './helpers/eos';
+import { payforcpunet } from './helpers/eos';
 
 export function setStake(accountName, netAmount, cpuAmount) {
   return (dispatch: () => void, getState) => {
@@ -41,26 +42,49 @@ export function setStake(accountName, netAmount, cpuAmount) {
     } = getStakeChanges(currentAccount, accountName, delegations, netAmount, cpuAmount, settings);
 
     dispatch({ type: types.SYSTEM_STAKE_PENDING });
-    return eos(connection, true).transaction(tr => {
-      if (increaseInStake.netAmount > 0 || increaseInStake.cpuAmount > 0) {
-        tr.delegatebw(delegatebwParams(
+
+    let actions = [];
+    if (increaseInStake.netAmount > 0 || increaseInStake.cpuAmount > 0) {
+      actions.push({
+        account: 'eosio',
+        name: 'delegatebw',
+        authorization: [{
+          actor: currentAccount.account_name,
+          permission: settings.authorization || 'active'
+        }],
+        data: delegatebwParams(
           currentAccount.account_name,
           accountName,
           increaseInStake.netAmount,
           increaseInStake.cpuAmount,
           0,
           settings
-        ));
-      }
-      if (decreaseInStake.netAmount > 0 || decreaseInStake.cpuAmount > 0) {
-        tr.undelegatebw(undelegatebwParams(
+        )
+      });
+    }
+    if (decreaseInStake.netAmount > 0 || decreaseInStake.cpuAmount > 0) {
+      actions.push({
+        account: 'eosio',
+        name: 'undelegatebw',
+        authorization: [{
+          actor: currentAccount.account_name,
+          permission: settings.authorization || 'active'
+        }],
+        data: undelegatebwParams(
           currentAccount.account_name,
           accountName,
           decreaseInStake.netAmount,
           decreaseInStake.cpuAmount,
           settings
-        ));
-      }
+        )
+      });
+    }
+
+    const payforaction = payforcpunet(currentAccount.account_name, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions      
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,

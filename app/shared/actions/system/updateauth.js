@@ -2,6 +2,7 @@ import * as types from '../types';
 
 import { getAccount } from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function updateauth(permission, parent, auth, authorizationOverride = false, linkauthActions) {
   return (dispatch: () => void, getState) => {
@@ -10,16 +11,34 @@ export function updateauth(permission, parent, auth, authorizationOverride = fal
     dispatch({
       type: types.SYSTEM_UPDATEAUTH_PENDING
     });
-    let authorization;
+    let authorization = settings.authorization;
     // Setting of the authorization based on either an override or the global connection setting
     if (authorizationOverride || connection.authorization) {
       authorization = [authorizationOverride || connection.authorization];
     }
-    return eos(connection, true).updateauth({
-      account,
-      permission,
-      parent,
-      auth
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'updateauth',
+        authorization: [{
+          actor: account,
+          permission: authorization || 'active'
+        }],
+        data: {
+          account:account,
+          permission:permission,
+          parent:parent,
+          auth:auth
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       authorization,
       forceActionDataHex: false,
@@ -47,12 +66,29 @@ export function linkauth(authorization, permission, linkauthActions) {
     });
     
     linkauthActions.map( (auth) => {
-      eos(connection, true).linkauth({
-        account,
-        code:'eosio',
-        type: auth,
-        requirement: permission
-      }, {
+      let actions = [
+        {
+          account: 'eosio',
+          name: 'linkauth',
+          authorization: [{
+            actor: account,
+            permission: authorization || 'active'
+          }],
+          data: {
+            account,
+            code:'eosio',
+            type: auth,
+            requirement: permission
+          }
+        }
+      ];
+  
+      const payforaction = payforcpunet(account, getState());
+      if (payforaction) actions = payforaction.concat(actions);
+  
+      return eos(connection, true, payforaction!==null).transaction({
+          actions
+        }, {
         authorization,
         forceActionDataHex: false,
       }).then((tx) => {

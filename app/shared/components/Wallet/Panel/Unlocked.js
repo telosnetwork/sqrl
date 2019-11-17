@@ -8,7 +8,7 @@ const { ipcRenderer } = require('electron');
 import WalletPanelModalRegisterExchange from './Modal/RegisterExchange/Request';
 import WalletPanelModalBuyFiatRequest from './Modal/BuyFiat/Request';
 import WalletPanelModalSellFiatRequest from './Modal/SellFiat/Request';
-import WalletPanelModalSwapToken from './Modal/SellFiat/Request';
+import WalletPanelFormTransferSwap from './Form/Transfer/Swap';
 
 import GlobalTransactionModal from '../../Global/Transaction/Modal';
 import WalletPanelFormAutoClaim from './Form/AutoClaim';
@@ -71,10 +71,8 @@ class WalletPanelUnlocked extends Component<Props> {
 
     const carbonRegistered = globals.exchangecontact && globals.exchangecontact.contactId;
     const contactDetails = globals.exchangecontact && globals.exchangecontact.details;
-    const buyText = "Buy " + settings.blockchain.tokenSymbol;
-    const sellText = "  Sell " + settings.blockchain.tokenSymbol;
-    const menuMargin = {marginBottom:'5px'};
     const hotWallet = (settings.walletMode === 'hot');
+    const menuMargin = {marginBottom:'5px'};
 
     let account = accounts[settings.account];
     if (!account) account = {};
@@ -90,37 +88,37 @@ class WalletPanelUnlocked extends Component<Props> {
       <div>
         <Segment vertical>
           <Menu compact icon='labeled' className="walletmenuoption" vertical style={{width:'100% !important'}}>
-            <Dropdown item simple text='Buy, Sell, Swap Tokens' icon='dollar'>
+            <Dropdown item simple text={t('wallet_panel_wallet_buy_sell_actions')} icon='dollar'>
               <Dropdown.Menu style={{marginTop:'-75px'}}>
                 {(hotWallet) ?
-                <Dropdown.Item icon='settings' text='  Account Settings' onClick={()=>this.onOpen(WIN_ACCOUNT_SETTINGS)} />:false}
+                <Dropdown.Item icon='settings' text={t('wallet_exchange_settings_button_cta')} onClick={()=>this.onOpen(WIN_ACCOUNT_SETTINGS)} />:false}
                 {(hotWallet && carbonRegistered) ?
-                <Dropdown.Item icon='dollar' text={buyText} onClick={()=>this.onOpen(WIN_BUY_TOKENS)} />:false}
+                <Dropdown.Item icon='dollar' text={t('wallet_buytoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_BUY_TOKENS)} />:false}
                 {(hotWallet && carbonRegistered && contactDetails && contactDetails.kycStatusStablecoin === true) ?
-                <Dropdown.Item icon='money' text={sellText} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:false}
+                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:false}
                 {(hotWallet) ?
-                <Dropdown.Item icon='exchange' text='Swap Tokens' onClick={()=>this.onOpen(WIN_SWAP_TOKENS)} />:false}
+                <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta')} onClick={()=>this.onOpen(WIN_SWAP_TOKENS)} />:false}
               </Dropdown.Menu>
             </Dropdown>
 
-            <Dropdown item simple text='Send, Receive, Save Tokens' icon='exchange'>
+            <Dropdown item simple text={t('wallet_panel_wallet_send_receive_actions')}  icon='send'>
               <Dropdown.Menu style={{marginTop:'-75px'}}>
                 {(settings.blockchain.tokenSymbol === 'WAX') ?
-                <Dropdown.Item icon='dollar' text='Claim Rewards' onClick={()=>this.onOpen(WIN_CLAIM_REWARDS)} />:false}
-                <Dropdown.Item icon='arrow circle up' text='Send Tokens' onClick={()=>this.onOpen(WIN_SEND_TOKENS)} />
-                <Dropdown.Item icon='arrow circle down' text='Receive Tokens' onClick={()=>this.onOpen(WIN_RECEIVE_TOKENS)} />
-                <Dropdown.Item icon='microchip' text='Manage Staked' onClick={()=>this.onOpen(WIN_UPDATE_STAKED)} />
-                <Dropdown.Item icon='database' text='Buy RAM' onClick={()=>this.onOpen(WIN_BUY_RAM)} />
-                <Dropdown.Item icon='database' text='Sell RAM' onClick={()=>this.onOpen(WIN_SELL_RAM)} />
+                <Dropdown.Item icon='dollar' text={t('stake:claimgbm_button_cta')} onClick={()=>this.onOpen(WIN_CLAIM_REWARDS)} />:false}
+                <Dropdown.Item icon='send' text={t('transfer:transfer_send_button_cta')} onClick={()=>this.onOpen(WIN_SEND_TOKENS)} />
+                <Dropdown.Item icon='arrow circle down' text={t('transfer:transfer_receive_button_cta')} onClick={()=>this.onOpen(WIN_RECEIVE_TOKENS)} />
+                <Dropdown.Item icon='microchip' text={t('stake:stake_button_cta')} onClick={()=>this.onOpen(WIN_UPDATE_STAKED)} />
+                <Dropdown.Item icon='database' text={t('ram:ram_buy_button_cta')} onClick={()=>this.onOpen(WIN_BUY_RAM)} />
+                <Dropdown.Item icon='database' text={t('ram:ram_sell_button_cta')} onClick={()=>this.onOpen(WIN_SELL_RAM)} />
                 {(settings.walletMode === 'watch') ?
-                <Dropdown.Item icon='wifi' text=' Broadcast Signed Transaction' onClick={()=>this.onOpen(WIN_BROADCAST_TX)} />:false}
+                <Dropdown.Item icon='wifi' text={t('wallet_panel_wallet_broadcast')} onClick={()=>this.onOpen(WIN_BROADCAST_TX)} />:false}
               </Dropdown.Menu>
             </Dropdown>
                 
             {(hotWallet) ?
-            <Dropdown style={menuMargin} item simple text='Advanced Actions' icon='code'>
+            <Dropdown style={menuMargin} item simple text={t('wallet_panel_wallet_advanced_actions')}  icon='code'>
               <Dropdown.Menu style={{marginTop:'-75px'}}>
-                <Dropdown.Item icon='wifi' text=' Broadcast Signed Transaction' onClick={()=>this.onOpen(WIN_BROADCAST_TX)} />
+                <Dropdown.Item icon='wifi' text={t('wallet_panel_wallet_broadcast')} onClick={()=>this.onOpen(WIN_BROADCAST_TX)} />
               </Dropdown.Menu>
             </Dropdown>:false}
           </Menu>
@@ -164,19 +162,31 @@ class WalletPanelUnlocked extends Component<Props> {
             settings={settings}
             system={system}
           />:false}
-          {(hotWallet) ?
-          <WalletPanelModalSwapToken
-            accounts={accounts}
-            actions={actions}
-            connection={connection}
-            globals={globals}
-            keys={keys}
-            history={history}
-            onClose={this.onClose}
-            open={activeWindow == WIN_SWAP_TOKENS}
-            settings={settings}
-            system={system}
-          />:false}
+          
+        {(hotWallet) ?
+        <GlobalTransactionModal
+          actionName="SWAP_TOKEN"
+          actions={actions}
+          blockExplorers={blockExplorers}
+          content={(
+            <WalletPanelFormTransferSwap
+              actions={actions}
+              balances={balances}
+              globals={globals}
+              settings={settings}
+              system={system}
+              connection={connection}
+            />
+          )}
+          icon="exchange"
+          onClose={this.onClose}
+          openModal={activeWindow == WIN_SWAP_TOKENS}
+          title={t('transfer:transfer_swap_modal_title')}
+          size="medium"
+          settings={settings}
+          system={system}
+        />
+        :false}
 
         <GlobalTransactionModal
           actionName="STAKE"
@@ -200,7 +210,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="microchip"
           onClose={this.onClose}
           openModal={activeWindow == WIN_UPDATE_STAKED}
-          title={t('update_staked_coins')}
+          title={t('stake:update_staked_coins')}
           settings={settings}
           system={system}
         />
@@ -220,6 +230,7 @@ class WalletPanelUnlocked extends Component<Props> {
             <WalletPanelModalTransferSend
               actions={actions}
               balances={balances}
+              globals={globals}
               settings={settings}
               system={system}
               connection={connection}
@@ -228,7 +239,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="arrow circle up"
           onClose={this.onClose}
           openModal={activeWindow == WIN_SEND_TOKENS}
-          title={t('transfer_modal_title')}
+          title={t('transfer:transfer_modal_title')}
           settings={settings}
           system={system}
         />
@@ -251,7 +262,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="database"
           onClose={this.onClose}
           openModal={activeWindow == WIN_BUY_RAM}
-          title={t('ram_buy_modal_title')}
+          title={t('ram:ram_buy_modal_title')}
           settings={settings}
           system={system}
         />
@@ -274,7 +285,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="database"
           onClose={this.onClose}
           openModal={activeWindow == WIN_SELL_RAM}
-          title={t('ram_sell_modal_title')}
+          title={t('ram:ram_sell_modal_title')}
           settings={settings}
           system={system}
         />
@@ -303,7 +314,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="dollar"
           onClose={this.onClose}
           openModal={activeWindow == WIN_CLAIM_REWARDS}
-          title={t('claimgbm_schedule_rewards')}
+          title={t('stake:claimgbm_schedule_rewards')}
           settings={settings}
           system={system}
         />:false}
@@ -343,4 +354,4 @@ class WalletPanelUnlocked extends Component<Props> {
   }
 }
 
-export default translate('wallet')(WalletPanelUnlocked);
+export default translate(['wallet', 'ram'])(WalletPanelUnlocked);

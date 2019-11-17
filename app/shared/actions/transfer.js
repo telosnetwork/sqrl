@@ -2,6 +2,7 @@ import * as types from './types';
 
 import eos from './helpers/eos';
 import { getCurrencyBalance } from './accounts';
+import { payforcpunet } from './helpers/eos';
 
 export function transfer(from, to, quantity, memo, symbol) {
   return (dispatch: () => void, getState) => {
@@ -17,24 +18,29 @@ export function transfer(from, to, quantity, memo, symbol) {
       symbol = symbol ? symbol : settings.blockchain.tokenSymbol;
       const contracts = balances.__contracts;
       const account = contracts[symbol].contract;
-      return eos(connection, true).transaction(
+      let actions = [
         {
-          actions: [
-            {
-              account: account,
-              name: 'transfer',
-              authorization: [{
-                actor: from,
-                permission: 'active',
-              }],
-              data: {
-                from,
-                to,
-                quantity,
-                memo,
-              },
-            }
-          ]
+          account: account,
+          name: 'transfer',
+          authorization: [{
+            actor: from,
+            permission: 'active',
+          }],
+          data: {
+            from,
+            to,
+            quantity,
+            memo,
+          },
+        }
+      ];
+  
+      const payforaction = payforcpunet(from, getState());
+      if (payforaction) actions = payforaction.concat(actions);
+  
+      return eos(connection, true, payforaction!==null).transaction(
+        {
+          actions
         }, 
        {
         broadcast: connection.broadcast,

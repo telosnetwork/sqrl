@@ -7,6 +7,8 @@ import avatarPlaceholder from '../../../../renderer/assets/images/profile.png';
 
 import GlobalTransactionModal from '../../Global/Transaction/Modal';
 import WalletStatusProfileForm from './Form/Profile';
+import WalletStatusVIPForm from './Form/VIP';
+import WalletStatusReferralsForm from './Form/Referrals';
 
 const WIN_CLOSED = -1;
 const WIN_EDIT_PROFILE = 0;
@@ -41,11 +43,13 @@ class WalletStatusProfile extends Component<Props> {
     }
     if (!profile) 
       profile = {
-      avatar: avatarPlaceholder,
-      bio: 'Click image to customize avatar and bio.',
-      referrals: 0,
-      vip_level:0
-    }
+        referrals: 0,
+        vip_level:0
+      }
+    if (!profile.avatar)
+      profile.avatar = avatarPlaceholder;
+    if (!profile.bio)
+      profile.bio = 'Click image to customize avatar and bio.';
 
     return (
       <div>
@@ -93,6 +97,7 @@ class WalletStatusProfile extends Component<Props> {
               actions={actions}
               globals={globals}
               key="ProfileForm"
+              profile={profile}
               settings={settings}
               system={system}
             />
@@ -110,11 +115,12 @@ class WalletStatusProfile extends Component<Props> {
           actions={actions}
           blockExplorers={blockExplorers}
           content={(
-            <WalletStatusProfileForm
+            <WalletStatusVIPForm
               accounts={accounts}
               actions={actions}
               globals={globals}
               key="VIPForm"
+              profile={profile}
               settings={settings}
               system={system}
             />
@@ -123,8 +129,9 @@ class WalletStatusProfile extends Component<Props> {
           onClose={this.onClose}
           openModal={open===WIN_EDIT_VIP}
           settings={settings}
+          size="medium"
           system={system}
-          title="VIP Settings"
+          title="SQRL VIP Options"
           />
 
         <GlobalTransactionModal
@@ -132,11 +139,12 @@ class WalletStatusProfile extends Component<Props> {
           actions={actions}
           blockExplorers={blockExplorers}
           content={(
-            <WalletStatusProfileForm
+            <WalletStatusReferralsForm
               accounts={accounts}
               actions={actions}
               globals={globals}
               key="ReferralForm"
+              profile={profile}
               settings={settings}
               system={system}
             />
@@ -145,6 +153,7 @@ class WalletStatusProfile extends Component<Props> {
           onClose={this.onClose}
           openModal={open===WIN_EDIT_REFER}
           settings={settings}
+          size="small"
           system={system}
           title="User Referrals"
           />

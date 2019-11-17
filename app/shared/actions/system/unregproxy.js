@@ -2,6 +2,7 @@ import * as types from '../types';
 
 import { getAccount } from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function unregproxy() {
   return (dispatch: () => void, getState) => {
@@ -14,9 +15,27 @@ export function unregproxy() {
     dispatch({
       type: types.SYSTEM_UNREGPROXY_PENDING
     });
-    return eos(connection, true).regproxy({
-      proxy: account,
-      isproxy: 0
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'regproxy',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proxy: account,
+          isproxy: 0
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       // Refresh the account
       setTimeout(dispatch(getAccount(account)), 500);

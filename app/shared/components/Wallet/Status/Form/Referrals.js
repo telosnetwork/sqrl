@@ -1,315 +1,132 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Divider, Form, Icon, Segment, Header, Message } from 'semantic-ui-react';
+import { Button, Table, Header, Segment, Label, Message } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
-import debounce from 'lodash/debounce';
-
-import GlobalFormFieldAccount from '../../../Global/Form/Field/Account';
-import GlobalFormFieldGeneric from '../../../Global/Form/Field/Generic';
-import FormMessageError from '../../../Global/Form/Message/Error';
-import WalletStatusVIPFormConfirm from './Referrals/Confirming';
-
-import ipfs from '../../../../actions/helpers/ipfs';
-
-const formAttributes = ['avatar', 'bio'];
+const { shell } = require('electron');
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import * as config from '../../../../actions/config';
 
 class WalletStatusReferralsForm extends Component<Props> {
   constructor(props) {
     super(props);
 
-    const {
-      avatar,
-      bio
-    } = props;
-    
+    const { settings } = this.props;
+    const referralUrl = 'https://sqrlwallet.io/earn?refer=' + settings.account;
+
     this.state = {
-      avatar,
-      bio,
-      fileBuffer:'',
-      fileInfo: '',
-      ipfsHash:null,
-      ipfsing: false,
-      ipfsError: {
-        address:'',
-        code:'',
-        errno:'',
-        port: 0,
-        syscall:'',
-        message:''
-      },
-      confirming: false,
-      formErrors: {},
-      submitDisabled: true
+      copied: false,
+      dedicatedUrl: referralUrl,
+      shortenedUrl: ''
     };
   }
 
-  uploadAvatar =(e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const avatar = e.target.files[0];
-    let reader = new window.FileReader();
-    reader.readAsArrayBuffer(avatar);
-    reader.onloadend = async () => {
-      const fileBuffer = await Buffer.from(reader.result);
-      this.setState({
-        fileBuffer, 
-        fileInfo: avatar
-      });
-      this.onChange(e, {
-        name: 'avatar', 
-        value: avatar, 
-        valid: true});
-    };
-  };
-
-  onSubmit = (e) => {
-    if (!this.state.submitDisabled) {
-      this.setState({
-        confirming: true,
-        ipfsing: false,
-        ipfsError: {
-          address:'',
-          code:'',
-          errno:'',
-          port: 0,
-          syscall:'',
-          message:''
-        }
-      });
-    }
-    e.preventDefault();
-    return false;
-  }
-
-  onKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      this.onSubmit(e);
-
-      e.preventDefault();
-      return false;
-    }
-  }
-
-  onChange = debounce((e, { name, value, valid=true }) => {
-    this.setState({
-      submitDisabled: false,
-      [name]: value
-    }, () => {
-      let {
-        formErrors
-      } = this.state;
-
-      let submitDisabled = false;
-
-      ({ formErrors, submitDisabled } = this.errorsInForm(formErrors));
-
-      this.setState({
-        formErrors,
-        submitDisabled
-      });
-    });
-  }, 200)
-
-  errorsInForm = (errors) => {
+  async componentWillMount() {
     const {
-      bio
+      dedicatedUrl
     } = this.state;
-    const formErrors = errors;
-    let submitDisabled = false;
 
-    formAttributes.forEach((attribute) => {
-      formErrors[attribute] = null;
-    });
-
-    if (bio && (bio.length > 256 || bio.length < 2) && !submitDisabled) {
-      formErrors.bio = 'invalid_length';
-      submitDisabled = true;
+    let linkRequest = {
+      destination: dedicatedUrl,
+      domain: { fullName: "refer.sqrlwallet.io" }
     }
-
-    return { formErrors, submitDisabled };
-  }
-
-  onConfirm = async () => {
-    this.setState({      
-      ipfsing: true,
-      ipfsError: {
-        address:'',
-        code:'',
-        errno:'',
-        port: 0,
-        syscall:'',
-        message:''
-      }
-    });
-
-    const {
-      actions,
-      settings
-    } = this.props;
-
-    const {
-      setProfileAvatar
-    } = actions;
-
-    const {
-      avatar,
-      bio
-    } = this.state;
     
-    // save avatar to IPFS, return its hash#, and submit profile data to chain
-    if (bio || this.state.fileBuffer != '') {
-      await ipfs(settings.ipfsNode, settings.ipfsPort, settings.ipfsProtocol).add(this.state.fileBuffer, (error, ipfsHash) => {
-        if (error) {
-          console.log('got error in IPFS..', error)
-          this.setState({ ipfsError:error });
+    let requestHeaders = {
+      "Content-Type": "application/json",
+      "apikey": config.RB_API_KEY,
+      "workspace": config.RB_WORKSPACE_ID
+    };
+
+    await fetch('https://api.rebrandly.com/v1/links', {
+      method: 'GET',
+      headers: requestHeaders
+    }).then(response => response.json()).then((response) => {
+      let shortlinkFound = false;
+      for (const i in response) {
+        const link = response[i];
+        if (link && link.destination == dedicatedUrl) {
+          this.setState({ shortenedUrl: link.shortUrl });
+          shortlinkFound = true;
+          return;
         }
-        
-        // now we can finally add the proxy to the blockchain
-        if (ipfsHash) {
-          const ipfsLocation = settings.ipfsProtocol + "://" + 
-            settings.ipfsNode + "/ipfs/" + ipfsHash[0].hash;
-  
-          // save to chain
-          setProfileAvatar( ipfsLocation, bio );
-  
-          this.setState({
-            ipfsHash: ipfsHash[0].hash,
-            avatar: ipfsLocation
-          });
-        }
-  
-        this.setState({ipfsing: false});
-      });
-    }
+      }
+      if (!shortlinkFound) {
+        fetch('https://api.rebrandly.com/v1/links', {
+          method: 'POST',
+          headers: requestHeaders,
+          body: JSON.stringify(linkRequest)
+        }).then(response => response.json()).then((response) => {
+          this.setState({ shortenedUrl: response.shortUrl });
+        }); 
+      }
+    }).catch((e)=>{});
   }
 
-  onBack = (e) => {
-    this.setState({
-      confirming: false,
-      ipfsing: false
-    });
-    e.preventDefault();
-    return false;
-  }
+  openLink = (url) => shell.openExternal(url);
 
   onClose = (e) => {
-    this.setState({
-      confirming: false,
-      ipfsing: false,
-      fileInfo: ''
-    });
-
     this.props.onClose();
   }
 
   render() {
     const {
-      actions,
-      settings,
-      system,
-      t,
-      validate,
-      wallet
+      profile,
+      t
     } = this.props;
 
-    const {
-      avatar,
-      bio,
-      confirming,
-      fileInfo,
-      formErrors,
-      ipfsing,
-      ipfsError,
-      ipfsHash
-    } = this.state;
-    let {
-      submitDisabled
-    } = this.state;
+    const { shortenedUrl, dedicatedUrl } = this.state;
+    const referralUrl = shortenedUrl ? shortenedUrl : dedicatedUrl;
+    const referrals = profile ? profile.referrals : 0;
+    const earnings = referrals * 5;
 
-    const formErrorKeys = Object.keys(formErrors);
-    const hasError = ipfsError.message && ipfsError.message.length > 0;
     return (
-      <Form
-        warning
-        loading={ipfsing === true || system.SET_PROFILEAVATAR === 'PENDING'}
-        onKeyPress={this.onKeyPress}
-        onSubmit={this.onSubmit}
-      >
-        {(!confirming && !ipfsing) ? (
-            <Segment basic clearing>
-                {(hasError === true)
-                  ? (
-                    <Message
-                    color="red"
-                    header={ipfsError.message}
-                    icon="x"
-                    />
-                  )
-                  : false
-                }
-              <Message
-                content="Use the form below to update your bio and avatar."
-                warning
-              />
-              <FormMessageError
-                errors={
-                  formErrorKeys.length > 0 && formErrorKeys.reduce((errors, key) => {
-                    const error = this.state.formErrors[key];
-                    if (error) {
-                      errors.push(error);
-                    }
-                    return errors;
-                  }, [])
-                }
-                icon="warning sign"
-              />
-              <GlobalFormFieldGeneric
-                autoFocus
-                label="Bio:"
-                name="bio"
-                onChange={this.onChange}
-                value={bio} 
-              />
-              <input 
-                type = "file"
-                onChange = {this.uploadAvatar}
-              />
-              <Divider />
-              <Button
-                onClick={this.onClose}
-              >
-                <Icon name="x" /> {t('close')}
-              </Button>
-              <Button
-                content="Confirm"
-                disabled={submitDisabled}
-                floated="right"
-                primary
-              />
-            </Segment>
-          ) : ''}
-        {(confirming)
-          ? (
-            <WalletStatusVIPFormConfirm
-              actions={actions}
-              
-              avatar={avatar}
-              bio={bio}
-
-              fileInfo={fileInfo}
-              ipfsHash={ipfsHash}
-              onBack={this.onBack}
-              onClose={this.onClose}
-              onConfirm={this.onConfirm}
-              settings={settings}
-              system={system}
-              validate={validate}
-              wallet={wallet}
-            />
-          ) : ''
-        }
-      </Form>
+      <Segment basic clearing vertical textAlign="center">
+          <Header>
+            {t('wallet_panel_profile_refer')}
+          </Header>
+          <Message 
+            content={(
+              <React.Fragment>
+                {t('wallet_panel_profile_earn')}
+              </React.Fragment>
+            )}
+            info
+          />
+          <Table celled padded>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Total Referrals</Table.HeaderCell>
+                <Table.HeaderCell>Tokens Earned</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <Header as='h2' textAlign='center'>
+                    {referrals}
+                  </Header>
+                </Table.Cell>
+                <Table.Cell>
+                  <Header as='h2' textAlign='center'>
+                    {earnings} SQRL
+                  </Header>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+            <Table.Footer fullWidth>
+              <Table.Row>
+                <Table.HeaderCell colSpan='2'>
+                  <Label>Personal Referral Link:</Label>&nbsp;&nbsp;
+                  <a onClick={() => this.openLink(referralUrl)} role="link">{referralUrl}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                  <CopyToClipboard text={referralUrl}
+                    onCopy={() => this.setState({copied: true})}>
+                    <Label style={{cursor:'pointer'}} icon="copy" content="Copy" />
+                  </CopyToClipboard>
+                  {this.state.copied ? <span style={{color: 'red'}}>Copied</span> : null}
+                </Table.HeaderCell>
+              </Table.Row>
+            </Table.Footer>
+          </Table>
+        </Segment>
     );
   }
 }
