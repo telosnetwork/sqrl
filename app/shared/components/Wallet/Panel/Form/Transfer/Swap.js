@@ -1,33 +1,28 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Divider, Dropdown, Form, Label, Message, Table, Icon, Image, Segment } from 'semantic-ui-react';
+import { Button, Divider, Form, Message, Table, Icon, Image, Segment } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
-import { findIndex } from 'lodash';
+import { Decimal } from 'decimal.js';
+
+import eos from '../../../../../actions/helpers/eos';
 
 import FormFieldMultiToken from '../../../../Global/Form/Field/MultiToken';
 import FormMessageError from '../../../../Global/Form/Message/Error';
-import GlobalFormFieldAccount from '../../../../Global/Form/Field/Account';
-import GlobalFormFieldMemo from '../../../../Global/Form/Field/Memo';
-import WalletPanelFormTransferSendConfirming from './Send/Confirming';
-
-import exchangeAccounts from '../../../../../constants/exchangeAccounts';
-import { toASCII } from 'punycode';
+import WalletPanelFormTransferSwapConfirming from './Swap/Confirming';
 
 class WalletPanelFormTransferSwap extends Component<Props> {
   constructor(props) {
     super(props);
     
-    const { globals, settings } = props;
+    const { globals } = props;
 
-    const fromToken = globals && globals.remotetokens 
-      && globals.remotetokens.filter((token) => token.symbol==settings.blockchain.tokenSymbol)[0];
-    const toToken = globals && globals.remotetokens 
-      && globals.remotetokens.filter((token) => token.symbol=='SQRL')[0];
+    const fromToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol=='QBE')[0];
+    const toToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol=='SQRL')[0];
 
     this.state = {
-      fromAsset: settings.blockchain.tokenSymbol,
+      fromAsset: 'QBE',
       toAsset: 'SQRL',
-      fromQuantity: '0.0000 TLOS',
+      quantity: '0.0000 QBE',
       toQuantity: '0.0000 SQRL',
       fromLogo: fromToken ? fromToken.logo : '',
       toLogo: toToken ? toToken.logo : '',
@@ -35,47 +30,39 @@ class WalletPanelFormTransferSwap extends Component<Props> {
       formError: false,
       submitDisabled: true,
       waiting: false,
-      waitingStarted: 0
+      waitingStarted: 0,
+      values: {
+        sourceNetwork: '',
+        sourceAsset:'',
+        sourceConverter:'',
+        sourceQuantity: '',
+        sourceTotal: 0,
+        sourceFee: 0,
+        sourceTotalAfterFee: 0,
+        destAsset:'',
+        destConverter:'',
+        destTotal: 0,
+        destFee: 0,
+        destTotalAfterFee: 0,
+      }
     };
-  }
-
-  async fetchConversionData () {
-    const { 
-      actions,
-      globals,
-      settings
-    } = this.props;
-    const { 
-      fromAsset,
-      toAsset
-    } = this.state;
-
-    const fromToken = globals && globals.remotetokens 
-      && globals.remotetokens.filter((token) => token.symbol==fromAsset)[0];
-    const toToken = globals && globals.remotetokens 
-      && globals.remotetokens.filter((token) => token.symbol==toAsset)[0];
-
-    console.log('getting info for from|to:', fromToken, toToken)
-
-    const tokenSettings = await actions.getTable('eosio', settings.account, 'delband');
-    console.log('Settings:', tokenSettings);
-    const tokenReserves = await actions.getTable('eosio', settings.account, 'delband');
-    console.log('Reserves:', tokenReserves);
-
-    /*const fromBalance = await actions.getCurrencyBalance(fromToken.bancor_converter, 
-      ['eosio.token:' + settings.blockchain.tokenSymbol, fromToken.account + ':' + fromToken.bancor_converter]);
-      */
   }
 
   onConfirm = () => {
     const {
-      fromQuantity,
-      toQuantity,
+      quantity,
       fromAsset,
-      toAsset
+      values
     } = this.state;
+    const {
+      settings
+    } = this.props;
     this.setState({ confirming: false }, () => {
-      //this.props.actions.transfer(from, to, quantity, memo, asset);
+      const memo = '1,' + 
+        values.sourceConverter.concat(' ').concat(settings.blockchain.tokenSymbol) + ' ' +
+        values.destConverter.concat(' ').concat(values.destAsset);
+      this.props.actions.transfer(settings.account, values.sourceNetwork, quantity, memo, fromAsset);
+      //console.log('submitting SWAP to!!!', quantity, values.sourceNetwork, memo, fromAsset)
     });
   }
 
@@ -109,28 +96,26 @@ class WalletPanelFormTransferSwap extends Component<Props> {
   onChange = (e, { name, value, valid }) => {
     const { globals } = this.props;
     const newState = { [name]: value };
-    if (name === 'fromQuantity') {
-      const [, asset] = value.split(' ');
+    if (name === 'quantity') {
+      const [quantity, asset] = value.split(' ');
       newState.fromAsset = asset;
-      const fromToken = globals && globals.remotetokens 
-        && globals.remotetokens.filter((token) => token.symbol==asset)[0];
+      const fromToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==asset)[0];
       if (fromToken) {
         newState.fromLogo = fromToken.logo;
       }
+      this.fetchConversionData(asset, this.state.toAsset, name, quantity);
     }
     if (name === 'toQuantity') {
       const [, asset] = value.split(' ');
       newState.toAsset = asset;
-      const toToken = globals && globals.remotetokens 
-        && globals.remotetokens.filter((token) => token.symbol==asset)[0];
+      const toToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==asset)[0];
       if (toToken) {
         newState.toLogo = toToken.logo;
       }
+      this.fetchConversionData(this.state.fromAsset, asset, name, this.state.quantity.split(' ')[0]);
     }
 
     newState[`${name}Valid`] = valid;
-
-    newState.submitDisabled = false;
     newState.formError = false;
 
     this.setState(newState, () => {
@@ -138,10 +123,99 @@ class WalletPanelFormTransferSwap extends Component<Props> {
 
       if (error) {
         this.onError(error);
+      } else {
+        this.setState({
+          submitDisabled: false
+        });
       }
     });
+  }
 
-    this.fetchConversionData();
+
+  async fetchConversionData (fromSymbol, toSymbol, editedField, _quantity) {
+    const {
+      connection,
+      globals,
+      settings
+    } = this.props;
+    
+    const networkContract = 'eosio.token';
+    const fromToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==fromSymbol)[0];
+    const toToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==toSymbol)[0];
+
+    const fromSettings = await eos(connection).getTableRows(
+      {
+        json: true,
+        code: fromToken.bancor_converter,
+        scope: fromToken.bancor_converter,
+        table: 'settings'
+      }
+    );
+    const toSettings = await eos(connection).getTableRows(
+      {
+        json: true,
+        code: toToken.bancor_converter,
+        scope: toToken.bancor_converter,
+        table: 'settings'
+      }
+    );
+
+    const fromCoreBalance = await eos(connection).getCurrencyBalance(
+      networkContract, fromToken.bancor_converter, settings.blockchain.tokenSymbol);
+    const fromTokenBalance = await eos(connection).getCurrencyBalance(
+      fromToken.account, fromToken.bancor_converter, fromToken.symbol);
+
+    const toCoreBalance = await eos(connection).getCurrencyBalance(
+      networkContract, toToken.bancor_converter, settings.blockchain.tokenSymbol);
+    const toTokenBalance = await eos(connection).getCurrencyBalance(
+      toToken.account, toToken.bancor_converter, toToken.symbol);
+
+    const _sourceNetwork = fromSettings.rows[0].network;
+    const _sourceFee = fromSettings.rows[0].fee;
+    const _sourceConverter = fromToken.bancor_converter;
+    const _sourceTokenAsset = fromTokenBalance[0].split(' ')[1];
+    const _sourceTokenBalance = fromTokenBalance[0].split(' ')[0];
+    const _sourceCoreBalance = fromCoreBalance[0].split(' ')[0];
+    const _sourceCoreTotal = Decimal(_quantity).div(Decimal(_sourceTokenBalance).plus(_quantity)).mul(_sourceCoreBalance);
+    const _sourceCoreTotalAfterFee = _sourceCoreTotal.mul(Decimal(1).sub(Decimal(_sourceFee).div(1000000)).pow(2));
+    const _sourceCoreConversionFee = _sourceCoreTotal.sub(_sourceCoreTotalAfterFee);
+
+    console.log('Source Amount:', _quantity, _sourceTokenAsset);
+    console.log('Source Core Total:', _sourceCoreTotal.toFixed(8), settings.blockchain.tokenSymbol);
+    console.log('Source Conversion Fee:', _sourceCoreConversionFee.toFixed(8), settings.blockchain.tokenSymbol);
+    console.log('Source Total - Fee:', _sourceCoreTotalAfterFee.toFixed(8), settings.blockchain.tokenSymbol);
+
+    const _destFee = toSettings.rows[0].fee;
+    const _destConverter = toToken.bancor_converter;
+    const _destTokenAsset = toTokenBalance[0].split(' ')[1];
+    const _destTokenBalance = toTokenBalance[0].split(' ')[0];
+    const _destCoreBalance = toCoreBalance[0].split(' ')[0];
+
+    const _destTokenTotal = Decimal(_sourceCoreTotalAfterFee).div(Decimal(_destCoreBalance).plus(_sourceCoreTotalAfterFee)).mul(_destTokenBalance);
+    const _destTokenTotalAfterFee = _destTokenTotal.mul(Decimal(1).sub(Decimal(_destFee).div(1000000)).pow(2));
+    const _destTokenConversionFee = _destTokenTotal.sub(_destTokenTotalAfterFee);
+
+    console.log('Destination Amount:', _sourceCoreTotalAfterFee.toFixed(8), settings.blockchain.tokenSymbol);
+    console.log('Destination Token Total:', _destTokenTotal.toFixed(8), _destTokenAsset);
+    console.log('Destination Conversion Fee:', _destTokenConversionFee.toFixed(8), _destTokenAsset);
+    console.log('Destination Total - Fee:', _destTokenTotalAfterFee.toFixed(8), _destTokenAsset);
+
+    this.setState({
+      values: {
+        sourceConverter: _sourceConverter,
+        sourceNetwork: _sourceNetwork,
+        sourceAsset: _sourceTokenAsset,
+        sourceFee: _sourceCoreConversionFee,
+        sourceQuantity: _quantity,
+        sourceTotal: _sourceCoreTotal,
+        sourceTotalAfterFee: _sourceCoreTotalAfterFee,
+        destConverter: _destConverter,
+        destAsset: _destTokenAsset,
+        destFee: _destTokenConversionFee,
+        destTotal: _destTokenTotal,
+        destTotalAfterFee: _destTokenTotalAfterFee
+      }
+    });
   }
 
   onError = (error) => {
@@ -165,19 +239,23 @@ class WalletPanelFormTransferSwap extends Component<Props> {
 
   errorInForm = () => {
     const {
-      fromQuantity,
-      toQuantity
+      fromAsset,
+      quantity,
+      values
     } = this.state;
 
     const {
+      balances,
       settings
     } = this.props;
 
-    if (!fromQuantity || fromQuantity === '' || fromQuantity === '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
+    if (!quantity || quantity === '' || quantity === '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
       return true;
     }
 
-    if (!toQuantity || toQuantity === '' || toQuantity === '0.'.padEnd(settings.tokenPrecision + 2, '0')) {
+    const balance = balances[settings.account];
+    const qty = quantity.split(' ')[0];
+    if (balance[fromAsset] < qty) {
       return true;
     }
 
@@ -201,104 +279,113 @@ class WalletPanelFormTransferSwap extends Component<Props> {
       toLogo,
       confirming,
       formError,
-      fromQuantity,
+      quantity,
       toQuantity,
       submitDisabled,
       waiting,
-      waitingStarted
+      waitingStarted,
+      values
     } = this.state;
 
     const balance = balances[settings.account];
 
     return (
       <Form
-        loading={system.SWAP_TOKEN === 'PENDING'}
+        loading={system.TRANSFER === 'PENDING'}
         onKeyPress={this.onKeyPress}
         onSubmit={this.onSubmit}
         warning={true}
       >
         {(confirming)
           ? (
-            <WalletPanelFormTransferSendConfirming
+            <WalletPanelFormTransferSwapConfirming
+              balance={balance}
               balances={balances}
               connection={connection}
               fromAsset={fromAsset}
               toAsset={toAsset}
-              fromQuantity={fromQuantity}
+              fromLogo={fromLogo}
+              toLogo={toLogo}
+              quantity={quantity}
               toQuantity={toQuantity}
               onBack={this.onBack}
               onConfirm={this.onConfirm}
+              settings={settings}
               waiting={waiting}
               waitingStarted={waitingStarted}
+              values={values}
             />
           ) : (
             <Segment basic clearing>
-              <Message info content="Quickly swap from one token to another using the Telos Bancor Network, subject to each token's available liquidity. There's a 0.20% conversion fee that goes back into the liquidity pool." />
+              <Message info content={t('transfer_swap_overview')} />
               <Table basic="very">
                 <Table.Row>
-                  <Table.Cell width="6">
+                  <Table.Cell width="5">
                     <Image 
                       bordered
                       circular 
-                      size='tiny'
                       src={fromLogo} 
-                      style={{margin:'auto'}}
+                      style={{margin:'auto', height:'80px',width:'80px'}}
                     />
                     <FormFieldMultiToken
                       balances={balances}
+                      bancorOnly={true}
                       globals={globals}
                       label={t('transfer_swap_from_token')}
                       loading={false}
                       maximum={balance[fromAsset]}
-                      name="fromQuantity"
+                      name="quantity"
                       onChange={this.onChange}
                       reverseInputs={true}
                       settings={settings}
-                      value={fromQuantity}
+                      value={quantity}
                       connection={connection}
                       dropdownStyle={{minWidth:'125px'}}
-                      style={{width:'100px'}}
+                      style={{width:'125px'}}
                       showAll={true}
                     />
-                    <p>
+                    <p style={{textAlign:'center'}}>
                       {`${balance[fromAsset].toFixed(settings.tokenPrecision)} ${fromAsset} ${t('transfer_swap_available')}`}
                     </p>
                   </Table.Cell>
-                  <Table.Cell>
-                    <Icon name="exchange" size="big" style={{marginLeft:'50px'}} />
-                    <p>
-                      1 {fromAsset} = {balance[fromAsset].toFixed(settings.tokenPrecision)} {toAsset}
+                  <Table.Cell width="5" textAlign="center">
+                    <Icon 
+                      color='orange'
+                      name="exchange" 
+                      size="big" 
+                    />
+                    <p style={{fontWeight:'bold'}}>
+                      {quantity} = {values.destTotalAfterFee.toFixed(settings.tokenPrecision)} {toAsset}
                     </p>
-                    <Button primary icon labelPosition='left'>
-                      <Icon name='refresh' />
-                      Convert
-                    </Button>
+                    <p>
+                    Fee: {values.destFee.toFixed(settings.tokenPrecision)} {toAsset}
+                    </p>
                   </Table.Cell>
-                  <Table.Cell>
-                  <Image 
+                  <Table.Cell width="5">
+                    <Image 
                       bordered
                       circular 
-                      size='tiny'
                       src={toLogo} 
-                      style={{margin:'auto'}}
+                      style={{margin:'auto', height:'80px',width:'80px'}}
                     />
                     <FormFieldMultiToken
                       balances={balances}
+                      bancorOnly={true}
                       globals={globals}
                       label={t('transfer_swap_to_token')}
                       loading={false}
                       maximum={balance[toAsset]}
                       name="toQuantity"
+                      noInput={true}
                       onChange={this.onChange}
                       reverseInputs={true}
                       settings={settings}
                       value={toQuantity}
                       connection={connection}
-                      dropdownStyle={{minWidth:'125px'}}
-                      style={{width:'100px'}}
+                      dropdownStyle={{minWidth:'245px'}}
                       showAll={true}
                     />
-                    <p>
+                    <p style={{textAlign:'center'}}>
                       {`${balance[toAsset].toFixed(settings.tokenPrecision)} ${toAsset} ${t('transfer_swap_available')}`}
                     </p>
                   </Table.Cell>
@@ -310,12 +397,12 @@ class WalletPanelFormTransferSwap extends Component<Props> {
               />
 
               <Divider />
-              <Button
-                content={t('confirm')}
+              <Button primary icon labelPosition='left'
                 disabled={submitDisabled}
-                floated="right"
-                primary
-              />
+                floated="right">
+                <Icon name='refresh' />
+                {t('Convert')}
+              </Button>
               <Button
                 onClick={onClose}
               >

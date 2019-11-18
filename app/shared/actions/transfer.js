@@ -38,6 +38,7 @@ export function transfer(from, to, quantity, memo, symbol) {
       const payforaction = payforcpunet(from, getState());
       if (payforaction) actions = payforaction.concat(actions);
   
+      console.log('xfer actions:', actions)
       return eos(connection, true, payforaction!==null).transaction(
         {
           actions

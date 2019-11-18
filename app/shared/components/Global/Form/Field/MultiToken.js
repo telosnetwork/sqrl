@@ -42,15 +42,18 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
       this.props.onChange(e, { name: this.props.name, value: parsed });
     });
   }, 300)
+  
   render() {
     const {
       autoFocus,
       balances,
+      bancorOnly,
       dropdownStyle,
       globals,
       label,
       loading,
       name,
+      noInput,
       reverseInputs,
       settings,
       showAll,
@@ -66,6 +69,9 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
       const tokenInfo = globals && globals.remotetokens 
         && globals.remotetokens.filter((token) => token.account==contract && token.symbol==symbol)[0];
       
+        if (bancorOnly === true && tokenInfo && tokenInfo.bancor_enabled === 0)
+          return;
+
       return { 
         contract, 
         symbol, 
@@ -110,20 +116,28 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
           placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
           style={style}
         >
-          {(reverseInputs === true) ? 
+          {(reverseInputs === true && noInput !== true) ? 
             <input />
+          :false}
+          {(bancorOnly !== true) ?
+          <Image src={this.state.logo} 
+            style={{
+              width:'42px',
+              height:'42px',
+              marginLeft:'5px',
+              marginRight:'5px', 
+              borderRadius:'20px',
+              border:'1px solid #eee'}} />
           :false}
           <Dropdown
             defaultValue={this.state.asset || settings.blockchain.tokenSymbol}
-            icon={<Image src={this.state.logo} style={{width:'16px',float:'left',marginRight:'5px'}} />}
             name="asset"
             onChange={this.onChange}
             options={options}
-            search
             selection
             style={dropdownStyle}
           />
-          {(!reverseInputs) ? 
+          {(!reverseInputs && noInput !== true) ? 
             <input />
           :false}
         </Input>
