@@ -165,7 +165,7 @@ class WalletPanelUnlocked extends Component<Props> {
           
         {(hotWallet) ?
         <GlobalTransactionModal
-          actionName="SWAP_TOKEN"
+          actionName="TRANSFER"
           actions={actions}
           blockExplorers={blockExplorers}
           content={(
