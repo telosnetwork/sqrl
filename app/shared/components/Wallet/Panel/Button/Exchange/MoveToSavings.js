@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { Decimal } from 'decimal.js';
 
 import GlobalTransactionModal from '../../../../Global/Transaction/Modal';
-import WalletPanelFormStake from '../../Form/Stake';
+import WalletPanelFormExchangeMoveTo from '../../Form/Exchange/MoveTo';
 
 type Props = {
   actions: {
@@ -28,6 +28,7 @@ class WalletPanelButtonExchangeMoveToSavings extends Component<Props> {
       accounts,
       balances,
       blockExplorers,
+      rex,
       settings,
       validate,
       system,
@@ -46,7 +47,7 @@ class WalletPanelButtonExchangeMoveToSavings extends Component<Props> {
 
     return (
       <GlobalTransactionModal
-        actionName="STAKE"
+        actionName="REX_MVTOSAVINGS"
         actions={actions}
         blockExplorers={blockExplorers}
         button={{
@@ -56,15 +57,15 @@ class WalletPanelButtonExchangeMoveToSavings extends Component<Props> {
           icon: 'microchip'
         }}
         content={(
-          <WalletPanelFormStake
+          <WalletPanelFormExchangeMoveTo
             account={account}
-            accountName={settings.account}
             actions={actions}
             balance={balances[settings.account]}
             cpuAmount={Decimal(cpu_weight.split(' ')[0])}
             key="StakeForm"
             netAmount={Decimal(net_weight.split(' ')[0])}
             onClose={this.onClose}
+            rex={rex}
             settings={settings}
             system={system}
             validate={validate}

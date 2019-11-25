@@ -36,13 +36,13 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
 
     tokens.push({key: 'tlos',value: 'tlos',text: 'Telos'});
 
-    if (contactDetails && contactDetails.kycStatusStablecoin == true) {
+    /*if (contactDetails && contactDetails.kycStatusStablecoin == true) {
       tokens.push({
         key: cusdSymbol,
         value: cusdSymbol,
         text: cusdSymbol.toUpperCase()
       });
-    }
+    }*/
 
     tokens.push({key: 'btc',value: 'btc',text: 'Bitcoin'});
     tokens.push({key: 'eos',value: 'eos',text: 'EOS'});

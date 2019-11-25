@@ -28,6 +28,7 @@ class WalletPanelFormTransferSwap extends Component<Props> {
       toLogo: toToken ? toToken.logo : '',
       confirming: false,
       formError: false,
+      loading: false,
       submitDisabled: true,
       waiting: false,
       waitingStarted: 0,
@@ -58,11 +59,20 @@ class WalletPanelFormTransferSwap extends Component<Props> {
       settings
     } = this.props;
     this.setState({ confirming: false }, () => {
-      const memo = '1,' + 
+      let memo = '1,' + 
         values.sourceConverter.concat(' ').concat(settings.blockchain.tokenSymbol) + ' ' +
-        values.destConverter.concat(' ').concat(values.destAsset);
+        values.destConverter.concat(' ').concat(values.destAsset).concat(',0.0,').concat(settings.account);
+
+      if (values.sourceAsset === settings.blockchain.tokenSymbol) {
+        memo = '1,' + 
+        values.sourceConverter.concat(' ').concat(values.destAsset).concat(',0.0,').concat(settings.account);
+      } else if (values.destAsset === settings.blockchain.tokenSymbol) {
+        memo = '1,' + 
+        values.sourceConverter.concat(' ').concat(settings.blockchain.tokenSymbol)
+        .concat(',0.0,').concat(settings.account);
+      }
+      
       this.props.actions.transfer(settings.account, values.sourceNetwork, quantity, memo, fromAsset);
-      //console.log('submitting SWAP to!!!', quantity, values.sourceNetwork, memo, fromAsset)
     });
   }
 
@@ -96,6 +106,9 @@ class WalletPanelFormTransferSwap extends Component<Props> {
   onChange = (e, { name, value, valid }) => {
     const { globals } = this.props;
     const newState = { [name]: value };
+
+    this.setState({loading: true});
+
     if (name === 'quantity') {
       const [quantity, asset] = value.split(' ');
       newState.fromAsset = asset;
@@ -129,6 +142,8 @@ class WalletPanelFormTransferSwap extends Component<Props> {
         });
       }
     });
+
+    this.setState({loading: false});
   }
 
 
@@ -143,57 +158,136 @@ class WalletPanelFormTransferSwap extends Component<Props> {
     const fromToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==fromSymbol)[0];
     const toToken = globals.remotetokens && globals.remotetokens.filter((token) => token.symbol==toSymbol)[0];
 
-    const fromSettings = await eos(connection).getTableRows(
-      {
-        json: true,
-        code: fromToken.bancor_converter,
-        scope: fromToken.bancor_converter,
-        table: 'settings'
+    let fromSettings; 
+    if (fromToken.symbol != settings.blockchain.tokenSymbol) {
+      fromSettings = await eos(connection).getTableRows(
+        {
+          json: true,
+          code: fromToken.bancor_converter,
+          scope: fromToken.bancor_converter,
+          table: 'settings'
+        }
+      );
+    } else {
+      fromSettings = {
+        rows: [{
+          network: 'bancor.tbn',
+          fee: 0
+        }]
       }
-    );
-    const toSettings = await eos(connection).getTableRows(
-      {
-        json: true,
-        code: toToken.bancor_converter,
-        scope: toToken.bancor_converter,
-        table: 'settings'
+    }
+
+    let toSettings;
+    if (toToken.symbol != settings.blockchain.tokenSymbol) {
+      toSettings = await eos(connection).getTableRows(
+        {
+          json: true,
+          code: toToken.bancor_converter,
+          scope: toToken.bancor_converter,
+          table: 'settings'
+        }
+      );
+    } else {
+      toSettings = {
+        rows: [{
+          network: 'bancor.tbn',
+          fee: 0
+        }]
       }
-    );
+    }
 
-    const fromCoreBalance = await eos(connection).getCurrencyBalance(
-      networkContract, fromToken.bancor_converter, settings.blockchain.tokenSymbol);
-    const fromTokenBalance = await eos(connection).getCurrencyBalance(
-      fromToken.account, fromToken.bancor_converter, fromToken.symbol);
+    let fromCoreBalance;
+    let fromTokenBalance;
 
-    const toCoreBalance = await eos(connection).getCurrencyBalance(
-      networkContract, toToken.bancor_converter, settings.blockchain.tokenSymbol);
-    const toTokenBalance = await eos(connection).getCurrencyBalance(
-      toToken.account, toToken.bancor_converter, toToken.symbol);
+    if (fromToken.symbol != settings.blockchain.tokenSymbol) {
+      fromCoreBalance = await eos(connection).getCurrencyBalance(
+        networkContract, fromToken.bancor_converter, settings.blockchain.tokenSymbol);
 
-    const _sourceNetwork = fromSettings.rows[0].network;
-    const _sourceFee = fromSettings.rows[0].fee;
-    const _sourceConverter = fromToken.bancor_converter;
-    const _sourceTokenAsset = fromTokenBalance[0].split(' ')[1];
-    const _sourceTokenBalance = fromTokenBalance[0].split(' ')[0];
-    const _sourceCoreBalance = fromCoreBalance[0].split(' ')[0];
-    const _sourceCoreTotal = Decimal(_quantity).div(Decimal(_sourceTokenBalance).plus(_quantity)).mul(_sourceCoreBalance);
-    const _sourceCoreTotalAfterFee = _sourceCoreTotal.mul(Decimal(1).sub(Decimal(_sourceFee).div(1000000)).pow(2));
-    const _sourceCoreConversionFee = _sourceCoreTotal.sub(_sourceCoreTotalAfterFee);
+      fromTokenBalance = await eos(connection).getCurrencyBalance(
+          fromToken.account, fromToken.bancor_converter, fromToken.symbol);
+    }
+
+    let toCoreBalance;
+    let toTokenBalance;
+
+    if (toToken.symbol != settings.blockchain.tokenSymbol) {
+      toCoreBalance = await eos(connection).getCurrencyBalance(
+        networkContract, toToken.bancor_converter, settings.blockchain.tokenSymbol);
+
+      toTokenBalance = await eos(connection).getCurrencyBalance(
+        toToken.account, toToken.bancor_converter, toToken.symbol);
+    }
+
+    if (fromToken.symbol == settings.blockchain.tokenSymbol) {
+      fromSettings.rows[0].fee = toSettings.rows[0].fee;
+      fromToken.bancor_converter = toToken.bancor_converter;
+      fromTokenBalance = ['0.0000 TLOS'];
+    }
+
+    console.log('fromSettings, toSettings:', fromSettings, toSettings);
+    console.log('fromCoreBal, toCoreBal:', fromCoreBalance, toCoreBalance);
+    console.log('fromTokenBal, toTokenBal:', fromTokenBalance, toTokenBalance)
+
+    let _sourceNetwork;
+    let _sourceFee;
+    let _sourceConverter;
+    let _sourceTokenAsset;
+    let _sourceTokenBalance;
+    let _sourceCoreBalance;
+    let _sourceCoreTotal;
+    let _sourceCoreTotalAfterFee;
+    let _sourceCoreConversionFee;
+
+    _sourceNetwork = fromSettings.rows[0].network;
+    _sourceFee = fromSettings.rows[0].fee;
+    _sourceConverter = fromToken.bancor_converter;
+
+    if (fromToken.symbol !== settings.blockchain.tokenSymbol) {
+      _sourceTokenAsset = fromTokenBalance[0].split(' ')[1];
+      _sourceTokenBalance = fromTokenBalance[0].split(' ')[0];
+      _sourceCoreBalance = fromCoreBalance[0].split(' ')[0];
+      _sourceCoreTotal = Decimal(_quantity).div(Decimal(_sourceTokenBalance).plus(_quantity)).mul(_sourceCoreBalance);
+      _sourceCoreTotalAfterFee = _sourceCoreTotal.mul(Decimal(1).sub(Decimal(_sourceFee).div(1000000)).pow(2));
+      _sourceCoreConversionFee = _sourceCoreTotal.sub(_sourceCoreTotalAfterFee);
+    } else {
+      _sourceTokenAsset = settings.blockchain.tokenSymbol;
+      _sourceCoreTotal = Decimal(_quantity);
+      _sourceCoreTotalAfterFee = _sourceCoreTotal.mul(Decimal(1).sub(Decimal(_sourceFee).div(1000000)).pow(2));
+      _sourceCoreConversionFee = _sourceCoreTotal.sub(_sourceCoreTotalAfterFee);
+    }
 
     console.log('Source Amount:', _quantity, _sourceTokenAsset);
     console.log('Source Core Total:', _sourceCoreTotal.toFixed(8), settings.blockchain.tokenSymbol);
     console.log('Source Conversion Fee:', _sourceCoreConversionFee.toFixed(8), settings.blockchain.tokenSymbol);
     console.log('Source Total - Fee:', _sourceCoreTotalAfterFee.toFixed(8), settings.blockchain.tokenSymbol);
 
-    const _destFee = toSettings.rows[0].fee;
-    const _destConverter = toToken.bancor_converter;
-    const _destTokenAsset = toTokenBalance[0].split(' ')[1];
-    const _destTokenBalance = toTokenBalance[0].split(' ')[0];
-    const _destCoreBalance = toCoreBalance[0].split(' ')[0];
+    let _destFee;
+    let _destConverter;
+    let _destTokenAsset;
+    let _destTokenBalance;
+    let _destCoreBalance;
 
-    const _destTokenTotal = Decimal(_sourceCoreTotalAfterFee).div(Decimal(_destCoreBalance).plus(_sourceCoreTotalAfterFee)).mul(_destTokenBalance);
-    const _destTokenTotalAfterFee = _destTokenTotal.mul(Decimal(1).sub(Decimal(_destFee).div(1000000)).pow(2));
-    const _destTokenConversionFee = _destTokenTotal.sub(_destTokenTotalAfterFee);
+    let _destTokenTotal;
+    let _destTokenTotalAfterFee;
+    let _destTokenConversionFee;
+
+    if (toToken.symbol != settings.blockchain.tokenSymbol) {
+      _destFee = toSettings.rows[0].fee;
+      _destConverter = toToken.bancor_converter;
+      _destTokenAsset = toTokenBalance[0].split(' ')[1];
+      _destTokenBalance = toTokenBalance[0].split(' ')[0];
+      _destCoreBalance = toCoreBalance[0].split(' ')[0];
+
+      _destTokenTotal = Decimal(_sourceCoreTotalAfterFee).div(Decimal(_destCoreBalance).plus(_sourceCoreTotalAfterFee)).mul(_destTokenBalance);
+      _destTokenTotalAfterFee = _destTokenTotal.mul(Decimal(1).sub(Decimal(_destFee).div(1000000)).pow(2));
+      _destTokenConversionFee = _destTokenTotal.sub(_destTokenTotalAfterFee);
+    } else {
+      _destConverter = _sourceConverter;
+      _destTokenAsset = settings.blockchain.tokenSymbol;
+      _destTokenConversionFee = _sourceCoreConversionFee;
+      _destTokenTotal = _sourceCoreTotal;
+      _destTokenTotalAfterFee = _sourceCoreTotalAfterFee;
+    }
 
     console.log('Destination Amount:', _sourceCoreTotalAfterFee.toFixed(8), settings.blockchain.tokenSymbol);
     console.log('Destination Token Total:', _destTokenTotal.toFixed(8), _destTokenAsset);
@@ -278,6 +372,7 @@ class WalletPanelFormTransferSwap extends Component<Props> {
       toAsset,
       toLogo,
       confirming,
+      loading,
       formError,
       quantity,
       toQuantity,
@@ -291,7 +386,7 @@ class WalletPanelFormTransferSwap extends Component<Props> {
 
     return (
       <Form
-        loading={system.TRANSFER === 'PENDING'}
+        loading={system.TRANSFER === 'PENDING' || loading === true}
         onKeyPress={this.onKeyPress}
         onSubmit={this.onSubmit}
         warning={true}

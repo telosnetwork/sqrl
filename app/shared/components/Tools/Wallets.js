@@ -38,9 +38,6 @@ class ToolsWallets extends Component<Props> {
       wallet,
       wallets
     } = this.props;
-    if (!wallets || !wallets.length) {
-      return false;
-    }
     return (
       <Segment basic>
         <Button.Group floated="right">

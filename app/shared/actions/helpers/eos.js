@@ -35,7 +35,7 @@ export default function eos(connection, signing = false, payforsig = false) {
 }
 
 export function payforcpunet(account, state) {
-  if (state.settings.useSQRLtoken === false) return null;
+  if ( !(state.settings.useSQRLtoken == null || state.settings.useSQRLtoken === true)) return null;
   
   // get current balance of SQRL tokens
   // if none, return NULL to not pay for tx

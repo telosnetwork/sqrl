@@ -51,7 +51,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
     const rexProfits = totalRex > 0 ? (parseFloat(totalLendable) / parseFloat(totalRex) * REXbalance) - tokensInRex : 0;
     
     if (tokensInRex > 0 && rexbalance.rex_maturities[0]) {
-      rexMaturingEndDate = '[Matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
+      //rexMaturingEndDate = '[Matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
     }
     
     return (

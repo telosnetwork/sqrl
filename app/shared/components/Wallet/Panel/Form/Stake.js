@@ -10,6 +10,7 @@ import WalletPanelFormStakeConfirming from './Stake/Confirming';
 import FormMessageError from '../../../Global/Form/Message/Error';
 
 import GlobalFormFieldAccount from '../../../Global/Form/Field/Account';
+import GlobalFormFieldToken from '../../../Global/Form/Field/Token';
 
 type Props = {
   actions: {},
@@ -135,6 +136,7 @@ class WalletPanelFormStake extends Component<Props> {
       settings
     } = this.props;
     
+    value = value.split(' ')[0];
     const valid = settings.tokenPrecision == 8 ? 
       !!(value.match(/^\d+(\.\d{1,8})?$/g)) : !!(value.match(/^\d+(\.\d{1,4})?$/g));
     this.onChange(e, { name, value: value, valid });
@@ -151,8 +153,10 @@ class WalletPanelFormStake extends Component<Props> {
     } = actions;
 
     if (name == 'cpuAmount' || name == 'netAmount'){
+      value = value.split(' ')[0];
+
       if (!value) value = 0;
-      value = Decimal(value).toFixed(settings.tokenPrecision);
+      value = Decimal(value).toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol;
     }
     
     const newState = {
@@ -165,7 +169,7 @@ class WalletPanelFormStake extends Component<Props> {
       checkAccountExists(value);
     } else {
       const decimalFieldName = `decimal${name.charAt(0).toUpperCase()}${name.slice(1)}`;
-      newState[decimalFieldName] = Decimal(value);
+      newState[decimalFieldName] = Decimal(value.split(' ')[0]);
     }
 
     newState[`${name}Valid`] = valid;
@@ -284,8 +288,6 @@ class WalletPanelFormStake extends Component<Props> {
       activeTab,
       accountName,
       cpuOriginal,
-      cpuAmount,
-      netAmount,
       decimalCpuAmount,
       decimalNetAmount,
       netOriginal,
@@ -305,7 +307,6 @@ class WalletPanelFormStake extends Component<Props> {
         system.ACCOUNT_EXISTS_LAST_ACCOUNT === accountName) {
       formError = formError || 'account_does_not_exist';
     }
-
     return (
       <Segment
         loading={system.STAKE === 'PENDING'}
@@ -347,53 +348,50 @@ class WalletPanelFormStake extends Component<Props> {
                     </Form.Group>
                   ) : ''}
                 <Form.Group widths="equal">
-                  <Form.Field
+                  <GlobalFormFieldToken
                     autoFocus
-                    control={Input}
-                    placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
                     icon="microchip"
                     label={t('update_staked_cpu_amount', {tokenSymbol:settings.blockchain.tokenSymbol,action:activeTab})}
                     name="cpuAmount"
-                    onChange={this.validateTokenAmount}
+                    onChange={this.onChange}
+                    defaultValue={decimalCpuAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
-                    value={decimalCpuAmount.toFixed(settings.tokenPrecision)}
                   />
 
-                  <Form.Field
-                    control={Input}
-                    placeholder={'0.'.padEnd(settings.tokenPrecision + 2, '0')}
+                  <GlobalFormFieldToken
                     icon="wifi"
                     label={t('update_staked_net_amount', {tokenSymbol:settings.blockchain.tokenSymbol,action:activeTab})}
                     name="netAmount"
-                    onChange={this.validateTokenAmount}
+                    onChange={this.onChange}
+                    defaultValue={decimalNetAmount.toFixed(settings.tokenPrecision)}
                     settings={settings}
-                    value={decimalNetAmount.toFixed(settings.tokenPrecision)}
                   />
-                  </Form.Group>
-                    {(activeTab === 'stake')
-                      ? (
-                        <Grid>
-                            <Grid.Row>
-                              <Grid.Column width={8} textAlign="center">
-                                <Button.Group size="mini">
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',25)}>25%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',50)}>50%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',75)}>75%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',100)}>100%</Button>
-                                </Button.Group>
-                              </Grid.Column>
-                              <Grid.Column width={8} textAlign="center">
-                                <Button.Group size="mini">
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',25)}>25%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',50)}>50%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',75)}>75%</Button>
-                                  <Button type="button" onClick={this.stakePercentage.bind(this, 'net',100)}>100%</Button>
-                                </Button.Group>
-                              </Grid.Column>
-                            </Grid.Row>
-                          </Grid>
-                      ) : ''
-                    }
+                </Form.Group>
+
+                  {(activeTab === 'stake' && 0==1)
+                    ? (
+                      <Grid>
+                          <Grid.Row>
+                            <Grid.Column width={8} textAlign="center">
+                              <Button.Group size="mini">
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',25)}>25%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',50)}>50%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',75)}>75%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'cpu',100)}>100%</Button>
+                              </Button.Group>
+                            </Grid.Column>
+                            <Grid.Column width={8} textAlign="center">
+                              <Button.Group size="mini">
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'net',25)}>25%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'net',50)}>50%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'net',75)}>75%</Button>
+                                <Button type="button" onClick={this.stakePercentage.bind(this, 'net',100)}>100%</Button>
+                              </Button.Group>
+                            </Grid.Column>
+                          </Grid.Row>
+                        </Grid>
+                    ) : ''
+                  }
                 
                 {(activeTab === 'stake')
                 ?

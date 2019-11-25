@@ -57,7 +57,6 @@ export default class ApiService {
     static async [Actions.GET_OR_REQUEST_IDENTITY](request){
         return new Promise((resolve) => {
             const plugin = APIUtils.plugin;
-
             const possibleId = this.apiHandler.identityFromPermissions(request.payload.origin);
             if(possibleId) return resolve({id:request.id, result:possibleId});
 

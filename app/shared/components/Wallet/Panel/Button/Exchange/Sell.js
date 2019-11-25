@@ -65,7 +65,7 @@ class WalletPanelButtonExchangeSell extends Component<Props> {
           content: t('rex_sellrex', {tokenSymbol:settings.blockchain.tokenSymbol}),
           fluid: true,
           icon: 'microchip',
-          disabled: !claimable
+          //disabled: !claimable
         }}
         content={(
           <WalletPanelFormExchangeSell

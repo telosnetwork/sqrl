@@ -28,7 +28,7 @@ class GovernanceTFVotingCandidatesTableRow extends Component<Props> {
     system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR = null;
 
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, candidate.index);
