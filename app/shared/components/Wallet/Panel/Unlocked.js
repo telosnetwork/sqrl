@@ -84,6 +84,15 @@ class WalletPanelUnlocked extends Component<Props> {
       net_weight: '0.'.padEnd(settings.tokenPrecision + 2, '0') + ' ' + settings.blockchain.tokenSymbol
     };
 
+    let bancorUnlocked = false;
+    if (globals.profiles && globals.profiles.length > 0) {
+      const profile = globals.profiles.filter((p) => (p.account == settings.account))[0];
+      if (profile && profile.usage) {
+        if (profile.usage.split(' ')[0] >= 100)
+          bancorUnlocked = true;
+      }
+    }
+
     return (
       <div>
         <Segment vertical>
@@ -94,10 +103,12 @@ class WalletPanelUnlocked extends Component<Props> {
                 <Dropdown.Item icon='settings' text={t('wallet_exchange_settings_button_cta')} onClick={()=>this.onOpen(WIN_ACCOUNT_SETTINGS)} />:false}
                 {(hotWallet && carbonRegistered) ?
                 <Dropdown.Item icon='dollar' text={t('wallet_buytoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_BUY_TOKENS)} />:false}
-                {(hotWallet && carbonRegistered && contactDetails && contactDetails.kycStatusStablecoin === true) ?
-                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:false}
-                {(hotWallet) ?
-                <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta')} onClick={()=>this.onOpen(WIN_SWAP_TOKENS)} />:false}
+                {(hotWallet && carbonRegistered && contactDetails && contactDetails.kycStatusStablecoin === true && 0==1) ?
+                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:
+                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta_vip', {tokenSymbol:settings.blockchain.tokenSymbol})} />}
+                {(hotWallet && bancorUnlocked===true) ?
+                <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta')} onClick={()=>this.onOpen(WIN_SWAP_TOKENS)} />:
+                <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta_vip')} />}
               </Dropdown.Menu>
             </Dropdown>
 
@@ -332,7 +343,7 @@ class WalletPanelUnlocked extends Component<Props> {
           icon="wifi"
           onOpen={this.broadcast}
           onClose={this.onClose}
-          //openModal={activeWindow == WIN_BROADCAST_TX}
+          openModal={activeWindow == WIN_BROADCAST_TX}
           title={t('wallet_panel_wallet_broadcast')}
           settings={settings}
           system={system}
@@ -354,4 +365,4 @@ class WalletPanelUnlocked extends Component<Props> {
   }
 }
 
-export default translate(['wallet', 'ram'])(WalletPanelUnlocked);
+export default translate(['wallet', 'ram', 'stake'])(WalletPanelUnlocked);

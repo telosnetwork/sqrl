@@ -44,7 +44,8 @@ class WalletStatusProfile extends Component<Props> {
     if (!profile) 
       profile = {
         referrals: 0,
-        vip_level:0
+        vip_level: 0,
+        usage: '0.0000 SQRL'
       }
     if (!profile.avatar)
       profile.avatar = avatarPlaceholder;
@@ -131,7 +132,7 @@ class WalletStatusProfile extends Component<Props> {
           settings={settings}
           size="medium"
           system={system}
-          title="SQRL VIP Options"
+          title="VIP Levels"
           />
 
         <GlobalTransactionModal

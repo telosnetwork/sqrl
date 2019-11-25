@@ -152,7 +152,6 @@ export function actOnProposal(submission_id, actionName, scope = defaultContract
       expireInSeconds: connection.expireInSeconds,
       sign: connection.sign
     }).then((tx) => {
-      dispatch(getProposals());
       return dispatch({
         payload: { tx },
         type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_SUCCESS
@@ -175,11 +174,14 @@ export function getProposals(scope = 'eosio.trail', previous = false) {
       code: scope,
       scope,
       table: 'proposals',
-      limit: 1000,
+      limit: 1000000
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].prop_id;
     }
+    dispatch(getVoteInfo(settings.account));
+    dispatch(getBallots());
+    dispatch(getProposalSubmissions());
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
       // If previous rows were returned
@@ -193,9 +195,6 @@ export function getProposals(scope = 'eosio.trail', previous = false) {
       if (results.more) {
         return dispatch(getProposals(scope, rows));
       }
-      dispatch(getVoteInfo(settings.account));
-      dispatch(getBallots());
-      dispatch(getProposalSubmissions());
       const data = rows
         .map((proposal) => {
           const {
@@ -251,7 +250,7 @@ export function getBallots(scope = 'eosio.trail', previous = false) {
       code: scope,
       scope,
       table: 'ballots',
-      limit: 1000,
+      limit: 1000000
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].ballot_id;
@@ -309,7 +308,7 @@ export function getProposalSubmissions(scope = 'eosio.saving', previous = false)
       code: scope,
       scope,
       table: 'submissions',
-      limit: 1000,
+      limit: 1000000
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].ballot_id;
@@ -378,7 +377,7 @@ export function getRatifySubmissions(scope = 'eosio.amend', previous = false) {
       code: scope,
       scope,
       table: 'submissions',
-      limit: 1000,
+      limit: 1000000
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].proposal_id;
@@ -442,7 +441,7 @@ export function getRatifyDocuments(scope = 'eosio.amend', previous = false) {
       code: scope,
       scope,
       table: 'documents',
-      limit: 1000,
+      limit: 1000000
     };
     if (previous) {
       query.lower_bound = previous[previous.length - 1].document_id;
@@ -500,7 +499,7 @@ export function getVoteInfo(account) {
       code: 'eosio.trail',
       scope: account,
       table: 'votereceipts',
-      limit: 10000
+      limit: 1000000
     };
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;

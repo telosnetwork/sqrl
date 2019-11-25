@@ -947,7 +947,8 @@ export function getProfiles(account) {
       scope: config.SQRL_CONTRACT,
       code: config.SQRL_CONTRACT,
       table: 'profiles',
-      json: true
+      json: true,
+      limit:1000000
     };
 
     //lower_bound: settings.account,

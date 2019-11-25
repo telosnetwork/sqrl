@@ -152,7 +152,7 @@ class WalletStatusBalances extends Component<Props> {
     ];
     // Add rows for remaining tokens
     forEach(tokens, (amount, token) => {
-      if (token.toUpperCase() === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 1) return;
+      if (token.toUpperCase() === settings.blockchain.tokenSymbol || watchedTokens.indexOf(token) === -1 || amount < 0.0002) return;
       let tokenInfo = globals.remotetokens && globals.remotetokens.filter((t)=>t.symbol==token && t.chain.toUpperCase()==settings.blockchain.tokenSymbol)[0];
       
       let tokenName = token;

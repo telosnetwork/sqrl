@@ -1,7 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Label, Table, Rating, Header } from 'semantic-ui-react';
+import { Button, Label, Table, Segment, Rating, Header, Message } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
+import { Decimal } from 'decimal.js';
 
 class WalletStatusVIPForm extends Component<Props> {
   constructor(props) {
@@ -52,14 +53,18 @@ class WalletStatusVIPForm extends Component<Props> {
     } = this.props;
 
     return (
-      <Table celled padded>
+      <Segment>
+        <Message positive>
+          Your current SQRL consumption is: <b>{profile.usage}</b>
+        </Message>
+        <Table celled padded>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>VIP Level</Table.HeaderCell>
             <Table.HeaderCell>Label</Table.HeaderCell>
             <Table.HeaderCell singleLine>Usage Requirements</Table.HeaderCell>
             <Table.HeaderCell>Benefits</Table.HeaderCell>
-            {(profile.vip_level < 5) ?
+            {(profile.vip_level < 5 && 0==1) ?
             <Table.HeaderCell />
             :false}
           </Table.Row>
@@ -79,7 +84,7 @@ class WalletStatusVIPForm extends Component<Props> {
             <Table.Cell>
             Obtain Level 1 after consuming between 100 - 249 tokens. This unlocks the Bancor token swap feature.
             </Table.Cell>
-            {(profile.vip_level < 1) ?
+            {(profile.vip_level < 1 && 0==1) ?
             <Table.Cell collapsing>
               <Button primary content="Upgrade" icon="cart plus" labelPosition="right" onClick={()=>this.onUpgrade(1)} />
             </Table.Cell>
@@ -98,7 +103,7 @@ class WalletStatusVIPForm extends Component<Props> {
             <Table.Cell>
             Obtain Level 2 after consuming between 250 - 499 tokens. This unlocks all social features in Sqrl.
             </Table.Cell>
-            {(profile.vip_level < 2) ?
+            {(profile.vip_level < 2 && 0==1) ?
             <Table.Cell collapsing>
               <Button primary content="Upgrade" icon="cart plus" labelPosition="right" onClick={()=>this.onUpgrade(2)} />
             </Table.Cell>
@@ -117,7 +122,7 @@ class WalletStatusVIPForm extends Component<Props> {
             <Table.Cell>
             Obtain Level 3 after consuming between 500 - 999 tokens. This unlocks a hidden, unannounced feature.
             </Table.Cell>
-            {(profile.vip_level < 3) ?
+            {(profile.vip_level < 3 && 0==1) ?
             <Table.Cell collapsing>
               <Button primary content="Upgrade" icon="cart plus" labelPosition="right" onClick={()=>this.onUpgrade(3)} />
             </Table.Cell>
@@ -136,7 +141,7 @@ class WalletStatusVIPForm extends Component<Props> {
             <Table.Cell>
             Obtain Level 4 after consuming between 1000 - 9999 tokens. This unlocks the bank ACH/wire withdrawal feature.
             </Table.Cell>
-            {(profile.vip_level < 4) ?
+            {(profile.vip_level < 4 && 0==1) ?
             <Table.Cell collapsing>
               <Button primary content="Upgrade" icon="cart plus" labelPosition="right" onClick={()=>this.onUpgrade(4)} />
             </Table.Cell>
@@ -155,7 +160,7 @@ class WalletStatusVIPForm extends Component<Props> {
             <Table.Cell>
             Obtain Level 5 after consuming 10,000 or more tokens. This level automatically unlocks all wallet features.
             </Table.Cell>
-            {(profile.vip_level < 5) ?
+            {(profile.vip_level < 5 && 0==1) ?
             <Table.Cell collapsing>
               <Button primary content="Upgrade" icon="cart plus" labelPosition="right" onClick={()=>this.onUpgrade(5)} />
             </Table.Cell>
@@ -163,6 +168,7 @@ class WalletStatusVIPForm extends Component<Props> {
           </Table.Row>
         </Table.Body>
       </Table>
+      </Segment>
     );
   }
 }

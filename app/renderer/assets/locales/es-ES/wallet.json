@@ -68,6 +68,7 @@
   "wallet_panel_waiting_instructions": "The application will monitor for the creation of this new account. Once the new account has been created, the application will prompt you to enter your backup password once more, and then establish a local hot wallet.",
   "wallet_panel_waiting_subheader": "This account has not yet been created.",
   "wallet_panel_wallet_broadcast": "  Broadcast Signed Transaction",
+  "wallet_panel_wallet_staked": "Manage Staked",
   "wallet_panel_wallet_lock": "Lock Wallet",
   "wallet_panel_wallet_remove": "Destroy Wallet Credentials",
   "wallet_panel_wallet_save": "Save Local Wallet",
@@ -114,6 +115,7 @@
   "wallet_buytoken_button_cta": "Buy {{tokenSymbol}}",
   "wallet_exchange_settings_button_cta": "  Account Settings",
   "wallet_buytoken_button_title": "Buy {{tokenSymbol}} with a Card or Bank Account",
+  "wallet_selltoken_button_cta_vip": "  Sell {{tokenSymbol}} (VIP 4)",
   "wallet_selltoken_button_cta": "  Sell {{tokenSymbol}}",
   "wallet_selltoken_button_title": "Sell {{tokenSymbol}} and Withdraw to Bank Account",
   "wallet_buytoken_request_step_1": "Purchase Amount",
@@ -143,6 +145,7 @@
   "wallet_buytoken_request_accountname_chain_warning": "You are entering an account for a blockchain you're not currently connected to. Please make sure you enter a valid address on that chain before proceeding.",
   "wallet_buytoken_request_kyc_warning": "Please note that any amounts over {{limit}} {{currency}} requires KYC verification.",
 
+  "wallet_swaptoken_button_cta_vip": "Swap Tokens (VIP 1)",
   "wallet_swaptoken_button_cta": "Swap Tokens",
   "wallet_status_prices_current_price": "Current Price",
   "wallet_status_prices_eos_price": "EOS Value",

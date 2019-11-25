@@ -67,17 +67,12 @@ class ToolsPermissions extends Component<Props> {
       t,
       validate,
       wallet,
-      wallets,
       connection
     } = this.props;
 
     const {
       linkAuthHistory
     } = this.state;
-
-    if (!wallets || !wallets.length) {
-      return false;
-    }
 
     // Ensure the contract is loaded and valid
     let contract = null;

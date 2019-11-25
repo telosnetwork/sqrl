@@ -80,7 +80,7 @@ class GovernanceProposals extends Component<Props> {
 
       let submission = submissions.filter ((s) => s.ballot_id === ballot.ballot_id)[0];
       if (!submission) submission = {};
-
+      
       let vote = find(votes, { ballot_id: ballot.ballot_id });
       if (!vote) vote = { directions: [], expiration: 0 };
 
@@ -89,6 +89,7 @@ class GovernanceProposals extends Component<Props> {
       proposalAttributes.title = submission.title;
       proposalAttributes.sub_id = submission.id;
       proposalAttributes.proposer = submission.proposer;
+      proposalAttributes.amount = submission.amount;
       proposalAttributes.attrVoted = !!vote;
       proposalAttributes.attrVotedNo = vote && vote.directions[0] === 0;
       proposalAttributes.attrVotedYes = vote && vote.directions[0] === 1;

@@ -68,6 +68,7 @@
   "wallet_panel_waiting_instructions": "Приложение будет ожидать подтверждения создания вашего Аккаунта в блокчейне. Как только Аккаунт будет создан, приложение запросит у вас созданный вами пароль для разблокировки Кошелька",
   "wallet_panel_waiting_subheader": "Этот Аккаунт еще не был создан.",
   "wallet_panel_wallet_broadcast": "  Послать подписанную Транзакцию",
+  "wallet_panel_wallet_staked": "Manage Staked",
   "wallet_panel_wallet_lock": "Заблокировать Кошелёк",
   "wallet_panel_wallet_remove": "Удалить учетные данные из Кошелька",
   "wallet_panel_wallet_save": "Сохранить локальный Кошелек",
@@ -114,6 +115,7 @@
   "wallet_buytoken_button_cta": "Buy {{tokenSymbol}}",
   "wallet_exchange_settings_button_cta": "  Account Settings",
   "wallet_buytoken_button_title": "Buy {{tokenSymbol}} with a Card or Bank Account",
+  "wallet_selltoken_button_cta_vip": "  Sell {{tokenSymbol}} (VIP 4)",
   "wallet_selltoken_button_cta": "  Sell {{tokenSymbol}}",
   "wallet_selltoken_button_title": "Sell {{tokenSymbol}} and Withdraw to Bank Account",
   "wallet_buytoken_request_step_1": "Purchase Amount",
@@ -143,6 +145,7 @@
   "wallet_buytoken_request_accountname_chain_warning": "You are entering an account for a blockchain you're not currently connected to. Please make sure you enter a valid address on that chain before proceeding.",
   "wallet_buytoken_request_kyc_warning": "Please note that any amounts over {{limit}} {{currency}} requires KYC verification.",
 
+  "wallet_swaptoken_button_cta_vip": "Swap Tokens (VIP 1)",
   "wallet_swaptoken_button_cta": "Swap Tokens",
   "wallet_status_prices_current_price": "Current Price",
   "wallet_status_prices_eos_price": "EOS Value",

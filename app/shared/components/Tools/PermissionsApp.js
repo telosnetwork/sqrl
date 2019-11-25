@@ -54,14 +54,9 @@ class ToolsPermissionsApp extends Component<Props> {
       t,
       validate,
       wallet,
-      wallets,
       wapii,
       connection
     } = this.props;
-
-    if (!wallets || !wallets.length) {
-      return false;
-    }
 
     if (settings.walletMode !== 'watch' && !(keys && keys.key)) {
       return (
