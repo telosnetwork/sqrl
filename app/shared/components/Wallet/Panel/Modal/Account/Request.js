@@ -6,9 +6,6 @@ import { Button, Container, Grid, Header, Icon, Modal, Segment, Step } from 'sem
 import WalletPanelFormAccountRequest from '../../../../Wallet/Panel/Form/Account/Request';
 import WalletPanelModalAccountRequestBackup from './Request/Backup';
 import WalletPanelModalAccountRequestCode from './Request/Code';
-import WalletPanelModalAccountRequestImport from './Request/Import';
-
-const { ipcRenderer } = require('electron');
 
 class WalletPanelModalAccountRequest extends Component<Props> {
   state = {
@@ -22,13 +19,15 @@ class WalletPanelModalAccountRequest extends Component<Props> {
       accountName: '',
       active: '',
       password: '',
-      owner: ''
+      owner: '',
+      referredby: ''
     },
     validated: {
       accountName: false,
       active: false,
       owner: false,
-      keyBackup: false
+      keyBackup: false,
+      referredby: false
     },
   }
   onChange = (e, { name, valid, value }) => {
@@ -40,11 +39,13 @@ class WalletPanelModalAccountRequest extends Component<Props> {
       values,
       validated
     }, () => {
-      if (name === 'accountName' && value.length !== 0) {
+      if ( name === 'accountName' && value.length !== 0) {
         const { actions } = this.props;
         actions.checkAccountAvailability(value);
+      } else if ( name === 'referredby' && value.length !== 0) {
+        const { actions } = this.props;
+        actions.checkAccountExists(value);
       }
-      
     });
   }
   onBeforeClose = ()=> {
@@ -60,13 +61,15 @@ class WalletPanelModalAccountRequest extends Component<Props> {
         accountName: '',
         active: '',
         password: '',
-        owner: ''
+        owner: '',
+        referredby: ''
       },
       validated: {
         accountName: false,
         active: false,
         owner: false,
-        keyBackup: false
+        keyBackup: false,
+        referredby: false
       },
     });
     system.CREATEACCOUNT = null;
@@ -125,6 +128,18 @@ class WalletPanelModalAccountRequest extends Component<Props> {
     ) {
       isValid = false;
       error = 'account_name_not_available';
+    }
+    if (values.accountName && values.accountName.length !== 12) {
+      isValid = false;
+      error = 'not_valid_account_name';
+    }
+    if (values.referredby
+      && values.referredby.length !== 0
+      && system.ACCOUNT_EXISTS === 'FAILURE'
+      && system.ACCOUNT_EXISTS_LAST_ACCOUNT === values.referredby
+    ) {
+      isValid = false;
+      error = 'invalid_referral_code';
     }
 
     const shouldShowAccountNameWarning = values.accountName && values.accountName.length !== 12;

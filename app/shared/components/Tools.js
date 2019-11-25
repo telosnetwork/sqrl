@@ -12,6 +12,8 @@ import GlobalSettingsSkipLinkModal from './Global/Settings/SkipLinkModal';
 import GlobalSettingsResourceDisplayFormat from './Global/Settings/ResourceDisplayFormat';
 import GlobalSettingsFilterSpamTransfers from './Global/Settings/FilterSpamTransfers';
 import GlobalSettingsMirrorCastVote from './Global/Settings/MirrorCastVote';
+import GlobalSettingsResourceDisplay from './Global/Settings/ResourceDisplay';
+import GlobalSettingsSqrlToken from './Global/Settings/SqrlToken';
 
 class Tools extends Component<Props> {
   render() {
@@ -23,7 +25,6 @@ class Tools extends Component<Props> {
       t
     } = this.props;
 
-    console.log('mirror cast settings:', settings.mirrorCastOnVote)
     return (
       <React.Fragment>
         <Segment attached="top">
@@ -103,6 +104,22 @@ class Tools extends Component<Props> {
               <GlobalSettingsMirrorCastVote
                 actions={actions}
                 defaultValue={settings.mirrorCastOnVote}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_use_sqrl_token')}</label>
+              <GlobalSettingsSqrlToken
+                actions={actions}
+                defaultValue={settings.useSQRLtoken}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_show_resources')}</label>
+              <GlobalSettingsResourceDisplay
+                actions={actions}
+                defaultValue={settings.showResourcesInWallet}
                 selection
               />
             </Form.Field>

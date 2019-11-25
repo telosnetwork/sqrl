@@ -2,6 +2,7 @@ import * as types from '../types';
 
 import { getAccount } from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function buyram(amount) {
   return (dispatch: () => void, getState) => {
@@ -16,10 +17,27 @@ export function buyram(amount) {
 
     const { account } = settings;
 
-    return eos(connection, true).buyram({
-      payer: account,
-      receiver: account,
-      quant: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'buyram',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          payer: account,
+          receiver: account,
+          quant: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       setTimeout(dispatch(getAccount(account)), 500);
 

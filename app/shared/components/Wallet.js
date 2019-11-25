@@ -4,6 +4,8 @@ import { Grid } from 'semantic-ui-react';
 
 import SidebarAccount from '../containers/Sidebar/Account';
 
+import UserProfile from './Wallet/Status/Profile';
+
 import WalletPanel from './Wallet/Panel';
 import WalletStatus from './Wallet/Status';
 
@@ -49,8 +51,22 @@ export default class Wallet extends Component<Props> {
     return (
       <Grid divided>
         <Grid.Row>
-          <Grid.Column width={5}>
-            <SidebarAccount />
+          <Grid.Column width={4}>
+            <UserProfile 
+              actions={actions}
+              accounts={accounts}
+              balances={balances}
+              blockExplorers={blockExplorers}
+              connection={connection}
+              globals={globals}
+              keys={keys}
+              rex={rex}
+              settings={settings}
+              system={system}
+              transaction={transaction}
+              validate={validate}
+              wallet={wallet}
+            />
             <WalletPanel
               actions={actions}
               accounts={accounts}
@@ -67,7 +83,7 @@ export default class Wallet extends Component<Props> {
               connection={connection}
             />
           </Grid.Column>
-          <Grid.Column width={11}>
+          <Grid.Column width={12}>
             <WalletStatus
               actions={actions}
               actionHistories={actionHistories}

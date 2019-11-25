@@ -51,7 +51,7 @@ class WalletPanelButtonStake extends Component<Props> {
         blockExplorers={blockExplorers}
         button={{
           color: 'blue',
-          content: t('stake_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol}),
+          content: t('stake_button_cta'),
           fluid: true,
           icon: 'microchip'
         }}

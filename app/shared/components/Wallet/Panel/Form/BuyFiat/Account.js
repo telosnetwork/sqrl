@@ -16,6 +16,7 @@ class WalletPanelFormBuyFiatAccount extends Component<Props> {
       onBack,
       onChange,
       shouldShowAccountNameWarning,
+      shouldShowChainWarning,
       t,
       values
     } = this.props;
@@ -48,6 +49,15 @@ class WalletPanelFormBuyFiatAccount extends Component<Props> {
               content={t('wallet_buytoken_request_accountname_warning')}
               icon="info circle"
               info
+            />
+          ) : ''}
+
+        {(shouldShowChainWarning)
+          ? (
+            <Message
+              content={t('wallet_buytoken_request_accountname_chain_warning')}
+              icon="exclamation circle"
+              negative
             />
           ) : ''}
 

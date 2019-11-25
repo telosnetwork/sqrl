@@ -18,7 +18,7 @@ class GovernanceProposalsProposal extends Component<Props> {
     const vote = 1;
     
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -29,7 +29,7 @@ class GovernanceProposalsProposal extends Component<Props> {
     const vote = 2;
     
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -40,7 +40,7 @@ class GovernanceProposalsProposal extends Component<Props> {
     const vote = 0;
     
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -48,14 +48,17 @@ class GovernanceProposalsProposal extends Component<Props> {
   claim = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'claim');
+    actions.getProposals();
   }
   openVoting = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'openvoting');
+    actions.getProposals();
   }
   cancelSubmission = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'cancelsub');
+    actions.getProposals();
   }
   openLink = (link) => {
     const { settings } = this.props;

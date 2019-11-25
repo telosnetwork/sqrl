@@ -174,6 +174,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
   render() {
     const {
       balances,
+      globals,
       onClose,
       settings,
       system,
@@ -251,6 +252,7 @@ class WalletPanelFormTransferSend extends Component<Props> {
               />
               <FormFieldMultiToken
                 balances={balances}
+                globals={globals}
                 icon="x"
                 label={t('transfer_label_token_and_quantity')}
                 loading={false}

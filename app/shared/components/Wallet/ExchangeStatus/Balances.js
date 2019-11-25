@@ -51,8 +51,7 @@ class WalletExchangeStatusBalances extends Component<Props> {
     const rexProfits = totalRex > 0 ? (parseFloat(totalLendable) / parseFloat(totalRex) * REXbalance) - tokensInRex : 0;
     
     if (tokensInRex > 0 && rexbalance.rex_maturities[0]) {
-      rexMaturingEndDate = '['+ Decimal(rexProfits).toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol +
-        ' matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
+      //rexMaturingEndDate = '[Matures ' + new Date(rexbalance.rex_maturities[0].first).toString() + ']';
     }
     
     return (
@@ -86,12 +85,12 @@ class WalletExchangeStatusBalances extends Component<Props> {
             </Grid.Column>
             <Grid.Column>
               <Header
-                content={t('rex_status_fund_matured_title')}
+                content={t('rex_status_fund_matured_title', {tokenSymbol:settings.blockchain.tokenSymbol})}
                 size="small"
                 subheader={t('rex_status_fund_matured_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}
               />
             <div className="rexlabel">
-              {matured_rex} {settings.blockchain.tokenSymbol}
+              {rexProfits.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
               <Responsive as="span" minWidth={800} />
             </div>
             </Grid.Column>

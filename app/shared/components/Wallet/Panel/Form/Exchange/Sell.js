@@ -22,12 +22,25 @@ class WalletPanelFormExchangeSell extends Component<Props> {
   constructor(props) {
     super(props);
     let { rex } = props;
+
+    const rexBalance = rex.rexbal ? Decimal(rex.rexbal.rex_balance.split(' ')[0]) : 0;
+    let maturedBalance = rex.rexbal ? Decimal(rex.rexbal.matured_rex) / 10000 : 0;
+    const totalRex = rex.rexpool.total_rex.split(' ')[0];
+    const totalLendable = rex.rexpool.total_lendable.split(' ')[0];
+    const coreBalance = totalRex > 0 ? parseFloat(totalLendable) / parseFloat(totalRex) * rexBalance : 0;
+    
+    const maturingExpired = rex.rexbal ? rex.rexbal.rex_maturities && rex.rexbal.rex_maturities[0] : null;
+    if (maturingExpired && new Date(maturingExpired.first) < new Date()) {
+      maturedBalance += (maturingExpired.second / 10000);
+    }
     
     this.state = {
       confirming: false,
       sellAmountValid: true,
       decimalSellAmount: 0,
-      REXbalance: rex && rex.rexbal ? Decimal(rex.rexbal.rex_balance.split(' ')[0]) : 0,
+      REXbalance: rexBalance,
+      MATUREDrex: maturedBalance,
+      COREbalance: coreBalance,
       formError: null,
       submitDisabled: true
     };
@@ -99,16 +112,26 @@ class WalletPanelFormExchangeSell extends Component<Props> {
 
   errorsInForm = () => {
     const {
+      MATUREDrex,
+      REXbalance,
       sellAmountValid,
-      decimalSellAmount,
-      REXbalance
+      decimalSellAmount
     } = this.state;
+    const {
+      rex,
+      settings
+    } = this.props;
 
     if (!sellAmountValid) {
       return 'invalid_amount';
     }
 
-    if (Decimal.max(0, decimalSellAmount).greaterThan(REXbalance)) {
+    const totalRex = rex.rexpool.total_rex.split(' ')[0];
+    const totalLendable = rex.rexpool.total_lendable.split(' ')[0];
+    const rexBalance = Decimal(decimalSellAmount / 
+      (parseFloat(totalLendable) / parseFloat(totalRex))).toFixed(settings.tokenPrecision);
+
+    if (Decimal.max(0, rexBalance).greaterThan(MATUREDrex)) {
       return 'not_enough_balance';
     }
 
@@ -123,7 +146,9 @@ class WalletPanelFormExchangeSell extends Component<Props> {
 
   onConfirm = () => {
     const {
-      actions
+      actions,
+      rex,
+      settings
     } = this.props;
 
     const {
@@ -138,7 +163,12 @@ class WalletPanelFormExchangeSell extends Component<Props> {
       confirming: false
     });
 
-    sellrex(decimalSellAmount);
+    const totalRex = rex.rexpool.total_rex.split(' ')[0];
+    const totalLendable = rex.rexpool.total_lendable.split(' ')[0];
+    const rexBalance = Decimal(decimalSellAmount / 
+      (parseFloat(totalLendable) / parseFloat(totalRex))).toFixed(settings.tokenPrecision);
+
+    sellrex(rexBalance);
   }
 
   render() {
@@ -153,6 +183,7 @@ class WalletPanelFormExchangeSell extends Component<Props> {
 
     const {
       decimalSellAmount,
+      COREbalance,
       REXbalance,
       submitDisabled
     } = this.state;
@@ -163,10 +194,10 @@ class WalletPanelFormExchangeSell extends Component<Props> {
     let {
       formError
     } = this.state;
-
+    
     const totalRex = rex.rexpool.total_rex.split(' ')[0];
     const totalLendable = rex.rexpool.total_lendable.split(' ')[0];
-    const sellRatio = totalRex > 0 ? parseFloat(totalLendable) / parseFloat(totalRex) * decimalSellAmount : 0;
+    const rexBalance = totalRex > 0 ? decimalSellAmount / (parseFloat(totalLendable) / parseFloat(totalRex)) : 0;
 
     return (
       <Segment
@@ -176,6 +207,7 @@ class WalletPanelFormExchangeSell extends Component<Props> {
           ? (
             <div>
               <WalletPanelFormExchangeSellStats
+                COREbalance={COREbalance}
                 REXbalance={REXbalance}
                 rex={rex}
                 settings={settings}
@@ -196,9 +228,9 @@ class WalletPanelFormExchangeSell extends Component<Props> {
                   />
                 </Form.Group>
                 <Header size="tiny">
-                    {(sellRatio).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
+                    {(rexBalance).toFixed(settings.tokenPrecision)} REX
                     <Header.Subheader>
-                    {t('rex_sellrex_amount_ratio', {tokenSymbol:settings.blockchain.tokenSymbol})}
+                    {t('rex_sellrex_amount_ratio', {tokenSymbol:'REX'})}
                     </Header.Subheader>
                 </Header>
                 <FormMessageError
@@ -232,6 +264,7 @@ class WalletPanelFormExchangeSell extends Component<Props> {
             <WalletPanelFormExchangeSellConfirming
               balance={balance}
               decimalSellAmount={decimalSellAmount}
+              COREbalance={COREbalance}
               REXbalance={REXbalance}
               onBack={this.onBack}
               onConfirm={this.onConfirm}

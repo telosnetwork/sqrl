@@ -40,8 +40,8 @@ console.log = (...args) => {
 log.info('app: initializing');
 
 if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
+  //const sourceMapSupport = require('source-map-support');
+  //sourceMapSupport.install();
 }
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {

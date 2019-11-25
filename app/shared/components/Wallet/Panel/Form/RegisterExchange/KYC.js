@@ -11,10 +11,7 @@ class WalletPanelFormRegisterExchangeKYC extends Component<Props> {
   constructor(props) {
     super(props);
       this.state = {
-        passport: null,
-        livePhoto: null,
-        dlFront: null,
-        dlBack: null
+        
       }
   }
   onSubmit = () => this.props.onSubmit()
@@ -64,14 +61,14 @@ class WalletPanelFormRegisterExchangeKYC extends Component<Props> {
           {t('wallet_registercarbon_request_step_3_header')} - {kycStatus}
           <Header.Subheader>
             <p>
-            Carbon users must pass Primetrust's KYC/AML process before purchasing/redeeming CUSD via wire or ACH or adding ACH/wire payment methods. This process involves submitting an identity form and uploading identity photos/documentation.
+            In order to increase your daily {settings.blockchain.tokenSymbol} purchase limits for card purchase, please complete the KYC application below.
             </p>
           </Header.Subheader>
         </Header>
 
         {(!disabled ? 
         <Message
-          content="After going through KYC, you will be required to use Google 2FA to secure your account. This is to protect you and Carbon against future fraud."
+          content="After going through KYC, you may optionally use Google 2FA to secure your account. This is to protect you and Carbon against future fraud."
           icon="info circle"
           info
         />
