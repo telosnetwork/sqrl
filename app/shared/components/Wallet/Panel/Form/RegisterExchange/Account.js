@@ -11,9 +11,9 @@ class WalletPanelFormRegisterExchangeAccount extends Component<Props> {
   render() {
     const {
       globals,
-      keys,
       onBack,
       onChange,
+      pubkey,
       settings,
       t,
       values
@@ -61,7 +61,7 @@ class WalletPanelFormRegisterExchangeAccount extends Component<Props> {
         </Header>
 
         <Message
-          content={keys.pubkey}
+          content={pubkey}
           info>
         </Message>
 

@@ -3,7 +3,11 @@ import { forEach } from 'lodash';
 import * as types from './types';
 import eos from './helpers/eos';
 import eos2 from './helpers/eos2';
+import { getRexBalance } from './rex';
+import EOSAccount from '../utils/EOS/Account';
+import { getContactByPublicKey } from './globals';
 const ecc = require('eosjs-ecc');
+import { payforcpunet } from './helpers/eos';
 
 export function clearAccountCache() {
   return (dispatch: () => void) => {
@@ -29,13 +33,32 @@ export function refreshAccountBalances(account, requestedTokens) {
 export function claimUnstaked(owner) {
   return (dispatch: () => void, getState) => {
     const {
-      connection
+      connection,
+      settings
     } = getState();
     dispatch({
       type: types.SYSTEM_REFUND_PENDING
     });
-    return eos(connection, true).refund({
-      owner
+
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'refund',
+        authorization: [{
+            actor: owner,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          owner
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(owner, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions: actions
     }).then((tx) => {
       // Reload the account
       dispatch(getAccount(owner));
@@ -127,9 +150,19 @@ export function getAccount(account = '') {
         // Trigger the action to load this accounts balances'
         if (settings.account === account) {
           dispatch(getCurrencyBalance(account));
-
+          dispatch(getRexBalance());
           if (settings.blockchain.tokenSymbol==='WAX')
             dispatch(getGenesisBalance(account));
+
+          const model = new EOSAccount(results);
+          if (model) {
+            const auth = settings.authorization || 'active';
+            const keys = model.getKeysForAuthorization(auth);
+            if (keys && keys.length > 0) {
+              const { pubkey } = keys[0];
+              dispatch(getContactByPublicKey(pubkey));
+            }
+          }
         }
         // PATCH - Force in self_delegated_bandwidth if it doesn't exist
         const modified = Object.assign({}, results);

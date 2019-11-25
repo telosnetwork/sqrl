@@ -211,7 +211,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     } = this.state;
     
     // save proposal to IPFS, return its hash#, and submit contract to chain
-    let amountFormatted = parseFloat(amount * cycles).toFixed(settings.tokenPrecision);
+    let amountFormatted = parseFloat(amount).toFixed(settings.tokenPrecision);
     if (proposal_id >= 0) { // editing
         // submit WP
         editProposal(proposal_id, title, ipfs_location, amountFormatted, send_to);

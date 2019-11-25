@@ -43,6 +43,7 @@ import * as ValidateActions from '../actions/validate';
 import * as VoteProducerActions from '../actions/system/voteproducer';
 import * as WalletActions from '../actions/wallet';
 import * as SystemStateActions from '../actions/system/systemstate';
+import { isArray } from 'util';
 
 type Props = {
   accounts: {},
@@ -75,7 +76,7 @@ class BasicVoterContainer extends Component<Props> {
       system
     } = this.props;
 
-    if (system.BLOCKEXPLORERS === 'SUCCESS') {
+    if (system.BLOCKEXPLORERS === 'SUCCESS' && !settings.blockExplorer) {
       system.BLOCKEXPLORERS = '';
       
        // look for compatible block explorer based on token, else use first
@@ -96,18 +97,21 @@ class BasicVoterContainer extends Component<Props> {
     }
   }
   
-  componentDidMount() {
+  componentDidMount = async () => {
     const {
       actions,
-      accounts,
+      globals,
       history,
       settings
     } = this.props;
 
     const {
+      addCustomToken,
       getBlockExplorers,
       getCurrencyStats,
+      getCustomTokensRemote,
       getExchangeAPI,
+      getProfiles,
       getRamStats,
       getRexPool,
       getRexFund,
@@ -126,19 +130,28 @@ class BasicVoterContainer extends Component<Props> {
 
           getCurrencyStats();
           getBlockExplorers();
+          getProfiles();
           getRamStats();
           getRexPool();
           getRexFund();
           getRexBalance();
-          forEach(settings.customTokens, (token) => {
-            const [contract, symbol] = token.split(':');
-            getCurrencyStats(contract, symbol.toUpperCase());
-          });
 
-          (async () => {
-            await getExchangeAPI();
-            this.lookupExchangeContact();
-          })();
+          // open profile for user if not exists ?
+
+          const remoteTokensResult = await getCustomTokensRemote();
+          if (remoteTokensResult && remoteTokensResult.payload && isArray(remoteTokensResult.payload)) {
+            for (var i = 0; i < remoteTokensResult.payload.length; i++) {
+              const remoteToken = remoteTokensResult.payload[i];
+              if (remoteToken.chain.toUpperCase()==settings.blockchain.tokenSymbol) {
+                const tokenTracked = settings.customTokens.filter((t)=>t.split(':')[0]==remoteToken.account)[0];
+                if (!tokenTracked) {
+                  await addCustomToken(remoteToken.account, remoteToken.symbol);
+                }
+              }
+            };
+          }
+          
+          await getExchangeAPI();
         }
       }
     }
@@ -170,6 +183,7 @@ class BasicVoterContainer extends Component<Props> {
       getInfo,
       getPriceFeed,
       getPriceFeedGecko,
+      getProfiles,
       getRamStats,
       setSetting,
       voteproducers
@@ -183,14 +197,15 @@ class BasicVoterContainer extends Component<Props> {
       getGlobals();
       getRamStats();
       getInfo();
+      getProfiles();
 
-      if (settings.blockchain.tokenSymbol === "WAX") {
+      if (settings.blockchain.tokenSymbol === "TLOS") {
+        getPriceFeedGecko("TELOS", "USD", settings.blockchain.tokenSymbol);
+        getPriceFeedGecko("TELOS", "EOS", settings.blockchain.tokenSymbol);
+      }
+      else {
         getPriceFeedGecko(settings.blockchain.tokenSymbol, "USD");
         getPriceFeedGecko(settings.blockchain.tokenSymbol, "EOS");
-      } else {
-        getPriceFeed(settings.blockchain.tokenSymbol, "CUSD");
-        if (settings.blockchain.tokenSymbol != "EOS")
-          {getPriceFeed(settings.blockchain.tokenSymbol, "EOS");}
       }
     }
 
@@ -300,30 +315,8 @@ class BasicVoterContainer extends Component<Props> {
     }
   }
 
-  lookupExchangeContact() {
-    const {
-      actions,
-      connection,
-      settings
-    } = this.props;
-
-    eos(connection).getAccount(settings.account).then((results) => {
-      const model = new EOSAccount(results);
-      if (model) {
-        const keys = model.getKeysForAuthorization(settings.authorization);
-        if (keys && keys.length > 0) {
-          const { pubkey } = keys[0];
-          actions.getContactByPublicKey(pubkey);
-        }
-      }
-    });
-  }
-
   handleItemClick = (e, { name }) => {
     this.setState({ activeItem: name });
-    if (name == 'wallet') {
-      this.lookupExchangeContact();
-    };
   }
 
   render() {

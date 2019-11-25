@@ -11,6 +11,9 @@ import GlobalSettingsIPFSNode from './Global/Settings/IPFSNode';
 import GlobalSettingsSkipLinkModal from './Global/Settings/SkipLinkModal';
 import GlobalSettingsResourceDisplayFormat from './Global/Settings/ResourceDisplayFormat';
 import GlobalSettingsFilterSpamTransfers from './Global/Settings/FilterSpamTransfers';
+import GlobalSettingsMirrorCastVote from './Global/Settings/MirrorCastVote';
+import GlobalSettingsResourceDisplay from './Global/Settings/ResourceDisplay';
+import GlobalSettingsSqrlToken from './Global/Settings/SqrlToken';
 
 class Tools extends Component<Props> {
   render() {
@@ -93,6 +96,30 @@ class Tools extends Component<Props> {
               <GlobalSettingsResourceDisplayFormat
                 actions={actions}
                 defaultValue={settings.displayResourcesAvailable}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_mirror_cast_vote')}</label>
+              <GlobalSettingsMirrorCastVote
+                actions={actions}
+                defaultValue={settings.mirrorCastOnVote}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_use_sqrl_token')}</label>
+              <GlobalSettingsSqrlToken
+                actions={actions}
+                defaultValue={settings.useSQRLtoken}
+                selection
+              />
+            </Form.Field>
+            <Form.Field>
+              <label>{t('tools_change_show_resources')}</label>
+              <GlobalSettingsResourceDisplay
+                actions={actions}
+                defaultValue={settings.showResourcesInWallet}
                 selection
               />
             </Form.Field>

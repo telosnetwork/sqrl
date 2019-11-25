@@ -9,7 +9,7 @@
   "eos_in_cpu_after": "{{tokenSymbol}}在中央处理器之后",
   "eos_in_net_after": "{{tokenSymbol}}在宽带之后",
   "net_staked": "{{tokenSymbol}}以带宽放样",
-  "stake_button_cta": "更新放大的{{tokenSymbol}}",
+  "stake_button_cta": "更新放大的",
   "stake_cpu_amount": "CPU Amount",
   "stake_net_amount": "Bandwidth Amount",
   "stake_modal_title": "更新放大的{{tokenSymbol}}金额",

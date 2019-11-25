@@ -7,6 +7,7 @@ class WalletExchangeStatusPool extends Component<Props> {
   render() {
     const {
       rex,
+      settings,
       t
     } = this.props;
 
@@ -53,7 +54,7 @@ class WalletExchangeStatusPool extends Component<Props> {
           <Grid.Row>
             <Grid.Column>
               <Header
-                content={t('rex_status_pool_totallendable_title')}
+                content={t('rex_status_pool_totallendable_title', {tokenSymbol:settings.blockchain.tokenSymbol})}
                 size="small"
                 subheader={t('rex_status_pool_totallendable_desc')}
               />

@@ -11,16 +11,20 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
   onSubmit = () => this.props.onSubmit()
   render() {
     const {
+      cusdSymbol,
       error,
+      globals,
       isValid,
       onChange,
+      onChangeFast,
+      rates,
       settings,
       shouldShowKYCWarning,
       t,
       values
     } = this.props;
 
-    const tokenSymbolLower = settings.blockchain.tokenSymbol.toLowerCase();
+    const contactDetails = globals.exchangecontact && globals.exchangecontact.details;
 
     const currencies = [
       { key: 'usd', value: 'usd', text: 'US Dollar' },
@@ -30,35 +34,32 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
 
     const tokens = [];
 
-    tokens.push({
-      key: tokenSymbolLower,
-      value: tokenSymbolLower,
-      text: settings.blockchain.tokenSymbol + ' Token'
-    });
+    tokens.push({key: 'tlos',value: 'tlos',text: 'Telos'});
 
-    let cusdSymbol = 'cusd' + tokenSymbolLower;
+    /*if (contactDetails && contactDetails.kycStatusStablecoin == true) {
+      tokens.push({
+        key: cusdSymbol,
+        value: cusdSymbol,
+        text: cusdSymbol.toUpperCase()
+      });
+    }*/
 
-    tokens.push({
-      key: cusdSymbol,
-      value: cusdSymbol,
-      text: 'Carbon USD'
-    });
+    tokens.push({key: 'btc',value: 'btc',text: 'Bitcoin'});
+    tokens.push({key: 'eos',value: 'eos',text: 'EOS'});
 
     return (
-      <Form
-        onSubmit={this.onSubmit}
-      >
+      <Form onSubmit={this.onSubmit}>
         <Header>
-          {t('wallet_buytoken_request_step_1_header', {tokenSymbol:settings.blockchain.tokenSymbol})}
+          {t('wallet_buytoken_request_step_1_header', {tokenSymbol:values.token.toUpperCase()})}
           <Header.Subheader>
-            {t('wallet_buytoken_request_step_1_subheader', {tokenSymbol:settings.blockchain.tokenSymbol})}
+            {t('wallet_buytoken_request_step_1_subheader', {tokenSymbol:values.token.toUpperCase()})}
           </Header.Subheader>
         </Header>
 
         <Segment basic color='green'>
           <p><strong>Token</strong></p>
           <Dropdown
-            defaultValue={tokenSymbolLower}
+            defaultValue={values.token}
             name="token"
             onChange={onChange}
             options={tokens}
@@ -66,6 +67,7 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
           />
 
           <Form.Field
+            autoFocus
             style={{ float:"left" }} 
             control={Input}
             fluid
@@ -90,24 +92,18 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
             icon="note"
             label={t('wallet_buytoken_request_memo')}
             name="memo"
-            onChange={onChange}
+            onChange={onChangeFast}
           />
         </Segment>
 
         <Message style={{marginLeft:"15px",marginRight:"15px"}} info size="small">
           Minimum purchase of 5.00 {values.currency.toUpperCase()} required
         </Message>
-        
-        <FormMessageError
-          error={error}
-          icon="warning sign"
-          style={{ margin: '1em 0' }}
-        />
 
           {(shouldShowKYCWarning)
           ? (
             <Message
-              content={t('wallet_buytoken_request_kyc_warning', {currency:values.currency})}
+              content={t('wallet_buytoken_request_kyc_warning', {limit:values.limit,currency:values.currency.toUpperCase()})}
               icon="info circle"
               info
             />
@@ -117,7 +113,8 @@ class WalletPanelFormBuyFiatAmount extends Component<Props> {
           <Form.Button
             color="blue"
             content={t('next')}
-            disabled={!isValid}
+            loading={!isValid && values.amount >= 5}
+            disabled={!isValid || !rates || rates.txFee == 0}
             style={{marginRight:"15px"}}
           />
         </Container>

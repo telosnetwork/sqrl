@@ -1,10 +1,10 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "1.0.13",
+  "version": "1.2.0",
   "description": "A fully featured wallet and governance tool for EOS.IO blockchains",
   "scripts": {
-    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
+    "build": "concurrently \"GENERATE_SOURCEMAP=false npm run build-main\" \"GENERATE_SOURCEMAP=false npm run build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
     "build-main": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
     "build-renderer": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors",
@@ -237,6 +237,7 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "country-iso-2-to-3": "^1.0.1",
     "crypto-js": "^3.1.9-1",
     "decimal.js": "^10.0.1",
     "dot-prop-immutable": "^1.4.0",
@@ -252,10 +253,15 @@
     "i18next-electron-language-detector": "^0.0.10",
     "i18next-sprintf-postprocessor": "^0.2.2",
     "i18next-sync-fs-backend": "^1.1.0",
+    "lodash.clonedeep": "^4.5.0",
     "macaddress": "^0.2.9",
     "moment": "^2.22.2",
     "pretty-bytes": "^5.1.0",
-    "react": "^16.4.0",
+    "qrcode.react": "^0.9.3",
+    "react": "^16.12.0",
+    "react-copy-to-clipboard": "^5.0.2",
+    "react-countdown-now": "^2.1.1",
+    "react-country-region-selector": "^1.4.4",
     "react-credit-card-input": "^1.1.5",
     "react-dom": "^16.4.0",
     "react-google-charts": "^3.0.13",
@@ -266,6 +272,7 @@
     "react-json-view": "^1.17.0",
     "react-markdown": "^4.0.8",
     "react-moment": "^0.8.2",
+    "react-number-format": "^4.3.1",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
@@ -279,6 +286,7 @@
     "redux-persist-electron-storage": "^1.1.2",
     "redux-thunk": "^2.3.0",
     "scrypt-async": "^2.0.1",
+    "semantic-ui-calendar-react": "^0.15.3",
     "styled-components": "^4.3.2"
   },
   "devEngines": {

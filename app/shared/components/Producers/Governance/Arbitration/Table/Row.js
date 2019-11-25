@@ -16,7 +16,7 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
     };
   }
 
-  approve = (ballot_id) => {
+  approve = async (ballot_id) => {
     const { 
       actions, 
       candidate, 
@@ -27,11 +27,11 @@ class GovernanceArbitrationCandidatesTableRow extends Component<Props> {
 
     system.GOVERNANCE_VOTE_PROPOSAL_LAST_ERROR = null;
 
-    actions.registerVoter(voter).then( (tx) => {
-      actions.mirrorCast(voter).then( (tx) => {
-        actions.voteBallot(voter, ballot_id, candidate.index);
-      });
-    });
+    await actions.registerVoter(voter);
+    if (settings.mirrorCastOnVote !== false) {
+      await actions.mirrorCast(voter);
+    }
+    actions.voteBallot(voter, ballot_id, candidate.index);
   }
 
   unlockWallet = (password = false) => {

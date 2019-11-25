@@ -23,6 +23,7 @@ class TabMenu extends Component<Props> {
       wallet,
       t
     } = this.props;
+    const rexTabName = settings.blockchain.tokenSymbol == 'TLOS' ? 'T-REX' : 'REX';
     return (
       <Menu
         attached
@@ -60,7 +61,7 @@ class TabMenu extends Component<Props> {
             <Menu.Item
               name="exchange"
               icon="exchange"
-              content='REX'
+              content={rexTabName}
               active={activeItem === 'exchange'}
               onClick={handleItemClick}
             />

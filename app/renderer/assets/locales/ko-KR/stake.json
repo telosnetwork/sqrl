@@ -9,7 +9,7 @@
   "eos_in_cpu_after": "CPU의 {{tokenSymbol}}",
   "eos_in_net_after": "대역폭 의 {{tokenSymbol}}",
   "net_staked": "대역폭에 스테이킹된 {{tokenSymbol}} 총량",
-  "stake_button_cta": "스테이킹된 {{tokenSymbol}} 업데이트",
+  "stake_button_cta": "스테이킹된 업데이트",
   "stake_cpu_amount": "CPU Amount",
   "stake_net_amount": "Bandwidth Amount",
   "stake_modal_title": "스테이킹된 {{tokenSymbol}} 수량 업데이트",

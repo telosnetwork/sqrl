@@ -116,6 +116,22 @@ export default function globals(state = initialState, action) {
         exchangeverify: null
       });
     }
+    case types.GET_CHARGECONTACT_ENROLLED:
+    case types.GET_CHARGECONTACT_NOTENROLLED: {
+      return Object.assign({}, state, {
+          chargecard: action.payload
+        });
+    }
+    case types.SYSTEM_GET_PROFILE_SUCCESS: {
+      return Object.assign({}, state, {
+        profiles: action.payload.profiles
+      });
+    }
+    case types.GET_CUSTOMTOKENSREMOTE_SUCCESS: {
+      return Object.assign({}, state, {
+        remotetokens: action.payload
+      });
+    }
     default: {
       return state;
     }

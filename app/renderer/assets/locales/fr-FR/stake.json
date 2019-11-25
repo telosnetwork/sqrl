@@ -9,7 +9,7 @@
   "eos_in_cpu_after": "{{tokenSymbol}} en CPU après",
   "eos_in_net_after": "{{tokenSymbol}} en Bandwidth après",
   "net_staked": "{{tokenSymbol}} attribué au Bandwidth",
-  "stake_button_cta": "Mettez vos ressources à jour",
+  "stake_button_cta": "Mettez à jour",
   "stake_cpu_amount": "CPU Amount",
   "stake_net_amount": "Bandwidth Amount",
   "stake_modal_title": "Mettez vos ressources à jour",

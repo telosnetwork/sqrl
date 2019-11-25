@@ -10,14 +10,31 @@ export function getBlockExplorers() {
     });
     const rows = [
       {
-        name: 'telosfoundation.io',
+        name: 'bloks.io',
+        tokenSymbol: 'EOS',
         patterns: {
-          account: 'http://monitor.telosfoundation.io/account/{account}',
-          txid: 'http://monitor.telosfoundation.io/transaction/{txid}',
+          account: 'https://www.bloks.io/account/{account}',
+          txid: 'https://www.bloks.io/transaction/{txid}',
+          tokenSymbol: 'EOS'
+        }
+      },{
+        name: 'telos.bloks.io',
+        tokenSymbol: 'TLOS',
+        patterns: {
+          account: 'https://telos.bloks.io/account/{account}',
+          txid: 'https://telos.bloks.io/transaction/{txid}',
           tokenSymbol: 'TLOS'
         }
       },
       {
+        name: 'wax.bloks.io',
+        tokenSymbol: 'WAX',
+        patterns: {
+          account: 'https://wax.bloks.io/account/{account}',
+          txid: 'https://wax.bloks.io/transaction/{txid}',
+          tokenSymbol: 'WAX'
+        }
+      },{
         name: 'telos.eosx.io',
         patterns: {
           account: 'https://telos.eosx.io/account/{account}',
@@ -32,55 +49,11 @@ export function getBlockExplorers() {
           txid: 'https://telostracker.io/trx/{txid}',
           tokenSymbol: 'TLOS'
         }
-      },
-      {
-        name: 'telosindex.io',
-        patterns: {
-          account: 'https://explorer.telosindex.io/lookup/accounts/{account}',
-          txid: 'https://explorer.telosindex.io/lookup/transactions/{txid}',
-          tokenSymbol: 'TLOS'
-        }
-      },
-      {
-        name: 'bloks.io',
-        tokenSymbol: 'EOS',
-        patterns: {
-          account: 'https://www.bloks.io/account/{account}',
-          txid: 'https://www.bloks.io/transaction/{txid}',
-          tokenSymbol: 'EOS'
-        }
-      },
-      {
-        name: 'eosflare.io',
-        tokenSymbol: 'EOS',
-        patterns: {
-          account: 'https://eosflare.io/account/{account}',
-          txid: 'https://eosflare.io/tx/{txid}',
-          tokenSymbol: 'EOS'
-        }
-      },
-      {
-        name: 'eosmonitor.io',
-        tokenSymbol: 'EOS',
-        patterns: {
-          account: 'https://eosmonitor.io/account/{account}',
-          txid: 'https://eosmonitor.io/txn/{txid}',
-          tokenSymbol: 'EOS'
-        }
-      },
-      {
+      },{
         name: 'eospark.com',
         patterns: {
           account: 'https://eospark.com/MainNet/account/{account}',
           txid: 'https://eospark.com/MainNet/tx/{txid}',
-          tokenSymbol: 'EOS'
-        }
-      },
-      {
-        name: 'eosweb.net',
-        patterns: {
-          account: 'https://eosweb.net/account/{account}',
-          txid: 'https://eosweb.net/transaction/{txid}',
           tokenSymbol: 'EOS'
         }
       }

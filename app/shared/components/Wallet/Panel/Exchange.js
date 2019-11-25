@@ -203,7 +203,7 @@ class WalletPanelExchange extends Component<Props> {
                 </Segment.Group>
               </Accordion.Content>
             </Menu.Item>
-            {(settings.walletMode === 'hotttttt')
+            {(settings.walletMode === 'hot')
               ? (
                 <Menu.Item>
                   <Accordion.Title
@@ -231,32 +231,6 @@ class WalletPanelExchange extends Component<Props> {
                     </Segment>
                     <Segment>
                       <WalletPanelButtonExchangeMoveFrom
-                        actions={actions}
-                        accounts={accounts}
-                        balances={balances}
-                        blockExplorers={blockExplorers}
-                        connection={connection}
-                        rex={rex}
-                        settings={settings}
-                        system={system}
-                        validate={validate}
-                      />
-                    </Segment>
-                    <Segment>
-                      <WalletPanelButtonExchangeConsolidate
-                        actions={actions}
-                        accounts={accounts}
-                        balances={balances}
-                        blockExplorers={blockExplorers}
-                        connection={connection}
-                        rex={rex}
-                        settings={settings}
-                        system={system}
-                        validate={validate}
-                      />
-                    </Segment>
-                    <Segment>
-                      <WalletPanelButtonExchangeClose
                         actions={actions}
                         accounts={accounts}
                         balances={balances}

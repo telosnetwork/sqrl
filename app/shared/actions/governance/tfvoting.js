@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 
 import * as types from '../types';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 const defaultContract = 'tf';
 
@@ -36,7 +37,8 @@ export function getTFVoterBalances(scope = 'eosio.trail', previous = false) {
       limit: 1000,
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].owner;
+      const owner = previous[previous.length - 1].owner;
+      query.lower_bound = isNaN(owner) ? owner : ' ' + owner;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
@@ -92,7 +94,8 @@ export function getTFBoardMembers(previous = false) {
       limit: 1000,
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].member;
+      const member = previous[previous.length - 1].member;
+      query.lower_bound = isNaN(member) ? member : ' ' + member;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
@@ -146,7 +149,8 @@ export function getTFNominees(previous = false) {
       limit: 1000,
     };
     if (previous) {
-      query.lower_bound = previous[previous.length - 1].member;
+      const member = previous[previous.length - 1].member;
+      query.lower_bound = isNaN(member) ? member : ' ' + member;
     }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;

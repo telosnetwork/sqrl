@@ -23,8 +23,14 @@ export default class GlobalFormFieldGeneric extends Component<Props> {
       label,
       loading,
       name,
+      style,
       value
     } = this.props;
+
+    const CustomLabel = () => {
+     return <label style={style}>{label}</label>
+    }
+
     return (
       <Form.Field
         autoFocus={autoFocus}
@@ -32,10 +38,11 @@ export default class GlobalFormFieldGeneric extends Component<Props> {
         disabled={disabled}
         fluid
         icon={icon}
-        label={label}
+        label={<CustomLabel />}
         loading={loading}
         name={name}
         onChange={this.onChange}
+        style={style}
         defaultValue={value}
       />
     );

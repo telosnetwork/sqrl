@@ -4,6 +4,7 @@ import sortBy from 'lodash/sortBy';
 import * as types from '../types';
 import eos from '../helpers/eos';
 import { getBallots, getVoteInfo } from './proposals';
+import { payforcpunet } from '../helpers/eos';
 
 const defaultContract = 'eosio.arb';
 
@@ -15,33 +16,39 @@ export function registerCandidate(nominee, credentials_link) {
     const { connection, settings } = getState();
     const { account } = settings;
     credentials_link = credentials_link + '######'; //workaround to make 59 chars
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: defaultContract,
-          name: 'regarb',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            nominee,
-            credentials_link
-          }
-        },
-        {
-          account: defaultContract,
-          name: 'candaddlead',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            nominee,
-            credentials_link
-          }
+
+    let actions = [
+      {
+        account: defaultContract,
+        name: 'regarb',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          nominee,
+          credentials_link
         }
-      ]
+      },
+      {
+        account: defaultContract,
+        name: 'candaddlead',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          nominee,
+          credentials_link
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -66,31 +73,37 @@ export function unRegisterCandidate(nominee) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: defaultContract,
-          name: 'candrmvlead',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            nominee
-          }
-        },
-        {
-          account: defaultContract,
-          name: 'unregnominee',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            nominee
-          }
+
+    let actions = [
+      {
+        account: defaultContract,
+        name: 'candrmvlead',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          nominee
         }
-      ]
+      },
+      {
+        account: defaultContract,
+        name: 'unregnominee',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          nominee
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,
@@ -115,20 +128,26 @@ export function endElection(candidate) {
     });
     const { connection, settings } = getState();
     const { account } = settings;
-    return eos(connection, true).transaction({
-      actions: [
-        {
-          account: defaultContract,
-          name: 'endelection',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active'
-          }],
-          data: {
-            candidate
-          }
+
+    let actions = [
+      {
+        account: defaultContract,
+        name: 'endelection',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          candidate
         }
-      ]
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }, {
       broadcast: connection.broadcast,
       expireInSeconds: connection.expireInSeconds,

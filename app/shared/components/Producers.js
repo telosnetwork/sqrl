@@ -295,7 +295,7 @@ class Producers extends Component<Props> {
     const modified = (selected.sort().toString() !== producers.selected.sort().toString());
     const currentProxy = (account && account.voter_info && account.voter_info.proxy);
 
-    const columnWidth = (activeTabIndex == 0 || activeTabIndex == 1) ? 10 : 16;
+    const columnWidth = (activeTabIndex == 0 || activeTabIndex == 1) ? 11 : 16;
     
     if (isValidUser && settings.walletMode !== 'wait') {
       sidebar = (
@@ -378,7 +378,7 @@ class Producers extends Component<Props> {
         <Grid divided>
           <Grid.Row>
             {( activeTabIndex == 0 || activeTabIndex == 1) ?
-            <Grid.Column width={6}>
+            <Grid.Column width={5}>
               <SidebarAccount
                 actions={actions}
                 history={history}

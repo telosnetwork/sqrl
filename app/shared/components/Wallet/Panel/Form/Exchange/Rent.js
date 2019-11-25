@@ -32,6 +32,7 @@ class WalletPanelFormExchangeRent extends Component<Props> {
       decimalPaymentAmount: 0,
       decimalLoanAmount: 0,
       rentNETorCPU: 'CPU',
+      REXfund: rex.rexfund ? Decimal(rex.rexfund.balance.split(' ')[0]) : 0,
       REXbalance: rex.rexbal ? Decimal(rex.rexbal.rex_balance.split(' ')[0]) : 0,
       EOSbalance: (props.balance && props.balance[settings.blockchain.tokenSymbol]) 
         ? props.balance[settings.blockchain.tokenSymbol] : 0,
@@ -142,6 +143,7 @@ class WalletPanelFormExchangeRent extends Component<Props> {
   errorsInForm = () => {
     const {
       decimalPaymentAmount,
+      REXfund,
       EOSbalance,
       loanAmountValid,
       receiverValid,
@@ -156,7 +158,7 @@ class WalletPanelFormExchangeRent extends Component<Props> {
       return 'not_valid_account_name';
     }
 
-    if (Decimal.max(0, decimalPaymentAmount).greaterThan(EOSbalance)) {
+    if (Decimal.max(0, decimalPaymentAmount).greaterThan(REXfund)) {
       return 'not_enough_balance';
     }
 
@@ -191,10 +193,12 @@ class WalletPanelFormExchangeRent extends Component<Props> {
     });
 
     if (rentNETorCPU == 'CPU') 
-      rentcpu(receiver, decimalPaymentAmount, decimalLoanAmount)
+      rentcpu(receiver, decimalPaymentAmount, 0)
     else
-      rentnet(receiver, decimalPaymentAmount, decimalLoanAmount)
-    //console.log('going to rent ', decimalLoanAmount, ' and pay ', decimalPaymentAmount, ' goin to ', receiver, ' for ', rentNETorCPU)
+      rentnet(receiver, decimalPaymentAmount, 0)
+    /*console.log('going to rent ', decimalLoanAmount.toFixed(4), 
+    ' and pay ', decimalPaymentAmount.toFixed(4), 
+    ' goin to ', receiver, ' for ', rentNETorCPU)*/
   }
 
   render() {
@@ -214,6 +218,7 @@ class WalletPanelFormExchangeRent extends Component<Props> {
       receiver,
       rentNETorCPU,
       REXbalance,
+      REXfund,
       submitDisabled
     } = this.state;
 
@@ -243,6 +248,7 @@ class WalletPanelFormExchangeRent extends Component<Props> {
               <WalletPanelFormRentStats
                 EOSbalance={EOSbalance}
                 REXbalance={REXbalance}
+                REXfund={REXfund}
                 rex={rex}
                 settings={settings}
               />

@@ -18,5 +18,18 @@
   "transfer_close": "Sulge",
   "transfer_header_available": "available to transfer.",
   "transfer_send_exchange_in_memo_one": "Are you trying to transfer to an exchange? If so put",
-  "transfer_send_exchange_in_memo_two": "as the Account Name and put the memo code given in the memo field."
+  "transfer_send_exchange_in_memo_two": "as the Account Name and put the memo code given in the memo field.",
+  "transfer_swap_modal_title": "Swap Tokens",
+  "transfer_swap_from_token": "Swap From:",
+  "transfer_swap_to_token": "Swap To:",
+  "transfer_swap_available": "Available",
+  "transfer_swap_overview": "Quickly swap from one token to another using the Telos Bancor Network, subject to each token's available liquidity.",
+  "transfer_swap_confirming_title": "Review Transaction Details",
+  "transfer_swap_confirming_body": "Please review the details of this swap before proceeding, including the transfer amount, conversion fees and estimated value.",
+  "transfer_swap_amount_1": "Transfer Amount",
+  "transfer_swap_fee_1": "Base Conversion Fee",
+  "transfer_swap_estimate_1": "Estimated Value",
+  "transfer_swap_amount_2": "Transfer Amount",
+  "transfer_swap_fee_2": "Token Conversion Fee",
+  "transfer_swap_estimate_2": "Exchange Value"
 }

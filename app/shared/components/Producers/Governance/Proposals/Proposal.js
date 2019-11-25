@@ -12,49 +12,53 @@ import GlobalTransactionModal from '../../../Global/Transaction/Modal';
 import GovernanceProposalsFormProposal from './Form/Proposal';
 
 class GovernanceProposalsProposal extends Component<Props> {
-  approve = (ballot_id) => {
+  approve = async (ballot_id) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
     const vote = 1;
-    actions.registerVoter(voter).then( (tx) => {
-      actions.mirrorCast(voter).then( (tx) => {
-        actions.voteBallot(voter, ballot_id, vote);
-      });
-    });
+    
+    await actions.registerVoter(voter);
+    if (settings.mirrorCastOnVote !== false) {
+      await actions.mirrorCast(voter);
+    }
+    actions.voteBallot(voter, ballot_id, vote);
   }
-  abstain = (ballot_id) => {
+  abstain = async (ballot_id) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
     const vote = 2;
-
-    actions.registerVoter(voter).then( (tx) => {
-      actions.mirrorCast(voter).then( (tx) => {
-        actions.voteBallot(voter, ballot_id, vote);
-      });
-    });
+    
+    await actions.registerVoter(voter);
+    if (settings.mirrorCastOnVote !== false) {
+      await actions.mirrorCast(voter);
+    }
+    actions.voteBallot(voter, ballot_id, vote);
   }
-  oppose = (ballot_id) => {
+  oppose = async (ballot_id) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
     const vote = 0;
-
-    actions.registerVoter(voter).then( (tx) => {
-      actions.mirrorCast(voter).then( (tx) => {
-        actions.voteBallot(voter, ballot_id, vote);
-      });
-    });
+    
+    await actions.registerVoter(voter);
+    if (settings.mirrorCastOnVote !== false) {
+      await actions.mirrorCast(voter);
+    }
+    actions.voteBallot(voter, ballot_id, vote);
   }
   claim = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'claim');
+    actions.getProposals();
   }
   openVoting = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'openvoting');
+    actions.getProposals();
   }
   cancelSubmission = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'cancelsub');
+    actions.getProposals();
   }
   openLink = (link) => {
     const { settings } = this.props;

@@ -69,7 +69,11 @@ class WalletExchangeStatus extends Component<Props> {
           tables.eosio[prefix][suffix].delband.rows;
     }
 
-    const statsFetcher = new StatsFetcher(account, balance, settings, delegations);
+    let rexbal = {}
+    if (rex && rex.rexbal)
+      rexbal = rex.rexbal;
+
+    const statsFetcher = new StatsFetcher(account, balance, settings, delegations, rexbal);
 
     let activeTab = (
       <Segment stacked>
