@@ -6,18 +6,35 @@ import { Decimal } from 'decimal.js';
 
 class WalletPanelFormRegisterExchangeKYCSubmitted extends Component<Props> {
   onResubmit = () => this.props.onResubmit()
+  onOffRampKYCResubmit = () => this.props.onOffRampKYCResubmit()
   render() {
     const {
       globals,
       kycSubmitted,
+      offrampKycSubmitted,
       settings,
       t
     } = this.props;
 
     let contact = globals.exchangecontact && globals.exchangecontact.data;
+    let contactDetails = globals.exchangecontact && globals.exchangecontact.details;
     let allowResubmit = false;
+    let allowResubmitStablecoin = false;
     let kycStatus = '';
+    let kycStatusStablecoin = '';
 
+    if (contactDetails){
+      allowResubmitStablecoin = contactDetails.kycUpdateStablecoin == true || 
+        (contactDetails.kycSentStablecoin == true && contactDetails.kycStatusStablecoin==false);
+      kycStatusStablecoin = 
+        contactDetails.kycUpdateStablecoin==true?"Application Error - Resubmit":
+        contactDetails.kycStatusStablecoin==true?"Verified":
+        contactDetails.kycSentStablecoin==true?"Submitted - Pending":"Not Submitted";
+
+      if (contactDetails.kycStatusStablecoin==false && offrampKycSubmitted) {
+        kycStatusStablecoin = "Submitted - Pending";
+      }
+    }
     if (contact) {
       allowResubmit = contact.kycPassOnfido == '3' || contact.kycPassOnfido == '0';
       kycStatus = 
@@ -36,40 +53,71 @@ class WalletPanelFormRegisterExchangeKYCSubmitted extends Component<Props> {
         id:'',
         emailAddress: '',
         publicKey: '',
-        weeklyMax: '',
+        dailyMax: '',
         defaultCurrency: 'usd',
         remainingWeeklyLimit: '',
         onfidoId: ''
       }
     }
-
     return (
-      <Form
-      onSubmit={this.onResubmit}>
-        <Header as='h3' textAlign='center'>
-          <Header.Content>{t('wallet_registercarbon_request_step_4_header')} {kycStatus}</Header.Content>
-        </Header>
-
+      <Form>
         <Message info>
-          <Message.Header>Status: {kycStatus}</Message.Header>
+          <Message.Header>KYC Status for Credit Card Purchases: {kycStatus}</Message.Header>
+          <Message.Content>
+          {(allowResubmit) ?
+            <Form.Button
+              color="blue"
+              content={t('Apply')}
+              onClick={this.onResubmit}
+              style={{marginTop:'5px'}}
+            />
+          :false}
+          </Message.Content>
+        </Message>
+        <Message info>
+          <Message.Header>KYC Status for Bank Deposits/Withdrawals: {kycStatusStablecoin}</Message.Header>
+          <Message.Content>
+            {(allowResubmitStablecoin) ?
+            <Form.Button
+              color="blue"
+              content={t('Apply')}
+              onClick={this.onOffRampKYCResubmit}
+              style={{marginTop:'5px'}}
+            />
+          :false}
+          </Message.Content>
         </Message>
 
         <Message info>
-          <Message.Header>KYC Verification Submitted</Message.Header>
           <p>
           Thank you for registering to increase your account limits by completing the KYC/AML verification with 
           Carbon.Money.
           </p>
-          {(contact.kycPassOnfido=='2') ?
+          {(contact.kycPassOnfido=='2' && contactDetails.kycStatusStablecoin == true) ?
           <div>
           <p>
-            Your application for KYC verifiation has been approved.
-          </p>
-          <p>
-            Welcome aboard!
+            Your KYC application for credit card purchases and bank deposits/withdrawals has been approved.
           </p>
           </div>
-          :<div><p>
+          :false}
+          {(contact.kycPassOnfido=='2' && contactDetails.kycStatusStablecoin == false) ?
+          <div>
+          <p>
+            Your KYC application for credit card purchases have been approved.
+          </p>
+          </div>
+          :false}
+          {(contact.kycPassOnfido!='2' && contactDetails.kycStatusStablecoin == true) ?
+          <div>
+          <p>
+            Your KYC application for bank deposits/withdrawals have been approved.
+          </p>
+          </div>
+          :false}
+          
+          {( (contact.kycPassOnfido == '0' && kycSubmitted) ||
+             contactDetails.kycStatusStablecoin==false && offrampKycSubmitted ) ?
+          <div><p>
             Depending on the workload, this process may take several days to complete. You will be notified of your 
             application status once an update is available. In the interim, you may continue using your account 
             in an unverified state.
@@ -77,21 +125,11 @@ class WalletPanelFormRegisterExchangeKYCSubmitted extends Component<Props> {
           <p>
           Carbon Contact Id: {contact.id}
           </p>
-          <p>
-          Onfido Id: {contact.onfidoId}
-          </p>
-          </div>}
-        </Message>
+          </div>:false}
+      </Message>
 
-        {(contact.kycPassOnfido != '2') ?
-        <Container textAlign="center">
-          <Form.Button
-            color="blue"
-            content={t('Resubmit KYC')}
-            disabled={!allowResubmit}
-          />
-        </Container>
-        :<Segment>
+      {(contact.kycPassOnfido=='2' || contactDetails.kycStatusStablecoin == true) ?
+        <Segment>
           <List divided relaxed size='medium'>
               <List.Item>
                 <List.Icon name='user' verticalAlign='middle' />
@@ -117,7 +155,7 @@ class WalletPanelFormRegisterExchangeKYCSubmitted extends Component<Props> {
               <List.Item>
                 <List.Icon name="dollar" verticalAlign='middle' />
                 <List.Content>
-                  <List.Header as='p'>{Decimal(contact.weeklyMax/100).toFixed(2)} {contact.defaultCurrency.toUpperCase()}</List.Header>
+                  <List.Header as='p'>{Decimal(contact.dailyMax/100).toFixed(2)} {contact.defaultCurrency.toUpperCase()}</List.Header>
                   <List.Description as='p'>Daily Maximum</List.Description>
                 </List.Content>
               </List.Item>
@@ -136,7 +174,7 @@ class WalletPanelFormRegisterExchangeKYCSubmitted extends Component<Props> {
                 </List.Content>
               </List.Item>
           </List>
-        </Segment>}
+        </Segment>:false}
       </Form>
     );
   }

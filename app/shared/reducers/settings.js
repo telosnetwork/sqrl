@@ -62,6 +62,7 @@ const initialState = {
   customTokens: [
     // Always track the contract for the core system token
     // actual token symbol changes based on current chain
+    // todo: move to github json format
     'eosio.token:'
   ],
   // Defaults to displaying resources remaining
@@ -88,12 +89,16 @@ const initialState = {
   recentContracts: [],
   // Recent referendum scopes the wallet has used
   recentProposalsScopes: [],
+  // Show available network resources to user
+  showResourcesInWallet: false,
   // Allows the UI to start with only a connected node
   skipImport: false,
   // Allows users to go to link directly (without passing through DangerLink) when set to true
   skipLinkModal: false,
   // Window State Management
   setupData: {},
+  // Use SQRL tokens to pay for transactions
+  useSQRLtoken: true,
   // Wallet Password Validity Hash
   walletHash: false,
   // Wallet Status

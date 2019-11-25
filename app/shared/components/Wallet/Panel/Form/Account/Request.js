@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { Container, Form, Message, Header } from 'semantic-ui-react';
 import debounce from 'lodash/debounce';
 
+import GlobalFormFieldGeneric from '../../../../Global/Form/Field/Generic';
 import GlobalFormFieldAccount from '../../../../Global/Form/Field/Account';
 import GlobalFormFieldKeyPublic from '../../../../Global/Form/Field/Key/Public';
 import FormMessageError from '../../../../Global/Form/Message/Error';
@@ -56,6 +57,13 @@ class WalletPanelFormAccountRequest extends Component<Props> {
           onChange={onChange}
           setPrivateKey={setPrivateKey}
           settings={settings}
+        />
+        <GlobalFormFieldGeneric
+          label={t('wallet_account_request_form_create_account_referred_by')}
+          name="referredby"
+          onChange={debounce(onChange, 600)}
+          settings={settings}
+          value={values.referredby}
         />
         <FormMessageError
           error={error}

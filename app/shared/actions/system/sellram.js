@@ -2,6 +2,7 @@ import * as types from '../types';
 
 import { getAccount } from '../accounts';
 import eos from '../helpers/eos';
+import { payforcpunet } from '../helpers/eos';
 
 export function sellram(amount) {
   return (dispatch: () => void, getState) => {
@@ -16,9 +17,28 @@ export function sellram(amount) {
 
     const { account } = settings;
 
-    return eos(connection, true).sellram({
-      account,
-      bytes: Number(amount)
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'sellram',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          account:account,
+          bytes: Number(amount)
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    console.log('sell ram actions:', actions)
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
     }).then((tx) => {
       setTimeout(dispatch(getAccount(account)), 500);
 

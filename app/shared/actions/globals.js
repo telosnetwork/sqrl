@@ -1,12 +1,10 @@
 import { isEmpty } from 'lodash';
 
 import * as types from './types';
+import * as config from './config';
 
 import eos from './helpers/eos';
-
-const CARBON_ROOT = process.env.NODE_ENV === "production" ? "https://api.carbon.money" : "https://sandbox.carbon.money";
-const CARBON_TOKEN = process.env.NODE_ENV === "production" ? '23jlkfjsldfl23r23085ysg' : '895jlj39h2b97g-n-2njf';
-const PRICE_API_SECRET = 'dsjlkfjoi2p3pifs$';
+import { payforcpunet } from './helpers/eos';
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -45,8 +43,9 @@ export function getCurrencyStats(contractName = "eosio.token", symbolName) {
       }
 
       const supply = results[symbol].supply && results[symbol].supply.split(' ')[0];
-      const precision = supply && supply.split('.')[1] && supply.split('.')[1].length;
-      if (!precision) precision = 4;
+      let precision = supply.indexOf('.') == -1 ? 0 :
+        supply && supply.split('.')[1] && supply.split('.')[1].length;
+      if (precision==null) precision = 4;
       
       return dispatch({
         type: types.GET_CURRENCYSTATS_SUCCESS,
@@ -100,13 +99,13 @@ export function getRamStats() {
   };
 }
 
-export function getExchangeRates(currency = 'usd', amount) {
+export function getExchangeRates(token, currency = 'usd', amount) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.GET_EXCHANGERATES_REQUEST
     });
     const { settings } = getState();
-    return fetch(`${CARBON_ROOT}/v1/rates?cryptocurrencyArray=${settings.blockchain.tokenSymbol.toLowerCase()}` + 
+    return fetch(`${config.CARBON_ROOT}/v1/rates?cryptocurrencyArray=${token.toLowerCase()}` + 
     `&fiatBaseCurrency=${currency}&fiatChargeAmount=${amount}`, {
       method: 'GET',
       headers: {
@@ -130,7 +129,7 @@ export function getContactByPublicKey(publicKey) {
       type: types.GET_CONTACTBYPUBKEY_REQUEST
     });
     const { globals } = getState();
-    return fetch(`${CARBON_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
+    return fetch(`${config.CARBON_ROOT}/v1/contacts/query?publicKey=${publicKey}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -163,7 +162,7 @@ export function createExchangeContact(publicKey, emailAddress) {
       postBody = new URLSearchParams({
         publicKey: publicKey
       })
-    return await fetch(`${CARBON_ROOT}/v1/contacts/create`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/create`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -210,7 +209,7 @@ export function chargeCard(
       rememberMe: false
     });
 
-    return await fetch(`${CARBON_ROOT}/v1/card/addNew`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/card/addNew`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -232,7 +231,7 @@ export function chargeCard(
           errorRedirectUrl:`https://sqrlwallet.io/carbon?action=fail&contactid=${contactId}`
         });
         
-        return fetch(`${CARBON_ROOT}/v1/card/charge3d`, {
+        return fetch(`${config.CARBON_ROOT}/v1/card/charge3d`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${globals.exchangeapi}`
@@ -322,7 +321,7 @@ export function verifyExchangeContact(
       city:city, 
       postalCode:postalCode
     })
-    return await fetch(`${CARBON_ROOT}/v1/contacts/verify`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/verify`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -340,13 +339,386 @@ export function verifyExchangeContact(
   };
 }
 
+export function submitExchangeKYC(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_SUBMITCONTACTKYC_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/submitCheck`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_SUBMITCONTACTKYC_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_SUBMITCONTACTKYC_FAILURE
+    }));    
+  };
+}
+
+export function submitOfframpKYC(
+  contactId, firstName, lastName, 
+  dob, country, street, state, city, postalCode, 
+  phoneNumber, taxCountry, taxId, sex) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_SUBMITOFFRAMPKYC_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId, 
+      firstName:firstName, 
+      lastName:lastName, 
+      dob:dob, 
+      phoneNumber: phoneNumber,
+      street:street, 
+      city:city, 
+      region:state, 
+      postalCode:postalCode,
+      country:country,
+      taxCountry: taxCountry,
+      taxId: taxId,
+      sex: sex
+    })
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/submitKYC`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_SUBMITOFFRAMPKYC_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_SUBMITOFFRAMPKYC_FAILURE
+    }));    
+  };
+}
+
+export function approveOfframpKYC(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_APPROVEOFFRAMPKYC_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/approveKYC`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_APPROVEOFFRAMPKYC_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_APPROVEOFFRAMPKYC_FAILURE
+    }));    
+  };
+}
+
+export function addACHAccount(contactId, bankAccountNumber, 
+  routingNumber, bankName, bankAccountType) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDACHACCOUNT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      bankAccountNumber: bankAccountNumber,
+      routingNumber: routingNumber,
+      bankName: bankName,
+      bankAccountType: bankAccountType
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/paymentMethods/ach`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDACHACCOUNT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDACHACCOUNT_FAILURE
+    }));    
+  };
+}
+
+export function addACHDeposit(contactId, bankAccountNumber, 
+  routingNumber, bankName, bankAccountType, chain, address, amount) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDACHDEPOSIT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      bankAccountNumber: bankAccountNumber,
+      routingNumber: routingNumber,
+      bankName: bankName,
+      bankAccountType: bankAccountType,
+      chain: chain,
+      address: address,
+      amount: amount
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/ach`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDACHDEPOSIT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDACHDEPOSIT_FAILURE
+    }));    
+  };
+}
+
+export function addACHWithdrawal(contactId, chain, address, amount, paymentMethodId,txtHash) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDACHWITHDRAWAL_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      chain: chain,
+      address: address,
+      amount: amount,
+      paymentMethodId: paymentMethodId,
+      txtHash: txtHash
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/withdrawals/ach`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDACHWITHDRAWAL_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDACHWITHDRAWAL_FAILURE
+    }));    
+  };
+}
+
+export function addWireAccount(contactId, isBankInternational, 
+  bankAccountNumber, routingNumber, bankName, beneficiaryAddress1, 
+  beneficiaryAddressCity, beneficiaryAddressCountry, 
+  beneficiaryAddressRegion, beneficiaryAddressZip
+  ) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDWIREACCOUNT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = {
+      contactId:contactId,
+      isBankInternational: (isBankInternational === true),
+      bankAccountNumber: bankAccountNumber,
+      routingNumber: routingNumber,
+      bankName: bankName,
+      beneficiaryAddress: {
+        'street-1': beneficiaryAddress1,
+        city: beneficiaryAddressCity,
+        country: beneficiaryAddressCountry,
+        region: beneficiaryAddressRegion,
+        'postal-code': beneficiaryAddressZip
+      }
+    };
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/paymentMethods/wire`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: JSON.stringify(postBody)
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDWIREACCOUNT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDWIREACCOUNT_FAILURE
+    }));    
+  };
+}
+
+export function addWireDeposit(contactId, chain, address, amount) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDWIREDEPOSIT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      chain: chain,
+      address: address,
+      amount: amount
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/wire`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDWIREDEPOSIT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDWIREDEPOSIT_FAILURE
+    }));    
+  };
+}
+
+export function addWireWithdrawal(contactId, chain, address, amount, paymentMethodId,txtHash) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_ADDWIREWITHDRAWAL_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      chain: chain,
+      address: address,
+      amount: amount,
+      paymentMethodId: paymentMethodId,
+      txtHash: txtHash
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/withdrawals/wire`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_ADDWIREWITHDRAWAL_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_ADDWIREWITHDRAWAL_FAILURE
+    }));    
+  };
+}
+
+export function getPaymentMethods(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_GETPAYMENTMETHODS_REQUEST
+    });
+    const { globals } = getState();
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/stablecoinPaymentMethods/all?contactId=${contactId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      }
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_GETPAYMENTMETHODS_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_GETPAYMENTMETHODS_FAILURE
+    }));    
+  };
+}
+
+export function getDeposits(contactId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_GETDEPOSITS_REQUEST
+    });
+    const { globals } = getState();
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/deposits/all?contactId=${contactId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      }
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_GETDEPOSITS_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_GETDEPOSITS_FAILURE
+    }));    
+  };
+}
+
+export function settleDeposit(contactId, depositId) {
+  return async (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_SETTLEDEPOSIT_REQUEST
+    });
+    const { globals } = getState();
+    let postBody = new URLSearchParams({
+      contactId:contactId,
+      depositId: depositId
+    });
+    return await fetch(`${config.CARBON_ROOT}/v1/contacts/settleDeposit`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${globals.exchangeapi}`
+      },
+      body: postBody
+    }).then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_SETTLEDEPOSIT_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_SETTLEDEPOSIT_FAILURE
+    }));    
+  };
+}
+
 export function create2FA(contactId, issuer='SqrlWallet') {
   return async (dispatch: () => void, getState) => {
     dispatch({
       type: types.GET_CREATE2FA_REQUEST
     });
     const { globals } = getState();
-    return await fetch(`${CARBON_ROOT}/v1/auth/create2fa?contactId=${contactId}&twoFactorIssuer=${issuer}`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/create2fa?contactId=${contactId}&twoFactorIssuer=${issuer}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -373,7 +745,7 @@ export function enable2FA(contactId, token) {
       contactId:contactId, 
       token:token
     })
-    return await fetch(`${CARBON_ROOT}/v1/auth/enable2fa`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/enable2fa`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -400,7 +772,7 @@ export function disable2FA(contactId) {
     let postBody = new URLSearchParams({
       contactId:contactId
     })
-    return await fetch(`${CARBON_ROOT}/v1/auth/disable2fa`, {
+    return await fetch(`${config.CARBON_ROOT}/v1/auth/disable2fa`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${globals.exchangeapi}`
@@ -423,7 +795,7 @@ export function getExchangeAPI() {
     dispatch({
       type: types.GET_CONTACTJWT_REQUEST
     });
-    return fetch(`${CARBON_ROOT}/v1/users/returnJWT?apikey=${CARBON_TOKEN}`, {
+    return fetch(`${config.CARBON_ROOT}/v1/users/returnJWT?apikey=${config.CARBON_TOKEN}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json'
@@ -449,7 +821,7 @@ export function getPriceFeed(baseToken, quoteToken) {
     {
       method: 'GET',
       headers: {
-          'api_secret': PRICE_API_SECRET
+          'api_secret': config.PRICE_API_SECRET
       }
     }).then(response => response.json()).then((response) => {
       return dispatch({
@@ -463,7 +835,7 @@ export function getPriceFeed(baseToken, quoteToken) {
   };
 }
 
-export function getPriceFeedGecko(baseToken, quoteToken) {
+export function getPriceFeedGecko(baseToken, quoteToken, actualToken) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.GET_PRICEFEED_REQUEST
@@ -479,7 +851,7 @@ export function getPriceFeedGecko(baseToken, quoteToken) {
       const data = {
         price: isUSDQuote ? usdPrice : eosPrice,
         quote: isUSDQuote ? "CUSD" : quoteToken,
-        base: baseToken.toUpperCase()
+        base: actualToken? actualToken.toUpperCase() : baseToken.toUpperCase()
       };
       return dispatch({
         payload: data,
@@ -500,7 +872,7 @@ export function uploadExchangeKYCDoc(file, contactId, fileType) {
     const { globals } = getState();
 
     const mime = require('mime-types');
-    let url = `${CARBON_ROOT}/v1/contacts/upload`;
+    let url = `${config.CARBON_ROOT}/v1/contacts/upload`;
     let formData = new FormData();
 
     formData.append("file", file, {
@@ -529,7 +901,205 @@ export function uploadExchangeKYCDoc(file, contactId, fileType) {
   };
 }
 
+export function uploadOfframpKYCDoc(file, contactId) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_OFFRAMPKYCUPLOAD_PENDING
+    });
+    const { globals } = getState();
+
+    const mime = require('mime-types');
+    let url = `${config.CARBON_ROOT}/v1/contacts/uploadDocument`;
+    let formData = new FormData();
+
+    formData.append("file", file, {
+      filename: file.name,
+      contentType: mime.contentType(file.name),
+    });
+    formData.append("contactId",contactId); 
+
+    return fetch(url, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${globals.exchangeapi}`,
+      }),
+      body: formData
+    })
+    .then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_OFFRAMPKYCUPLOAD_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_OFFRAMPKYCUPLOAD_FAILURE
+    }));    
+  };
+}
+
+export function getProfiles(account) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GET_PROFILE_PENDING
+    });
+    const { connection } = getState();
+    const query = {
+      scope: config.SQRL_CONTRACT,
+      code: config.SQRL_CONTRACT,
+      table: 'profiles',
+      json: true,
+      limit:1000000
+    };
+
+    //lower_bound: settings.account,
+
+    if (account) {
+      query.lower_bound = account;
+    }
+
+    eos(connection).getTableRows(query).then((results) => {
+      const { rows } = results;
+
+      return dispatch({
+        type: types.SYSTEM_GET_PROFILE_SUCCESS,
+        payload: {
+          profiles: rows
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GET_PROFILE_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function setProfileAvatar(avatar, bio) {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_SET_PROFILEAVATAR_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [
+      {
+        account: config.SQRL_CONTRACT,
+        name: 'setavatar',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          account: account,
+          avatar: avatar,
+          bio: bio
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
+      setTimeout(() => {
+        dispatch(getProfiles());
+      }, 1000);
+
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_SET_PROFILEAVATAR_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_SET_PROFILEAVATAR_FAILURE
+    }));
+  };
+}
+
+export function openProfile() {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_OPENPROFILE_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [{
+      account: config.SQRL_CONTRACT,
+      name: 'payforcpunet',
+      authorization: [{
+          actor: config.SQRL_CONTRACT,
+          permission: 'payforcpunet'
+        }],
+      data: {
+        account: account
+      }
+    },{
+      account: config.SQRL_CONTRACT,
+      name: 'openprofile',
+      authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+      data: {
+        account: account
+      }
+    }];
+
+    return eos(connection, true, true).transaction({actions: actions})
+    .then((tx) => {
+      setTimeout(() => {
+        dispatch(getProfiles());
+      }, 1000);
+
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_OPENPROFILE_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_OPENPROFILE_FAILURE
+    }));
+  };
+}
+
+export function getCustomTokensRemote() {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.GET_CUSTOMTOKENSREMOTE_REQUEST
+    });
+    return fetch('https://raw.githubusercontent.com/telos-foundation/sqrl/master/resources/tokens.json')
+    .then(response => response.json()).then((response) => {
+      return dispatch({
+        payload: response,
+        type: types.GET_CUSTOMTOKENSREMOTE_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.GET_CUSTOMTOKENSREMOTE_FAILURE
+    }));    
+  };
+}
+
 export default {
+  addACHAccount,
+  addACHDeposit,
+  addACHWithdrawal,
+  addWireAccount,
+  addWireDeposit,
+  addWireWithdrawal,
+  approveOfframpKYC,
   create2FA,
   enable2FA,
   disable2FA,
@@ -537,12 +1107,21 @@ export default {
   createExchangeContact,
   getContactByPublicKey,
   getCurrencyStats,
+  getCustomTokensRemote,
+  getDeposits,
   getExchangeAPI,
   getExchangeRates,
   getGlobals,
+  getPaymentMethods,
   getPriceFeed,
   getPriceFeedGecko,
+  getProfiles,
   getRamStats,
+  openProfile,
+  setProfileAvatar,
+  submitExchangeKYC,
+  submitOfframpKYC,
   uploadExchangeKYCDoc,
+  uploadOfframpKYCDoc,
   verifyExchangeContact
 };

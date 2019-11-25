@@ -20,12 +20,25 @@ class WalletPanelModalBuyFiat extends Component<Props> {
   constructor(props) {
     super(props);
     const {
+      accounts,
+      actions,
       globals,
+      keys,
       settings
     } = this.props;
     const contact = globals.exchangecontact && globals.exchangecontact.data;
     const weeklyLimit = contact && contact.weeklyMax && Decimal(contact.weeklyMax / 100).toFixed(2) || 250.00;
     const remainingWeeklyLimit =  contact && contact.weeklyMax && Decimal(contact.remainingWeeklyLimit / 100).toFixed(2) || 250.00;
+
+    const model = new EOSAccount(accounts[settings.account]);
+    const auth = settings.authorization || 'active';
+    const accountKey = model && model.getKeysForAuthorization(auth);
+    let publicKey = keys.pubkey;
+    if (accountKey && accountKey.length > 0) {
+      let { pubkey } = accountKey[0];
+      if (pubkey) publicKey = pubkey;
+    }
+    
     this.state = {
       contact: contact,
       confirming: false,
@@ -34,9 +47,18 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       charge3dUrl: null,
       charge3dDisabled: false,
       charge3dErrorMsg: '',
+      bankAccountErrDisabled: false,
+      bankAccountErrorMsg: '',
+      bankTransactionSent: false,
+      bankTransactionSentMsg:'',
+      deposits: null,
+      paymentMethods: null,
+      pubkey: publicKey,
       values: {
         accountName: settings.account,
         amount: null,
+        bankACHTransfer: null,
+        bankWireTransfer: true,
         /*
         cardNumber: null || '5100000000000511',
         cardExpiry: null || '12/30',
@@ -54,10 +76,25 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         token: settings.blockchain.tokenSymbol.toLowerCase(),
         limit: weeklyLimit,
         remainingLimit: remainingWeeklyLimit,
+        bankAccountNumber: null,
+        confirmBankAccountNumber: null,
+        routingNumber: null,
+        confirmRoutingNumber: null,
+        bankName: null,
+        bankAccountType: null,
+        existingPaymentMethodId: null,
+        isBankInternational: null,
+        beneficiaryAddress1: null,
+        beneficiaryAddressCity: null,
+        beneficiaryAddressCountry: null,
+        beneficiaryAddressRegion: null,
+        beneficiaryAddressZip: null
       },
       validated: {
         accountName: false,
         amount: false,
+        bankACHTransfer: false,
+        bankWireTransfer: false,
         cardNumber: false,
         cardExpiry: false,
         cardCvc: false,
@@ -65,10 +102,26 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         cardPostal: false,
         currency: false,
         memo: false,
-        token: false
+        token: false,
+        bankAccountNumber: false,
+        confirmBankAccountNumber: false,
+        routingNumber: false,
+        confirmRoutingNumber: false,
+        bankName: false,
+        bankAccountType: false,
+        existingPaymentMethodId: false,
+        isBankInternational: false,
+        beneficiaryAddress1: false,
+        beneficiaryAddressCity: false,
+        beneficiaryAddressCountry: false,
+        beneficiaryAddressRegion: false,
+        beneficiaryAddressZip: false
       },
       location: ''
     }
+    actions.checkAccountExists(settings.account);
+
+    this.onStageSelect(AMOUNT);
   }
   componentDidMount = async () => {
     await fetch('http://ip-api.com/json')
@@ -106,15 +159,34 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       
     });
 
-    if (name == 'amount' || name == 'currency') {
-      actions.getExchangeRates(values.currency, values.amount * 100);
+    if (name == 'amount' || name == 'currency' || name == 'token') {
+      actions.getExchangeRates(values.token, values.currency, values.amount * 100);
     } 
   }, 400)
   onChangeFast = (e, { name, valid, value }) => {
     const values = { ...this.state.values };
     const validated = { ...this.state.validated };
+    
+    if (name === 'bankWireTransfer') {
+      if (values.bankWireTransfer === true) value = false;
+      else value = true;
+
+      values['bankACHTransfer'] = !value;
+    } else if (name === 'bankACHTransfer') {
+      if (values.bankACHTransfer === true) value = false;
+      else value = true;
+
+      values['bankWireTransfer'] = !value;
+    }else if (name === 'isBankInternational') {
+      if (values.isBankInternational === true) value = false;
+      else value = true;
+
+      values['isBankInternational'] = !value;
+    }
+    
     values[name] = value;
     validated[name] = valid;
+
     this.setState({
       values,
       validated
@@ -122,11 +194,15 @@ class WalletPanelModalBuyFiat extends Component<Props> {
   }
   onBeforeClose = async () => {
     const {
-      accounts,
       actions,
       onClose, 
       settings
     } = this.props;
+    const {
+      pubkey
+    } = this.state;
+    await actions.getContactByPublicKey(pubkey);
+
     this.setState({
       confirming: false,
       stage: AMOUNT,
@@ -134,9 +210,15 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       charge3dUrl: null,
       charge3dDisabled: false,
       charge3dErrorMsg: '',
+      bankAccountErrDisabled: false,
+      bankAccountErrorMsg: '',
+      bankTransactionSent: false,
+      bankTransactionSentMsg:'',
       values: {
         accountName: settings.account,
         amount: null,
+        bankACHTransfer: null,
+        bankWireTransfer: true,
         /*
         cardNumber: null || '5100000000000511',
         cardExpiry: null || '12/30',
@@ -153,11 +235,26 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         memo: null,
         token: settings.blockchain.tokenSymbol.toLowerCase(),
         limit: this.state.values.limit,
-        remainingLimit: this.state.values.remainingLimit
+        remainingLimit: this.state.values.remainingLimit,
+        bankAccountNumber: null,
+        confirmBankAccountNumber: null,
+        routingNumber: null,
+        confirmRoutingNumber: null,
+        bankName: null,
+        bankAccountType: null,
+        existingPaymentMethodId: null,
+        isBankInternational: null,
+        beneficiaryAddress1: null,
+        beneficiaryAddressCity: null,
+        beneficiaryAddressCountry: null,
+        beneficiaryAddressRegion: null,
+        beneficiaryAddressZip: null
       },
       validated: {
         accountName: false,
         amount: false,
+        bankACHTransfer: false,
+        bankWireTransfer: false,
         cardNumber: false,
         cardExpiry: false,
         cardCvc: false,
@@ -165,74 +262,244 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         cardPostal: false,
         currency: false,
         memo: false,
-        token: false
+        token: false,
+        bankAccountNumber: false,
+        confirmBankAccountNumber: false,
+        routingNumber: false,
+        confirmRoutingNumber: false,
+        bankName: false,
+        bankAccountType: false,
+        existingPaymentMethodId: false,
+        isBankInternational: false,
+        beneficiaryAddress1: false,
+        beneficiaryAddressCity: false,
+        beneficiaryAddressCountry: false,
+        beneficiaryAddressRegion: false,
+        beneficiaryAddressZip: false
       },
     });
-    const auth = settings.authorization || 'active';
-    const model = new EOSAccount(accounts[settings.account]);
-    const keys = model.getKeysForAuthorization(auth);
-    if (keys && keys.length > 0) {
-      const { pubkey } = keys[0];
-      await actions.getContactByPublicKey(pubkey);
-    }
     onClose();
   }
   onCompletePurchase = async () => {
     const {
+      bankTransactionSent,
       contact,
+      deposits,
+      paymentMethods,
+      pubkey,
+      values
+    } = this.state;
+    const {
+      actions,
+      settings
+    } = this.props;
+
+    if (bankTransactionSent) {
+      this.onBeforeClose();
+      return;
+    }
+
+    this.setState({ loading: true });
+
+    const cusdSymbol = settings.blockchain.tokenSymbol.toLowerCase() + 'd';
+    if (values.token != cusdSymbol) { // card purchase
+      const iframeURL = await actions.chargeCard(values.cardNumber, 
+        values.cardExpiry,
+        values.cardCvc,
+        values.cardAddress,
+        values.cardPostal,
+        contact.id,
+        values.currency,
+        (values.amount * 100),
+        values.token,
+        values.accountName,
+        values.memo);
+  
+      this.setState({ 
+        loading: false, 
+        charge3dDisabled: false,
+        charge3dUrl: iframeURL.payload
+      });
+  
+      if (iframeURL.type == 'GET_CHARGECONTACT_NOTENROLLED') {
+        this.setState({
+          charge3dDisabled: true, 
+          charge3dUrl: null,
+          charge3dErrorMsg: "We're sorry, but the card you entered does not support these transactions. " +
+            "Please use another card and try again or contact your card issuer for further assistance."
+        });
+        this.onStageSelect(CCINFO);
+      } else if (iframeURL.type == 'GET_CHARGECONTACT_FAILURE') {
+        const errorMessage = iframeURL.payload && iframeURL.payload.message;
+        this.setState({
+          charge3dDisabled: true, 
+          charge3dUrl: null,
+          charge3dErrorMsg: errorMessage
+        });
+      }
+    } else { // stablecoin bank purchase
+
+      this.setState({ 
+        loading: false, 
+        bankAccountErrDisabled: false,
+        bankTransactionSent: false
+      });
+
+      let bankInfo = {
+        bankName: values.bankName,
+        bankAccountNumber: values.bankAccountNumber,
+        bankAccountType: values.bankAccountType,
+        routingNumber: values.routingNumber
+      }
+
+      if (values.existingPaymentMethodId) {
+        const paymentMethod = paymentMethods.filter((payment) => (payment.id == values.existingPaymentMethodId))[0];
+        bankInfo = {
+          bankName: paymentMethod.bankName,
+          bankAccountNumber: paymentMethod.accountNumber,
+          routingNumber: paymentMethod.routingNumber,
+          bankAccountType: paymentMethod.bankAccountType ? paymentMethod.bankAccountType : "checking"
+        }
+      }
+
+      if (values.bankACHTransfer == true) {
+        const achRequest = await actions.addACHDeposit(
+          contact.id, bankInfo.bankAccountNumber, bankInfo.routingNumber,
+          bankInfo.bankName, bankInfo.bankAccountType, 
+          values.token=="tlosd"?"telos":values.token, 
+          values.accountName, values.amount);
+
+        if (achRequest && achRequest.payload && achRequest.payload.pTrustFundsTransferId) {
+          await actions.getContactByPublicKey(pubkey);
+          
+          this.setState({
+            bankTransactionSent: true,
+            bankTransactionSentMsg: 'Your ACH deposit request has been successfully submitted. Please wait up to 24 hours for the transaction to begin processing.'
+          });
+        } else if (achRequest && achRequest.payload && achRequest.payload.details){
+          this.setState({
+            bankAccountErrDisabled: true,
+            bankAccountErrorMsg: JSON.stringify(achRequest.payload.message)
+          }); 
+        }
+      } else if (values.bankWireTransfer == true) {
+        const wireRequest = await actions.addWireDeposit(
+          contact.id, values.token=="tlosd"?"telos":values.token, 
+          values.accountName, values.amount);
+
+        if (wireRequest && wireRequest.payload && wireRequest.payload.pTrustFundsTransferId) {
+          await actions.getContactByPublicKey(pubkey);
+          
+          this.setState({
+            bankTransactionSent: true,
+            bankTransactionSentMsg: 'Your wire deposit request has been successfully submitted. Please note that you must initiate the wire deposit yourself through your bank using the same amount specified in this deposit. Send your wire to the following recipient:'
+          });
+        } else if (wireRequest && wireRequest.payload && wireRequest.payload.details){
+          this.setState({
+            bankAccountErrDisabled: true,
+            bankAccountErrorMsg: JSON.stringify(wireRequest.payload.message)
+          }); 
+        }
+      }
+
+      const deposits = await actions.getDeposits(contact.id);
+      if (deposits && deposits.payload && deposits.payload.code == 200)
+          this.setState({deposits: deposits.payload.data});
+
+      this.setState({
+        loading: false
+      });
+    }
+  }
+  onAddBankAccount = async () => {
+    const {
+      contact,
+      pubkey,
       values
     } = this.state;
     const {
       actions
     } = this.props;
 
+    if (values.existingPaymentMethodId) {
+      this.onStageSelect(CONFIRM);
+      return;
+    }
+
     this.setState({ loading: true });
 
-    const iframeURL = await actions.chargeCard(values.cardNumber, 
-      values.cardExpiry,
-      values.cardCvc,
-      values.cardAddress,
-      values.cardPostal,
-      contact.id,
-      values.currency,
-      (values.amount * 100),
-      values.token,
-      values.accountName,
-      values.memo);
-
-    this.setState({ 
-      loading: false, 
-      charge3dDisabled: false,
-      charge3dUrl: iframeURL.payload
-    });
-
-    if (iframeURL.type == 'GET_CHARGECONTACT_NOTENROLLED') {
-      this.setState({
-        charge3dDisabled: true, 
-        charge3dUrl: null,
-        charge3dErrorMsg: "We're sorry, but the card you entered does not support these transactions. " +
-          "Please use another card and try again or contact your card issuer for further assistance."
+    if (values.bankACHTransfer === true) {
+      const addACHRequest = await actions.addACHAccount(
+        contact.id, values.bankAccountNumber, values.routingNumber,
+        values.bankName, values.bankAccountType);
+  
+      this.setState({ 
+        loading: false, 
+        bankAccountErrDisabled: false
       });
-      this.onStageSelect(CCINFO);
-    } else if (iframeURL.type == 'GET_CHARGECONTACT_FAILURE') {
-      const errorMessage = iframeURL.payload && iframeURL.payload.message;
-      this.setState({
-        charge3dDisabled: true, 
-        charge3dUrl: null,
-        charge3dErrorMsg: errorMessage
+      
+      if (addACHRequest && addACHRequest.payload && addACHRequest.payload.paymentMethodId) {
+        await actions.getContactByPublicKey(pubkey);
+        
+        const paymentMethods = await actions.getPaymentMethods(contact.id);
+        if (paymentMethods && paymentMethods.payload && paymentMethods.payload.code == 200)
+            this.setState({paymentMethods: paymentMethods.payload.details});
+  
+        this.onStageSelect(CONFIRM);
+      } else if (addACHRequest && addACHRequest.payload && addACHRequest.payload.error){
+  
+        this.setState({
+          bankAccountErrDisabled: true,
+          bankAccountErrorMsg: JSON.stringify(addACHRequest.payload.error)
+        }); 
+      }
+    } else if (values.bankWireTransfer === true) {
+      const addWireRequest = await actions.addWireAccount(
+        contact.id, values.isBankInternational, 
+        values.bankAccountNumber, values.routingNumber, 
+        values.bankName, values.beneficiaryAddress1, 
+        values.beneficiaryAddressCity, values.beneficiaryAddressCountry, 
+        values.beneficiaryAddressRegion, values.beneficiaryAddressZip
+        );
+  
+      this.setState({ 
+        loading: false, 
+        bankAccountErrDisabled: false
       });
+      
+      if (addWireRequest && addWireRequest.payload && addWireRequest.payload.paymentMethodId) {
+        await actions.getContactByPublicKey(pubkey);
+        
+        const paymentMethods = await actions.getPaymentMethods(contact.id);
+        if (paymentMethods && paymentMethods.payload && paymentMethods.payload.code == 200)
+            this.setState({paymentMethods: paymentMethods.payload.details});
+  
+        this.onStageSelect(CONFIRM);
+      } else if (addWireRequest && addWireRequest.payload && addWireRequest.payload.error){
+  
+        this.setState({
+          bankAccountErrDisabled: true,
+          bankAccountErrorMsg: JSON.stringify(addWireRequest.payload.error)
+        }); 
+      }
     }
   }
   onConfirm = () => this.setState({ confirming: true });
   onCancel = () => this.setState({ 
     confirming: false, 
+    bankAccountErrDisabled: false,
+    bankAccountErrorMsg: null,
+    bankTransactionSent: false,
     charge3dDisabled: false, 
     charge3dUrl: null 
   });
-  onStageSelect = (stage) => {
+  onStageSelect = async (stage) => {
     const {
+      actions,
       globals
     } = this.props;
+    this.setState({ confirming: false, stage })
+    
     if (stage == AMOUNT) {
       const contact = globals.exchangecontact && globals.exchangecontact.data;
       const weeklyLimit = contact && contact.weeklyMax && Decimal(contact.weeklyMax / 100).toFixed(2) || 250.00;
@@ -242,8 +509,17 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       values['limit'] = weeklyLimit;
       values['remainingLimit'] = remainingWeeklyLimit;
       this.setState({values});
+
+      if (contact.id) {
+        const paymentMethods = await actions.getPaymentMethods(contact.id);
+        if (paymentMethods && paymentMethods.payload && paymentMethods.payload.code == 200)
+          this.setState({paymentMethods: paymentMethods.payload.details});
+
+        const deposits = await actions.getDeposits(contact.id);
+        if (deposits && deposits.payload && deposits.payload.code == 200)
+            this.setState({deposits: deposits.payload.data});
+      }
     }
-    this.setState({ confirming: false, stage })
   }
   render() {
     const {
@@ -258,12 +534,17 @@ class WalletPanelModalBuyFiat extends Component<Props> {
     } = this.props;
 
     const {
+      bankAccountErrDisabled,
+      bankAccountErrorMsg,
+      bankTransactionSent,
+      bankTransactionSentMsg,
       charge3dDisabled,
       charge3dErrorMsg,
       charge3dUrl,
       contact,
       loading,
       location,
+      paymentMethods,
       stage,
       values,
       validated
@@ -273,6 +554,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
     let isValid = !!(validated.amount);
     let isAccountValid = false;
     let isCCValid = false;
+    let isBankAccountValid = false;
     if (values.accountName
         && values.accountName.length !== 0
         && system.ACCOUNT_EXISTS === 'FAILURE'
@@ -300,6 +582,22 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       && values.cardAddress && values.cardPostal) {
         isCCValid = true;
     }
+    if (values.bankAccountNumber && values.bankName 
+      && values.bankAccountType && values.routingNumber 
+      && values.bankAccountNumber == values.confirmBankAccountNumber
+      && values.routingNumber == values.confirmRoutingNumber) {
+
+        if (values.bankACHTransfer === true) {
+          isBankAccountValid = true;
+        } else if (values.bankWireTransfer === true && values.beneficiaryAddress1 
+          && values.beneficiaryAddressCity && values.beneficiaryAddressCountry 
+          && values.beneficiaryAddressRegion && values.beneficiaryAddressZip) {
+          isBankAccountValid = true;
+        }
+    }
+    if (values.existingPaymentMethodId) {
+      isBankAccountValid = true;
+    }
 
     const verified = contact && contact.kycPassOnfido == '2';    
     const shouldShowAccountNameWarning = 
@@ -308,12 +606,16 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       values.accountName.length !== 12;
     const shouldShowKYCWarning = !verified && values.amount && (Decimal(values.amount).greaterThan(values.limit));
     const verifiedLabel = verified ? "Verified" : "Unverified";
-
-    const symbolLower = settings.blockchain.tokenSymbol.toLowerCase();
+    
+    const tokenSymbolLower = settings.blockchain.tokenSymbol.toLowerCase();
+    
+    const symbolLower = values.token.toLowerCase();
     let rates = globals.fiat && globals.fiat.rates && globals.fiat.rates[symbolLower];
 
     const symbolFiat = symbolLower + "/" + values.currency;
     const fiatSymbol = values.currency + "/" + symbolLower;
+    const cusdSymbol = tokenSymbolLower + 'd';
+    const userFee = 0.005;
 
     if (!rates) {
       rates = {
@@ -333,7 +635,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
     let transactionFee = rates.txFee;
     if (rates.txFee > 0 && values.amount > 0) {
       const txFee = Decimal(rates.txFee).toFixed(2);
-      const fee = Decimal(values.amount) * .005;
+      const fee = Decimal(values.amount) * userFee;
       transactionFee = Decimal(txFee).plus(fee);
     }
 
@@ -353,10 +655,22 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         );
     }
 
+    const tokenLimit = values.token === cusdSymbol ? "Unlimited" : values.limit;
+    const tokenRemainingLimit = values.token === cusdSymbol ? "Unlimited" : values.remainingLimit;
+    const step3Label = values.token === cusdSymbol ? "wallet_buytoken_request_step_3_bank" : "wallet_buytoken_request_step_3";
+    const step3Desc = values.token === cusdSymbol ? "wallet_buytoken_request_step_3_bank_desc" : "wallet_buytoken_request_step_3_desc";
+    const shouldShowChainWarning = values.token != cusdSymbol && values.token != tokenSymbolLower;
+    const shouldShowMismatchWarning = values.bankAccountNumber && values.confirmBankAccountNumber &&
+      (values.bankAccountNumber != values.confirmBankAccountNumber);
+    const shouldShowRoutingMismatchWarning = values.routingNumber && values.confirmRoutingNumber &&
+      (values.routingNumber != values.confirmRoutingNumber);
+
     let stageElement = (
       <WalletPanelFormBuyFiatAmount
+        cusdSymbol={cusdSymbol}
         error={error}
         isValid={isValid}
+        globals={globals}
         keys={keys}
         location={location}
         onChange={this.onChange}
@@ -365,7 +679,9 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         purchaseAmount={purchaseAmount}
         rates={rates}
         settings={settings}
+        shouldShowChainWarning={shouldShowChainWarning}
         shouldShowKYCWarning={shouldShowKYCWarning}
+        tokenSymbolLower={tokenSymbolLower}
         totalCost={totalCost}
         transactionFee={transactionFee}
         values={values}
@@ -375,6 +691,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
     if (stage === ACCOUNT) {
       stageElement = (
         <WalletPanelFormBuyFiatAccount
+          cusdSymbol={cusdSymbol}
           error={error}
           isAccountValid={isAccountValid}
           keys={keys}
@@ -387,7 +704,9 @@ class WalletPanelModalBuyFiat extends Component<Props> {
           rates={rates}
           settings={settings}
           shouldShowAccountNameWarning={shouldShowAccountNameWarning}
+          shouldShowChainWarning={shouldShowChainWarning}
           shouldShowKYCWarning={shouldShowKYCWarning}
+          tokenSymbolLower={tokenSymbolLower}
           totalCost={totalCost}
           transactionFee={transactionFee}
           values={values}
@@ -399,9 +718,13 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       stageElement = (
         <WalletPanelFormBuyFiatCCInfo
           actions={actions}
+          bankAccountErrorMsg={bankAccountErrorMsg}
+          bankAccountErrDisabled={bankAccountErrDisabled}
           charge3dDisabled={charge3dDisabled}
           charge3dErrorMsg={charge3dErrorMsg}
+          cusdSymbol={cusdSymbol}
           error={error}
+          isBankAccountValid={isBankAccountValid}
           isCCValid={isCCValid}
           keys={keys}
           onBack={() => this.onStageSelect(ACCOUNT)}
@@ -409,11 +732,17 @@ class WalletPanelModalBuyFiat extends Component<Props> {
           onChange={this.onChangeFast}
           onConfirm={this.onConfirm}
           onSubmit={() => this.onStageSelect(CONFIRM)}
+          onAddBankAccount={this.onAddBankAccount}
+          paymentMethods={paymentMethods}
           purchaseAmount={purchaseAmount}
           rates={rates}
+          shouldShowChainWarning={shouldShowChainWarning}
           shouldShowKYCWarning={shouldShowKYCWarning}
+          shouldShowMismatchWarning={shouldShowMismatchWarning}
+          shouldShowRoutingMismatchWarning={shouldShowRoutingMismatchWarning}
           settings={settings}
           system={system}
+          tokenSymbolLower={tokenSymbolLower}
           totalCost={totalCost}
           transactionFee={transactionFee}
           values={values}
@@ -425,8 +754,13 @@ class WalletPanelModalBuyFiat extends Component<Props> {
       stageElement = (
         <WalletPanelFormBuyFiatConfirm
           actions={actions}
+          bankAccountErrorMsg={bankAccountErrorMsg}
+          bankAccountErrDisabled={bankAccountErrDisabled}
+          bankTransactionSent={bankTransactionSent}
+          bankTransactionSentMsg={bankTransactionSentMsg}
           charge3dDisabled={charge3dDisabled}
           charge3dErrorMsg={charge3dErrorMsg}
+          cusdSymbol={cusdSymbol}
           error={error}
           keys={keys}
           loading={loading}
@@ -435,10 +769,13 @@ class WalletPanelModalBuyFiat extends Component<Props> {
           onChange={this.onChange}
           onConfirm={this.onConfirm}
           onSubmit={this.onCompletePurchase}
+          paymentMethods={paymentMethods}
           purchaseAmount={purchaseAmount}
           rates={rates}
           settings={settings}
+          shouldShowChainWarning={shouldShowChainWarning}
           system={system}
+          tokenSymbolLower={tokenSymbolLower}
           totalCost={totalCost}
           transactionFee={transactionFee}
           values={values}
@@ -456,7 +793,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
         open={open}
         size="fullscreen"
       >
-        <Header icon={values.currency} content={t('wallet_buytoken_button_title', {tokenSymbol:settings.blockchain.tokenSymbol})} />
+        <Header icon={values.currency} content={t('wallet_buytoken_button_title', {tokenSymbol:values.token.toUpperCase()})} />
         <Modal.Content>
           <Grid unstackable="true">
             <Grid.Row>
@@ -466,28 +803,28 @@ class WalletPanelModalBuyFiat extends Component<Props> {
                     <Icon name="money" />
                     <Step.Content>
                       <Step.Title>{t('wallet_buytoken_request_step_1')}</Step.Title>
-                      <Step.Description>{t('wallet_buytoken_request_step_1_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
+                      <Step.Description>{t('wallet_buytoken_request_step_1_desc', {tokenSymbol:values.token.toUpperCase()})}</Step.Description>
                     </Step.Content>
                   </Step>
                   <Step active={stage === ACCOUNT} completed={stage > ACCOUNT}>
                     <Icon name="id card" />
                     <Step.Content>
                       <Step.Title>{t('wallet_buytoken_request_step_2')}</Step.Title>
-                      <Step.Description>{t('wallet_buytoken_request_step_2_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
+                      <Step.Description>{t('wallet_buytoken_request_step_2_desc', {tokenSymbol:values.token.toUpperCase()})}</Step.Description>
                     </Step.Content>
                   </Step>
                   <Step active={stage === CCINFO} completed={stage > CCINFO}>
                     <Icon name="credit card" />
                     <Step.Content>
-                      <Step.Title>{t('wallet_buytoken_request_step_3')}</Step.Title>
-                      <Step.Description>{t('wallet_buytoken_request_step_3_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
+                      <Step.Title>{t(step3Label)}</Step.Title>
+                      <Step.Description>{t(step3Desc, {tokenSymbol:values.token.toUpperCase()})}</Step.Description>
                     </Step.Content>
                   </Step>
                   <Step active={stage === CONFIRM} completed={stage > CONFIRM}>
                     <Icon name="shopping cart" />
                     <Step.Content>
                       <Step.Title>{t('wallet_buytoken_request_step_4')}</Step.Title>
-                      <Step.Description>{t('wallet_buytoken_request_step_4_desc', {tokenSymbol:settings.blockchain.tokenSymbol})}</Step.Description>
+                      <Step.Description>{t('wallet_buytoken_request_step_4_desc', {tokenSymbol:values.token.toUpperCase()})}</Step.Description>
                     </Step.Content>
                   </Step>
                 </Step.Group>
@@ -498,7 +835,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
                       <List.Item>
                         <List.Icon name='angle double up' size='large' verticalAlign='middle' />
                         <List.Content>
-                          <List.Header as='a'>{values.remainingLimit} / {values.limit} {values.currency.toUpperCase()} ({verifiedLabel})</List.Header>
+                          <List.Header as='a'>{tokenRemainingLimit} / {tokenLimit} {values.currency.toUpperCase()} ({verifiedLabel})</List.Header>
                           <List.Description as='a'>Remaining / Daily Limit</List.Description>
                         </List.Content>
                       </List.Item>
@@ -512,7 +849,7 @@ class WalletPanelModalBuyFiat extends Component<Props> {
                       <List.Item>
                         <List.Icon name='exchange' size='large' verticalAlign='middle' />
                         <List.Content>
-                          <List.Header as='a'>{Decimal(rates.estimatedCryptoPurchase).toFixed(4)} {settings.blockchain.tokenSymbol}</List.Header>
+                          <List.Header as='a'>{Decimal(rates.estimatedCryptoPurchase).toFixed(4)} {values.token.toUpperCase()}</List.Header>
                           <List.Description as='a'>Estimated Purchase</List.Description>
                         </List.Content>
                       </List.Item>
@@ -526,15 +863,15 @@ class WalletPanelModalBuyFiat extends Component<Props> {
                       <List.Item>
                         <List.Icon name='linkify' size='large' verticalAlign='middle' />
                         <List.Content>
-                          <List.Header as='a'>{rates[symbolFiat]} {settings.blockchain.tokenSymbol}</List.Header>
-                          <List.Description as='a'>{settings.blockchain.tokenSymbol}/{values.currency.toUpperCase()}</List.Description>
+                          <List.Header as='a'>{rates[symbolFiat]} {values.token.toUpperCase()}</List.Header>
+                          <List.Description as='a'>{values.token.toUpperCase()}/{values.currency.toUpperCase()}</List.Description>
                         </List.Content>
                       </List.Item>
                       <List.Item>
                         <List.Icon name={values.currency} size='large' verticalAlign='middle' />
                         <List.Content>
                           <List.Header as='a'>{rates[fiatSymbol]} {values.currency.toUpperCase()}</List.Header>
-                          <List.Description as='a'>{values.currency.toUpperCase()}/{settings.blockchain.tokenSymbol}</List.Description>
+                          <List.Description as='a'>{values.currency.toUpperCase()}/{values.token.toUpperCase()}</List.Description>
                         </List.Content>
                       </List.Item>
                       <List.Item>

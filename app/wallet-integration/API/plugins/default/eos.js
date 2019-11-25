@@ -257,7 +257,7 @@ export default class EOS{
 
     // async fetchTokens(tokens){
     //     tokens.push(this.defaultToken());
-    //     const eosTokens = await fetch("https://raw.githubusercontent.com/eoscafe/eos-airdrops/master/tokens.json").then(res => res.json()).catch(() => []);
+    //     const eosTokens = await fetch("https://raw.githubusercontent.com/telos-foundation/sqrl/master/resources/tokens.json").then(res => res.json()).catch(() => []);
     //     eosTokens.map(token => {
     //         token.blockchain = Blockchains.EOSIO;
     //         if(!tokens.find(x => `${x.symbol}:${x.account}` === `${token.symbol}:${token.account}`)) tokens.push(token);

@@ -59,7 +59,8 @@ class APIIntegration extends Component<Props> {
           .catch((err) => console.error(err));
       }
 
-      if(this.props.wallets){
+      //if(this.props.wallets){
+      if(this.props.account){
         this._extractAccounts(this.props).then((accounts)=>{
           if(!this.props.wapii || !this.props.wapii.accounts){
             this.props.actions.updateAccounts(accounts);
@@ -119,11 +120,9 @@ class APIIntegration extends Component<Props> {
   }
 
   componentDidMount(){
-    if(this.props.settings.walletMode === 'hot'){
-      PopupService.connect( this.onOpen, this.props.actions );
-      SocketService.initialize(this.props.actions);
-      APIUtils.plugin.setBlockchain(this.props.blockchain);
-    }
+    PopupService.connect( this.onOpen, this.props.actions );
+    SocketService.initialize(this.props.actions);
+    APIUtils.plugin.setBlockchain(this.props.blockchain);
   }
 
   componentWillUnmount(){
@@ -132,11 +131,22 @@ class APIIntegration extends Component<Props> {
 
   async _extractAccounts(props){
     const accs = [];
-    for(let i = 0; i < props.wallets.length; i++){
-      let account = props.accounts[props.wallets[i].account];
-      if (props.settings.walletMode === 'hot' && !account) { //&& props.connection.chainId == props.wallets[i].chainId
+    // for users who do not save their wallets locally, 'wallets'
+    // will be empty. so let's construct a wallet for them
+    let wallets = props.wallets;
+    if (!wallets || wallets.length == 0) {
+      if (props.keys && props.keys.account == props.account) {
+        wallets = [{
+          account: props.account,
+          pubkey: props.keys.pubkey
+        }]; 
+      }
+    }
+    for(let i = 0; i < wallets.length; i++){
+      let account = props.accounts[wallets[i].account];
+      if (!account) {
         try{
-          account = await eos(props.connection).getAccount(props.wallets[i].account);
+          account = await eos(props.connection).getAccount(wallets[i].account);
         }catch(err){
           console.error(err);
           return accs;
@@ -145,13 +155,14 @@ class APIIntegration extends Component<Props> {
       if(account){
         for(let j = 0; j < account.permissions.length; j++){
           accs.push({
-            publicKey: props.wallets[i].pubkey,
-            name: props.wallets[i].account,
+            publicKey: wallets[i].pubkey,
+            name: wallets[i].account,
             authority: account.permissions[j].perm_name
           });
         }
       } 
     }
+
     return accs;
   }
 

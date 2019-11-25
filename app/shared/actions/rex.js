@@ -1,6 +1,8 @@
 import * as types from './types';
 import eos from './helpers/eos';
 import eos2 from './helpers/eos2';
+import { payforcpunet } from './helpers/eos';
+import { Decimal } from 'decimal.js';
 
 export function deposit(amount) {
   return (dispatch: () => void, getState) => {
@@ -17,24 +19,25 @@ export function deposit(amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'deposit',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account,
-            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [
+      {
+        account: 'eosio',
+        name: 'deposit',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account,
+          amount: `${Decimal(amount).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -67,24 +70,24 @@ export function withdraw(amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'withdraw',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account,
-            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'withdraw',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account,
+          amount: `${Decimal(amount).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -117,24 +120,24 @@ export function buyrex(amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'buyrex',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'buyrex',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          amount: `${Decimal(amount).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -167,24 +170,24 @@ export function sellrex(amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'sellrex',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            rex: `${amount.toFixed(settings.tokenPrecision)} REX`
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'sellrex',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          rex: `${Decimal(amount).toFixed(settings.tokenPrecision)} REX`
+        },
+      }
+    ];
+    
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
 
-    return eos2(connection, true).transact(op, {
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -217,26 +220,26 @@ export function unstaketorex(from_net, from_cpu) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'unstaketorex',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account,
-            receiver: account,
-            from_net: `${from_net.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
-            from_cpu: `${from_cpu.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'unstaketorex',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account,
+          receiver: account,
+          from_net: `${Decimal(from_net).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+          from_cpu: `${Decimal(from_cpu).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -268,23 +271,23 @@ export function cnclrexorder() {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'cnclrexorder',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'cnclrexorder',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -317,26 +320,26 @@ export function rentcpu(receiver, loan_payment, loan_fund) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'rentcpu',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            receiver: receiver,
-            loan_payment: `${loan_payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
-            loan_fund: `${loan_fund.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'rentcpu',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          receiver: receiver,
+          loan_payment: `${Decimal(loan_payment).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+          loan_fund: `${Decimal(loan_fund).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -369,26 +372,26 @@ export function rentnet(receiver, loan_payment, loan_fund) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'rentnet',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            receiver: receiver,
-            loan_payment: `${loan_payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
-            loan_fund: `${loan_fund.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'rentnet',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          receiver: receiver,
+          loan_payment: `${Decimal(loan_payment).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol,
+          loan_fund: `${Decimal(loan_fund).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -421,25 +424,25 @@ export function fundcpuloan(loan_num, payment) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'fundcpuloan',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            loan_num: loan_num,
-            payment: `${payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'fundcpuloan',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          loan_num: loan_num,
+          payment: `${Decimal(payment).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -472,25 +475,25 @@ export function defcpuloan(loan_num, amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'defcpuloan',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            loan_num: loan_num,
-            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'defcpuloan',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          loan_num: loan_num,
+          amount: `${Decimal(amount).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -523,25 +526,25 @@ export function fundnetloan(loan_num, payment) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'fundnetloan',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            loan_num: loan_num,
-            payment: `${payment.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'fundnetloan',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          loan_num: loan_num,
+          payment: `${Decimal(payment).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -574,25 +577,25 @@ export function defnetloan(loan_num, amount) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'defnetloan',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            from: account,
-            loan_num: loan_num,
-            amount: `${amount.toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'defnetloan',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          from: account,
+          loan_num: loan_num,
+          amount: `${Decimal(amount).toFixed(settings.tokenPrecision)} ` + settings.blockchain.tokenSymbol
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -624,23 +627,23 @@ export function consolidate() {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'consolidate',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'consolidate',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -673,29 +676,29 @@ export function mvtosavings(rex) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'mvtosavings',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account,
-            rex: `${rex.toFixed(settings.tokenPrecision)} REX`
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'mvtosavings',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account,
+          rex: `${Decimal(rex).toFixed(settings.tokenPrecision)} REX`
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
     }).then((tx) => {
-      setTimeout(dispatch(getRexFund()), 500);
+      //setTimeout(dispatch(getRexFund()), 500);
 
       return dispatch({
         payload: { tx },
@@ -723,29 +726,29 @@ export function mvfromsavings(rex) {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'mvfromsavings',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account,
-            rex: `${rex.toFixed(settings.tokenPrecision)} REX`
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'mvfrsavings',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account,
+          rex: `${Decimal(rex).toFixed(settings.tokenPrecision)} REX`
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
     }).then((tx) => {
-      setTimeout(dispatch(getRexFund()), 500);
+      //setTimeout(dispatch(getRexFund()), 500);
 
       return dispatch({
         payload: { tx },
@@ -772,23 +775,23 @@ export function updaterex() {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'updaterex',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'updaterex',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120
@@ -820,23 +823,23 @@ export function closerex() {
     const { account } = settings;
 
     // Build the operation to perform
-    const op = {
-      actions: [
-        {
-          account: 'eosio',
-          name: 'closerex',
-          authorization: [{
-            actor: account,
-            permission: settings.authorization || 'active',
-          }],
-          data: {
-            owner: account
-          },
-        }
-      ]
-    };
+    let actions = [{
+        account: 'eosio',
+        name: 'closerex',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active',
+        }],
+        data: {
+          owner: account
+        },
+      }
+    ];
 
-    return eos2(connection, true).transact(op, {
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos2(connection, true, payforaction!==null).transact({actions}, {
       broadcast: true,
       blocksBehind: 3,
       expireSeconds: 120

@@ -1,8 +1,10 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-import { Button, Table, Icon, Popup } from 'semantic-ui-react';
+import { Button, Table, Segment, Icon, Popup } from 'semantic-ui-react';
 const { shell } = require('electron');
+import { Decimal } from 'decimal.js';
+import NumberFormat from 'react-number-format';
 
 import GovernanceProposalsProposal from './Proposal';
 
@@ -37,100 +39,114 @@ class GovernanceProposalsProposalTable extends Component<Props> {
       selectedProposal
     } = this.state;
     return (
-      <Table style={{ marginTop: 20 }}>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell />
-            <Table.HeaderCell>
-              Proposal Title
-            </Table.HeaderCell>
-            <Table.HeaderCell>
-              Proposed By
-            </Table.HeaderCell>
-            <Table.HeaderCell>
-              Details
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {([].concat(list)
-            .map((proposal) => {
-              const selected = selectedProposal === proposal.title;
-              return (
-                <React.Fragment key={proposal.title}>
-                  <Table.Row>
-                    <Table.Cell collapsing>
-                      <Popup
-                        content={proposal.attrVotedYes ? 'You voted YES' : proposal.attrVotedNo ? 'You voted NO' : proposal.attrVotedAbstain ? 'You voted to ABSTAIN' : 'You have not voted'}
-                        inverted
-                        position="top center"
-                        style={{ textAlign: 'center' }}
-                        trigger={(
-                          <Icon
-                            disabled={!proposal.attrVoted}
-                            size="large"
-                            color={proposal.attrVotedYes ? 'green' : proposal.attrVotedNo ? 'red' : proposal.attrVotedAbstain ? 'yellow' : 'grey'}
-                            name={proposal.attrVotedYes ? 'checkmark' : proposal.attrVotedNo ? 'x' : proposal.attrVotedAbstain ? 'minus' : 'question'}
-                          />
-                        )}
-                      />
-                    </Table.Cell>
-                    <Table.Cell style={{
-                      whiteSpace: "normal",
-                      wordWrap: "break-word"
-                    }}>
-                    {proposal.title} (#{proposal.sub_id})
-                      <p>
-                        <small>
-                          <a
-                            onClick={() => this.openLink(proposal.info_url)}
-                            role="link"
-                            style={{ cursor: 'pointer', fontSize:'10pt' }}
-                            tabIndex={0}
-                          > {proposal.info_url.replace('/ipfs/','')} </a>
-                        </small>
-                      </p>
-                    </Table.Cell>
-                    <Table.Cell>
-                      {proposal.proposer}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        //disabled={proposal.attrIsExpired}
-                        icon={selected ? 'x' : 'bars'}
-                        onClick={() => {
-                          this.setState({
-                            selectedProposal: selected ? null : proposal.title
-                          });
-                        }}
-                        color={selected ? 'grey' : 'blue'}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                  {selected &&
-                    (
+      <Segment
+          loading={system.GOVERNANCE_GET_SUBMISSIONS === 'PENDING'}
+        >
+          <Table style={{ marginTop: 20 }}>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell />
+                <Table.HeaderCell>
+                  Proposal Title
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Proposed By
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Amount
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Details
+                </Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {([].concat(list)
+                .map((proposal) => {
+                  const selected = selectedProposal === proposal.title;
+                  const amount = (proposal && proposal.amount) ? Decimal(proposal.amount/10000).toFixed(0) : 0;
+                  return (
+                    <React.Fragment key={proposal.title}>
                       <Table.Row>
-                        <Table.Cell colSpan="5">
-                          <GovernanceProposalsProposal
-                            actions={actions}
-                            key={proposal.prop_id}
-                            ballots={ballots}
-                            blockExplorers={blockExplorers}
-                            proposal={proposal}
-                            scope={scope}
-                            settings={settings}
-                            submissions={submissions}
-                            system={system}
-                            votes={votes}
+                        <Table.Cell collapsing>
+                          <Popup
+                            content={proposal.attrVotedYes ? 'You voted YES' : proposal.attrVotedNo ? 'You voted NO' : proposal.attrVotedAbstain ? 'You voted to ABSTAIN' : 'You have not voted'}
+                            inverted
+                            position="top center"
+                            style={{ textAlign: 'center' }}
+                            trigger={(
+                              <Icon
+                                disabled={!proposal.attrVoted}
+                                size="large"
+                                color={proposal.attrVotedYes ? 'green' : proposal.attrVotedNo ? 'red' : proposal.attrVotedAbstain ? 'yellow' : 'grey'}
+                                name={proposal.attrVotedYes ? 'checkmark' : proposal.attrVotedNo ? 'x' : proposal.attrVotedAbstain ? 'minus' : 'question'}
+                              />
+                            )}
+                          />
+                        </Table.Cell>
+                        <Table.Cell style={{
+                          whiteSpace: "normal",
+                          wordWrap: "break-word"
+                        }}>
+                        {proposal.title} (#{proposal.sub_id})
+                          <p>
+                            <small>
+                              <a
+                                onClick={() => this.openLink(proposal.info_url)}
+                                role="link"
+                                style={{ cursor: 'pointer', fontSize:'10pt' }}
+                                tabIndex={0}
+                              > {proposal.info_url.replace('/ipfs/','')} </a>
+                            </small>
+                          </p>
+                        </Table.Cell>
+                        <Table.Cell>
+                          {proposal.proposer}
+                        </Table.Cell>
+                        <Table.Cell singleLine>
+                        <NumberFormat value={amount}
+                          displayType={'text'}
+                          thousandSeparator={true}
+                        /> {settings.blockchain.tokenSymbol}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Button
+                            //disabled={proposal.attrIsExpired}
+                            icon={selected ? 'x' : 'bars'}
+                            onClick={() => {
+                              this.setState({
+                                selectedProposal: selected ? null : proposal.title
+                              });
+                            }}
+                            color={selected ? 'grey' : 'blue'}
                           />
                         </Table.Cell>
                       </Table.Row>
-                    )}
-                </React.Fragment>
-              );
-            }))}
-        </Table.Body>
-      </Table>
+                      {selected &&
+                        (
+                          <Table.Row>
+                            <Table.Cell colSpan="5">
+                              <GovernanceProposalsProposal
+                                actions={actions}
+                                key={proposal.prop_id}
+                                ballots={ballots}
+                                blockExplorers={blockExplorers}
+                                proposal={proposal}
+                                scope={scope}
+                                settings={settings}
+                                submissions={submissions}
+                                system={system}
+                                votes={votes}
+                              />
+                            </Table.Cell>
+                          </Table.Row>
+                        )}
+                    </React.Fragment>
+                  );
+                }))}
+            </Table.Body>
+          </Table>
+        </Segment>
     );
   }
 }

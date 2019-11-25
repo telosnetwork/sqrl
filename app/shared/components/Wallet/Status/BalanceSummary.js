@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Grid, Header, Segment, Responsive } from 'semantic-ui-react';
 import { Decimal } from 'decimal.js';
+import NumberFormat from 'react-number-format';
 
 class WalletStatusBalanceSummary extends Component<Props> {
   render() {
@@ -43,7 +44,7 @@ class WalletStatusBalanceSummary extends Component<Props> {
         <Header dividing size="small">
           {t('wallet_status_prices_title')}
         </Header>
-        <Grid columns={3} divided>
+        <Grid columns={4} divided>
         <Grid.Row>
             <Grid.Column>
               <Header
@@ -52,7 +53,7 @@ class WalletStatusBalanceSummary extends Component<Props> {
                 size="small"
               />
 
-            <div style={{textAlign:"center", fontWeight: "bold"}}>
+            <div style={{marginLeft:"7px", textAlign:"left", fontWeight: "bold"}}>
               ${Decimal(usdPrice).toFixed(settings.tokenPrecision)} USD
               {' '}
               <Responsive as="span" minWidth={800} />
@@ -66,9 +67,26 @@ class WalletStatusBalanceSummary extends Component<Props> {
                 size="small"
               />
 
-              <div style={{textAlign:"center", fontWeight: "bold"}}>
+              <div style={{marginLeft:"2px", textAlign:"left", fontWeight: "bold"}}>
                 {Decimal(eosPrice).toFixed(settings.tokenPrecision)} EOS/{settings.blockchain.tokenSymbol}
                 {' '}
+                <Responsive as="span" minWidth={800} />
+              </div>
+            </Grid.Column>
+            <Grid.Column>
+              <Header
+                icon="dollar"
+                size="small"
+              ><Header.Content>
+                {t('wallet_status_total_balance')} {settings.blockchain.tokenSymbol}
+              </Header.Content>
+              </Header>
+
+              <div style={{marginLeft:"2px", textAlign:"left", fontWeight: "bold"}}>
+                <NumberFormat value={totalTokens.toFixed(settings.tokenPrecision)}
+                  displayType={'text'}
+                  thousandSeparator={true}
+                /> {settings.blockchain.tokenSymbol}
                 <Responsive as="span" minWidth={800} />
               </div>
             </Grid.Column>
@@ -79,8 +97,12 @@ class WalletStatusBalanceSummary extends Component<Props> {
                 size="small"
               />
 
-              <div style={{textAlign:"center", fontWeight: "bold"}}>
-                ${Decimal(totalUSDValue).toFixed(settings.tokenPrecision)}
+              <div style={{marginLeft:"2px", textAlign:"left", fontWeight: "bold"}}>
+                <NumberFormat value={Decimal(totalUSDValue).toFixed(settings.tokenPrecision)}
+                  displayType={'text'}
+                  thousandSeparator={true}
+                  prefix={'$'}
+                />
                 {' '}
                 <Responsive as="span" minWidth={800} />
               </div>

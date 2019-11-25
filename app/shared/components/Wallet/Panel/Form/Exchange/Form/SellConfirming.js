@@ -17,14 +17,14 @@ class WalletPanelFormExchangeSellConfirming extends Component<Props> {
   render() {
     const {
       decimalSellAmount,
-      REXbalance,
+      COREbalance,
       onBack,
       settings,
       t
     } = this.props;
 
     const sellAmount = decimalSellAmount.toNumber();
-    const balanceDifference =  Decimal(REXbalance).toNumber() - sellAmount;
+    const balanceDifference =  Decimal(COREbalance).toNumber() - sellAmount;
 
     return (
         <Segment padding="true" basic>

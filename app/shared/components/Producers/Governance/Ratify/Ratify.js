@@ -27,7 +27,7 @@ class GovernanceProposalsRatify extends Component<Props> {
     const vote = 1;
 
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -38,7 +38,7 @@ class GovernanceProposalsRatify extends Component<Props> {
     const vote = 2;
 
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -49,7 +49,7 @@ class GovernanceProposalsRatify extends Component<Props> {
     const vote = 0;
 
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote === true) {
+    if (settings.mirrorCastOnVote !== false) {
       await actions.mirrorCast(voter);
     }
     actions.voteBallot(voter, ballot_id, vote);
@@ -57,14 +57,17 @@ class GovernanceProposalsRatify extends Component<Props> {
   closeprop = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'closeprop', scope);
+    actions.getProposals();
   }
   openVoting = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'openvoting', scope);
+    actions.getProposals();
   }
   cancelSubmission = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'cancelsub', scope);
+    actions.getProposals();
   }
   openLink = (link) => {
     const { settings } = this.props;

@@ -1,6 +1,7 @@
 import * as types from './types';
 import EOSContract from '../utils/EOS/Contract';
 import eos from './helpers/eos';
+import { payforcpunet } from './helpers/eos';
 
 export function getAbi(account) {
   return (dispatch: () => void, getState) => {

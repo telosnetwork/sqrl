@@ -124,6 +124,24 @@ class WalletStatusStaked extends Component<Props> {
                 </Table>
               </Table.Cell>
             </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('wallet_status_resources_ram_available_title')}</Table.Cell>
+              <Table.Cell>
+              <Table compact>
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell collapsing>
+                        {t('wallet_status_resources_usage')}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      </Table.Cell>
+                      <Table.Cell>
+                        {prettyBytes(parseInt(ram_usage))} / {prettyBytes(parseInt(ram_quota))}
+                      </Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table>
+              </Table.Cell>
+            </Table.Row>
           </Table.Body>
         </Table>
       </Segment>
