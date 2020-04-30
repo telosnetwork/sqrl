@@ -35,18 +35,22 @@ class BlockProducers extends Component<Props> {
       validate
     } = this.props;
     const {
+      getBallots,
       getProducers,
       getProducersInfo,
-      getProposals,
       getRatifyDocuments,
-      getRatifySubmissions
+      getRatifySubmissions,
+      getWPSConfig
     } = actions;
     if (validate.NODE) {
       getProducers();
       if (settings.blockchain.tokenSymbol === 'EOS') getProducersInfo();
-      getProposals();
-      getRatifyDocuments();
-      getRatifySubmissions();
+      if (settings.blockchain.tokenSymbol === 'TLOS') {
+        getBallots();
+        getRatifyDocuments();
+        getRatifySubmissions();
+        getWPSConfig();
+      }
     }
   }
 

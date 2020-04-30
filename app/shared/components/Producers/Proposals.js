@@ -6,12 +6,14 @@ import { find } from 'lodash';
 import { Container,Dropdown,Header,Input,List,Loader,Message,Segment,Select,Visibility } from 'semantic-ui-react';
 
 import GovernanceProposalsProposalTable from './Governance/Proposals/Table';
-import GovernanceProposalsButtonProxy from './Governance/Proposals/Button/Proposal';
+import GovernanceProposalsButtonProposal from './Governance/Proposals/Button/Proposal';
 
 class GovernanceProposals extends Component<Props> {
   state = {
     amount: 10,
-    scope: 'eosio.trail',
+    filterByCategory: 'all',
+    filterByStatus: 'all',
+    scope: 'telos.decide',
     queryString: ''
   };
   componentDidMount() {
@@ -35,14 +37,14 @@ class GovernanceProposals extends Component<Props> {
   }
   sync = () => {
     const { actions } = this.props;
-    const { scope } = this.state;
-    actions.getProposals(scope);
+    actions.getBallots();
   }
   render() {
     const {
       accounts,
       actions,
       blockExplorers,
+      globals,
       proposals,
       settings,
       system,
@@ -56,11 +58,13 @@ class GovernanceProposals extends Component<Props> {
       queryString,
       scope,
       filterByVote,
+      filterByCategory,
       filterByStatus
     } = this.state;
     const {
       ballots,
       list,
+      milestones,
       submissions,
       votes
     } = proposals;
@@ -72,35 +76,54 @@ class GovernanceProposals extends Component<Props> {
       }));
     }
 
-    const validList = list.filter((proposal) => proposal.publisher=='eosio.saving')
-    .map((proposal) => {
-
-      let ballot = ballots.filter((b) => b.reference_id === proposal.prop_id && b.table_id === 0)[0];
+    const validList = submissions.map((submission) => {
+      let ballot = ballots.filter ((b) => b.ballot_name === submission.current_ballot)[0];
       if (!ballot) ballot = {};
-
-      let submission = submissions.filter ((s) => s.ballot_id === ballot.ballot_id)[0];
-      if (!submission) submission = {};
       
-      let vote = find(votes, { ballot_id: ballot.ballot_id });
-      if (!vote) vote = { directions: [], expiration: 0 };
+      let vote = find(votes[submission.proposal_name], { voter: settings.account });
+      if (!vote) vote = { weighted_votes: [], vote_time: 0 };
 
-      const proposalAttributes = proposal;
+      let submissionMilestones = milestones[submission.proposal_name];
+      if (!submissionMilestones) submissionMilestones = [];
+
+      const proposalAttributes = submission;
 
       proposalAttributes.title = submission.title;
-      proposalAttributes.sub_id = submission.id;
+      proposalAttributes.description = submission.description;
+      proposalAttributes.category = submission.category;
+      proposalAttributes.content = submission.content;
+      proposalAttributes.current_milestone = submission.current_milestone;
+      proposalAttributes.fee = submission.fee;
+      proposalAttributes.proposal_name = submission.proposal_name;
       proposalAttributes.proposer = submission.proposer;
-      proposalAttributes.amount = submission.amount;
-      proposalAttributes.attrVoted = !!vote;
-      proposalAttributes.attrVotedNo = vote && vote.directions[0] === 0;
-      proposalAttributes.attrVotedYes = vote && vote.directions[0] === 1;
-      proposalAttributes.attrVotedAbstain = vote && vote.directions[0] === 2;
+      proposalAttributes.refunded = submission.refunded;
+      proposalAttributes.remaining = submission.remaining;
+      proposalAttributes.status = submission.status;
+      proposalAttributes.total_requested = submission.total_requested;
+      proposalAttributes.milestones = submissionMilestones;
+      proposalAttributes.milestonesCount = submissionMilestones.length;
+      proposalAttributes.votes = votes[submission.proposal_name];
+      proposalAttributes.tallyTotal = ballot.total_raw_weight || "0.0000 VOTE";
+      proposalAttributes.tallyYes = ballot.options && ballot.options.filter((option)=>option.key=='yes')[0].value || "0.0000 VOTE";
+      proposalAttributes.tallyNo = ballot.options && ballot.options.filter((option)=>option.key=='no')[0].value || "0.0000 VOTE";
+      proposalAttributes.tallyAbstain = ballot.options && ballot.options.filter((option)=>option.key=='abstain')[0].value || "0.0000 VOTE";
+      
+      proposalAttributes.vote = vote;
+      proposalAttributes.attrVoted = !!vote && vote.weighted_votes && vote.weighted_votes.length > 0;
+      proposalAttributes.attrVotedNo = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "no";
+      proposalAttributes.attrVotedYes = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "yes";
+      proposalAttributes.attrVotedAbstain = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "abstain";
 
-      proposalAttributes.attrIsExpired = (proposal.end_time * 1000) < Date.now();
-      proposalAttributes.attrIsActive = ((proposal.begin_time * 1000) < Date.now()) && ((proposal.end_time * 1000) > Date.now());
+      proposalAttributes.attrIsExpired = (ballot.end_time * 1000) < Date.now();
+      proposalAttributes.attrIsActive = ((ballot.begin_time * 1000) < Date.now()) && ((ballot.end_time * 1000) > Date.now());
+      proposalAttributes.startTime = ballot.begin_time;
+      proposalAttributes.endTime = ballot.end_time;
 
-      if (vote.expiration > 0 && submission.cycles > 2 && proposal.cycle_count <= submission.cycles - 1 
+      if (vote.vote_time > 0 
+        && submission.current_milestone > 1 
+        && submission.current_milestone <= submission.milestonesCount - 1 
         && proposalAttributes.attrIsActive) { // allow vote again if new cycle
-        proposalAttributes.cycleVoteExpired = (vote.expiration * 1000) < Date.now();
+        proposalAttributes.cycleVoteExpired = (vote.vote_time * 1000) < (ballot.begin_time * 1000); // last vote before start of new milestone
         if (proposalAttributes.cycleVoteExpired) { // on new cycle, user needs to revote
           proposalAttributes.attrVoted = false;
           proposalAttributes.attrVotedNo = false;
@@ -111,21 +134,46 @@ class GovernanceProposals extends Component<Props> {
 
       return proposalAttributes;
     });
-
+    console.log('retreived list:',validList)
     const filteredList =
-      validList.filter((proposal) => (queryString.length === 0 ||
-          (proposal.title && proposal.title.toLowerCase().includes(queryString.toLowerCase()))));
-    const sortedList = filteredList.filter((proposal) => {
+      validList.filter((submission) => (queryString.length === 0 ||
+          (submission.title && submission.title.toLowerCase().includes(queryString.toLowerCase()))));
+    const statusesList = filteredList.filter((submission) => {
       switch (filterByStatus) {
+        case 'drafting':
+          return submission.status=='drafting';
+        case 'inprogress':
+          return submission.status=='inprogress';
+        case 'failed':
+          return submission.status=='failed';
+        case 'cancelled':
+          return submission.status=='cancelled';
+        case 'completed':
+          return submission.status=='completed';
         case 'expired':
-          return proposal.attrIsExpired;
-        case 'cycles':
-          return proposal.cycleVoteExpired || proposal.cycleVoteExpired===false;
-        case 'all':
-        return true;
+          return submission.attrIsExpired;
+        case 'milestones':
+          return submission.milestones.length > 1;
         case 'active':
+          return submission.attrIsActive;
+        case 'all':
         default:
-          return proposal.attrIsActive;
+          return true;
+      }
+    });
+    const sortedList = statusesList.filter((submission) => {
+      switch (filterByCategory) {
+        case 'apps':
+          return submission.category=='apps';
+        case 'developers':
+          return submission.category=='developers';
+        case 'education':
+          return submission.category=='education';
+        case 'marketing':
+          return submission.category=='marketing';
+        case 'all':
+        default:
+          return true;
       }
     });
     const filterByStatusOptions = [
@@ -135,9 +183,19 @@ class GovernanceProposals extends Component<Props> {
         value: 'all',
       },
       {
-        key: 'active',
-        text: 'Show active proposals',
-        value: 'active',
+        key: 'cancelled',
+        text: 'Show cancelled proposals',
+        value: 'cancelled',
+      },
+      {
+        key: 'completed',
+        text: 'Show completed proposals',
+        value: 'completed',
+      },
+      {
+        key: 'drafting',
+        text: 'Show draft proposals',
+        value: 'drafting',
       },
       {
         key: 'expired',
@@ -145,9 +203,46 @@ class GovernanceProposals extends Component<Props> {
         value: 'expired',
       },
       {
-        key: 'cycles',
-        text: 'Show proposals with cycles',
-        value: 'cycles',
+        key: 'failed',
+        text: 'Show failed proposals',
+        value: 'failed',
+      },
+      {
+        key: 'inprogress',
+        text: 'Show in-progress proposals',
+        value: 'inprogress',
+      },
+      {
+        key: 'milestones',
+        text: 'Show proposals with milestones',
+        value: 'milestones',
+      }
+    ];
+    const filterByCategoryOptions = [
+      {
+        key: 'all',
+        text: 'Show all categories',
+        value: 'all',
+      },
+      {
+        key: 'apps',
+        text: 'Apps - applications being built on Telos',
+        value: 'apps',
+      },
+      {
+        key: 'developers',
+        text: 'Development - tools, libraries, modules, etc',
+        value: 'developers',
+      },
+      {
+        key: 'education',
+        text: 'Education - tutorials, guides, workshops, etc',
+        value: 'education',
+      },
+      {
+        key: 'marketing',
+        text: 'Marketing - audio, video, articles, etc',
+        value: 'marketing',
       }
     ];
     return (
@@ -156,11 +251,12 @@ class GovernanceProposals extends Component<Props> {
           Worker Proposals
         </Header>
           <Container floated="right" style={{ marginBottom: '50px' }}>
-            <GovernanceProposalsButtonProxy
+            <GovernanceProposalsButtonProposal
               accounts={accounts}
               actions={actions}
               blockExplorers={blockExplorers}
               onClose={this.onClose}
+              proposals={proposals}
               settings={settings}
               system={system}
               tables={tables}
@@ -183,12 +279,20 @@ class GovernanceProposals extends Component<Props> {
             onChange={(e) => this.setState({ queryString: e.target.value })}
           />
           <Select
-            defaultValue="active"
+            defaultValue="all"
             name="filterByStatus"
             onChange={(e, { value }) => this.setState({ filterByStatus: value })}
             options={filterByStatusOptions}
             selection
-            style={{ marginLeft: '10px' }}
+            style={{ marginLeft: '10px', minWidth: '250px', marginBottom: '5px' }}
+          />
+          <Select
+            defaultValue="all"
+            name="filterByCategory"
+            onChange={(e, { value }) => this.setState({ filterByCategory: value })}
+            options={filterByCategoryOptions}
+            selection
+            style={{ marginLeft: '10px', minWidth: '275px', marginBottom: '5px' }}
           />
           {(sortedList.length > 0) ? (
             <Visibility
@@ -202,7 +306,9 @@ class GovernanceProposals extends Component<Props> {
                 actions={actions}
                 ballots={ballots}
                 blockExplorers={blockExplorers}
+                globals={globals}
                 list={sortedList.splice(0, amount)}
+                proposals={proposals}
                 scope={scope}
                 settings={settings}
                 submissions={submissions}

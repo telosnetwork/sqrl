@@ -34,8 +34,7 @@ class GovernanceRatify extends Component<Props> {
   }
   sync = () => {
     const { actions } = this.props;
-    const { scope } = this.state;
-    actions.getProposals(scope);
+    actions.getBallots();
   }
   render() {
     const {

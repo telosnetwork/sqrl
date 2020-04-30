@@ -57,17 +57,17 @@ class GovernanceProposalsRatify extends Component<Props> {
   closeprop = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'closeprop', scope);
-    actions.getProposals();
+    actions.getBallots();
   }
   openVoting = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'openvoting', scope);
-    actions.getProposals();
+    actions.getBallots();
   }
   cancelSubmission = (submission_id) => {
     const { actions } = this.props;
     actions.actOnProposal(submission_id, 'cancelsub', scope);
-    actions.getProposals();
+    actions.getBallots();
   }
   openLink = (link) => {
     const { settings } = this.props;
