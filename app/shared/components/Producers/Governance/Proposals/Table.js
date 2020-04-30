@@ -24,8 +24,10 @@ class GovernanceProposalsProposalTable extends Component<Props> {
       ballots,
       blockExplorers,
       contracts,
+      globals,
       isLocked,
       list,
+      proposals,
       scope,
       settings,
       submissions,
@@ -50,10 +52,16 @@ class GovernanceProposalsProposalTable extends Component<Props> {
                   Proposal Title
                 </Table.HeaderCell>
                 <Table.HeaderCell>
-                  Proposed By
+                  Proposer
                 </Table.HeaderCell>
                 <Table.HeaderCell>
                   Amount
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Milestones
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Status
                 </Table.HeaderCell>
                 <Table.HeaderCell>
                   Details
@@ -63,10 +71,10 @@ class GovernanceProposalsProposalTable extends Component<Props> {
             <Table.Body>
               {([].concat(list)
                 .map((proposal) => {
-                  const selected = selectedProposal === proposal.title;
-                  const amount = (proposal && proposal.amount) ? Decimal(proposal.amount/10000).toFixed(0) : 0;
+                  const selected = selectedProposal === proposal.proposal_name;
+                  const amount = (proposal && proposal.total_requested) ? Decimal(proposal.total_requested/10000).toFixed(0) : 0;
                   return (
-                    <React.Fragment key={proposal.title}>
+                    <React.Fragment key={proposal.proposal_name}>
                       <Table.Row>
                         <Table.Cell collapsing>
                           <Popup
@@ -88,15 +96,15 @@ class GovernanceProposalsProposalTable extends Component<Props> {
                           whiteSpace: "normal",
                           wordWrap: "break-word"
                         }}>
-                        {proposal.title} (#{proposal.sub_id})
+                        {proposal.title} ({proposal.proposal_name})
                           <p>
                             <small>
                               <a
-                                onClick={() => this.openLink(proposal.info_url)}
+                                onClick={() => this.openLink(proposal.content)}
                                 role="link"
                                 style={{ cursor: 'pointer', fontSize:'10pt' }}
                                 tabIndex={0}
-                              > {proposal.info_url.replace('/ipfs/','')} </a>
+                              > View Proposal Details </a>
                             </small>
                           </p>
                         </Table.Cell>
@@ -110,12 +118,18 @@ class GovernanceProposalsProposalTable extends Component<Props> {
                         /> {settings.blockchain.tokenSymbol}
                         </Table.Cell>
                         <Table.Cell>
+                          {proposal.milestones.length}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {proposal.status}
+                        </Table.Cell>
+                        <Table.Cell>
                           <Button
                             //disabled={proposal.attrIsExpired}
                             icon={selected ? 'x' : 'bars'}
                             onClick={() => {
                               this.setState({
-                                selectedProposal: selected ? null : proposal.title
+                                selectedProposal: selected ? null : proposal.proposal_name
                               });
                             }}
                             color={selected ? 'grey' : 'blue'}
@@ -125,13 +139,15 @@ class GovernanceProposalsProposalTable extends Component<Props> {
                       {selected &&
                         (
                           <Table.Row>
-                            <Table.Cell colSpan="5">
+                            <Table.Cell colSpan="7">
                               <GovernanceProposalsProposal
                                 actions={actions}
                                 key={proposal.prop_id}
                                 ballots={ballots}
                                 blockExplorers={blockExplorers}
+                                globals={globals}
                                 proposal={proposal}
+                                proposals={proposals}
                                 scope={scope}
                                 settings={settings}
                                 submissions={submissions}

@@ -14,12 +14,12 @@ class GovernanceProposalsProposalVote extends Component<Props> {
       blockExplorers,
       button,
       confirm,
+      currentMilestone,
       isExpired,
       open,
       proposal,
       pubkey,
       settings,
-      submission,
       system,
       t,
       vote
@@ -32,13 +32,13 @@ class GovernanceProposalsProposalVote extends Component<Props> {
         button={button}
         content={(
           <Segment basic clearing>
-            {(isExpired === true) ? 
+            {(proposal.status !== 'inprogress') ? 
             <p>
-            You can no longer vote <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong> because it is now expired.
+            You can no longer vote <strong>{vote}</strong> on worker proposal <strong>{proposal.title} ({proposal.proposal_name})</strong> because voting is not opened.
             </p>
             : 
             <p>
-            Please confirm your vote of <strong>{vote}</strong> on worker proposal <strong>{submission.title} (# {submission.id})</strong>. 
+            Please confirm your vote of <strong>{vote}</strong> on <strong>Milestone #{currentMilestone.milestone_id}</strong> in <strong>{proposal.title}</strong>. 
             {confirm}
             </p> 
             }

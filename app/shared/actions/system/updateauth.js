@@ -13,10 +13,9 @@ export function updateauth(permission, parent, auth, authorizationOverride = fal
     });
     let authorization = settings.authorization;
     // Setting of the authorization based on either an override or the global connection setting
-    if (authorizationOverride || connection.authorization) {
-      authorization = [authorizationOverride || connection.authorization];
+    if (!authorization) {
+      authorization = [connection.authorization];
     }
-
     let actions = [
       {
         account: 'eosio',

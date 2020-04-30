@@ -12,6 +12,7 @@ class GovernanceProposalsButtonProposal extends Component<Props> {
       actions,
       blockExplorers,
       onClose,
+      proposals,
       settings,
       system,
       t,
@@ -37,6 +38,7 @@ class GovernanceProposalsButtonProposal extends Component<Props> {
             accounts={accounts}
             actions={actions}
             key="ProposalForm"
+            proposals={proposals}
             settings={settings}
             system={system}
             tables={tables}
@@ -47,6 +49,7 @@ class GovernanceProposalsButtonProposal extends Component<Props> {
         icon="inbox"
         onClose={onClose}
         settings={settings}
+        size="large"
         system={system}
         title="Submit New Worker Proposal"
         />

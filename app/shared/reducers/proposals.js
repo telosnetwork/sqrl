@@ -2,11 +2,13 @@ import * as types from '../actions/types';
 
 const initialState = {
   list: [],
+  milestones: [],
   votes: [],
   ballots: [],
   ratifydocuments: [],
   submissions: [],
   ratifysubmissions: [],
+  wpsconfig: {},
   scope: ''
 };
 
@@ -17,14 +19,27 @@ export default function proposals(state = initialState, action) {
     }
     case types.SYSTEM_GOVERNANCE_GET_PROPOSALVOTES_SUCCESS: {
       return Object.assign({}, state, {
-        votes: action.payload.votes,
-        scope: action.payload.account
+        votes: Object.assign({}, state.votes, {
+          [action.payload.ballot_name]: action.payload.votes
+        })
+      });
+    }
+    case types.SYSTEM_GOVERNANCE_GETWORKSMILESTONE_SUCCESS: {
+      return Object.assign({}, state, {
+        milestones: Object.assign({}, state.milestones, {
+          [action.payload.proposal_name]: action.payload.milestones
+        })
       });
     }
     case types.SYSTEM_GOVERNANCE_GET_PROPOSALS_SUCCESS: {
       return Object.assign({}, state, {
         list: action.payload.proposals,
         scope: action.payload.scope
+      });
+    }
+    case types.SYSTEM_GOVERNANCE_GETWORKSCONFIG_SUCCESS: {
+      return Object.assign({}, state, {
+        wpsconfig: action.payload.wpsconfig
       });
     }
     case types.SYSTEM_GOVERNANCE_GET_BALLOTS_SUCCESS: {

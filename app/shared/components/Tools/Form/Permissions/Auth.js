@@ -114,6 +114,10 @@ class ToolsFormPermissionsAuth extends Component<Props> {
       settings
     } = this.props;
     const { auth, parent, permission, selectedActions } = this.state;
+    if (!settings.authorization) {
+      settings.authorization = 'active';
+      actions.setSettings('authorization', settings.authorization);
+    }
     let authorization = `${settings.account}@${settings.authorization}`;
     actions.updateauth(permission, parent, auth, authorization, selectedActions);
   }

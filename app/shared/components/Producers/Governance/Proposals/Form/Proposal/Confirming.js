@@ -28,7 +28,8 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     this.setState({walletUnLockRequested: true});
 
     actions.unlockWallet(password);
-    system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR = null;
+    system.GOVERNANCE_CREATEWORKSPROPOSAL_LAST_ERROR = null;
+    system.GOVERNANCE_EDITWORKSMILESTONE_LAST_ERROR = null;
   }
   openLink = (link) => {
     const { settings } = this.props;
@@ -43,27 +44,30 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       walletUnLockRequested 
     } = this.state;
     const {
-      amount,
-      cycles,
+      category,
+      content,
+      description,
+      editing,
+      milestones,
+      proposal_name,
+      title,
+      total_requested,
+
       fileInfo,
       ipfs_location,
       ipfsHash,
       onBack,
       onClose,
-      proposal_id,
-      send_to,
       settings,
       system,
       t,
-      title,
       validate,
       wallet
     } = this.props;
     let ipfsSuccess = (ipfsHash && ipfsHash.length > 0);
-    let lastError = system.GOVERNANCE_CREATEPROPOSAL_LAST_ERROR;
-    if (proposal_id >= 0)
-      lastError = system.GOVERNANCE_EDITPROPOSAL_LAST_ERROR;
-    const cycleDays = cycles * 29;
+    let lastError = system.GOVERNANCE_CREATEWORKSPROPOSAL_LAST_ERROR;
+    if (editing)
+      lastError = system.GOVERNANCE_EDITWORKSMILESTONE_LAST_ERROR;
 
     if (walletUnLockRequested && validate.WALLET_PASSWORD === 'SUCCESS'){
       lastError = '';
@@ -71,19 +75,13 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
       this.setState({ walletUnLockRequested: false });
     }
 
-    let feeAmount = (amount * 3 / 100);
-    if (feeAmount < 50 || isNaN(feeAmount))
-      feeAmount = 50;
-
-    const cyclesTotalAmount = (amount * cycles).toFixed(settings.tokenPrecision);
     return (
       <Segment basic clearing vertical>
-        <Header block size="large">
+        <Header block size="medium">
           <Icon name="circle info" />
           <Header.Content>
             <Header.Subheader>
-              Please confirm your submission before proceeding. Once submitted, no further changes can be made 
-              and a new proposal must be created to replace this request. Submission Fee: {feeAmount.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}
+              Please confirm your submission before proceeding. This is only a draft and will be available for editing after submission. No fees will be due at the time of submission.
             </Header.Subheader>
           </Header.Content>
         </Header>
@@ -98,48 +96,60 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
               </Table.Cell>
             </Table.Row>
             <Table.Row>
+              <Table.Cell width={4}>
+                Description:
+              </Table.Cell>
+              <Table.Cell>
+                {description}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell width={4}>
+                Category:
+              </Table.Cell>
+              <Table.Cell>
+                {category}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>
                 Proposal Details:
               </Table.Cell>
               <Table.Cell>
-              {(proposal_id >= 0) ? 
-                <strong>{ipfs_location}</strong> :
-                <p>Committing the contents of <strong>{fileInfo.name}</strong> to IPFS</p>
+              {(editing) ? 
+                <strong>{content}</strong> :
+                <p>Publishing <strong>{fileInfo.name}</strong> to IPFS</p>
               }
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>
-                Requested Amount:
+                Total Requested:
               </Table.Cell>
               <Table.Cell>
-                {cyclesTotalAmount} {settings.blockchain.tokenSymbol}
+                {total_requested} {settings.blockchain.tokenSymbol}
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>
-                Recipient:
+                Milestones:
               </Table.Cell>
               <Table.Cell>
-                {send_to}
+                {milestones.map((milestone) => {
+                  return (
+                      <span>
+                      #{milestone.number} for {parseFloat(milestone.amount).toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol}<br />
+                      </span>
+                    )
+                  })}
               </Table.Cell>
             </Table.Row>
-            {(proposal_id >= 0) ? '' :
-            <Table.Row>
-              <Table.Cell>
-                Number of Cycles:
-              </Table.Cell>
-              <Table.Cell>
-                {cycles} (~ {cycleDays} Days)
-              </Table.Cell>
-            </Table.Row>
-            }
           </Table.Body>
         </Table>
         <Divider style={{ marginTop: '40px' }} />
 
-        {( (lastError && system.GOVERNANCE_CREATEPROPOSAL !== 'SUCCESS' && !proposal_id) ||
-          (lastError && system.GOVERNANCE_EDITPROPOSAL !== 'SUCCESS' && proposal_id >= 0) )
+        {( (lastError && system.GOVERNANCE_CREATEWORKSPROPOSAL !== 'SUCCESS' && !editing) ||
+          (lastError && system.GOVERNANCE_EDITWORKSMILESTONE !== 'SUCCESS' && editing) )
           ? (
             <Message negative size="tiny">
               {(lastError.code)
@@ -182,24 +192,24 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           />
           : ''}
 
-        { (ipfsSuccess === true && system.GOVERNANCE_CREATEPROPOSAL === 'SUCCESS') ?
+        { (ipfsSuccess === true && (system.GOVERNANCE_CREATEWORKSPROPOSAL === 'SUCCESS' || system.GOVERNANCE_EDITWORKSMILESTONE === 'SUCCESS')) ?
         <div>
             <Message
             positive
             content={(
               <p>
                 <a
-                  onClick={() => this.openLink(ipfs_location)}
+                  onClick={() => this.openLink(content)}
                   role="link"
                   style={{ cursor: 'pointer', fontSize:'10pt' }}
                   tabIndex={0}
-                >{ipfs_location}
+                >{content}
                 </a>
               </p>
             )}
             icon="inbox"
             info
-            header="Worker Proposal Submitted to IPFS"
+            header="Draft Proposal Submitted Successfully"
           />
           <Button
             onClick={onClose}
@@ -213,7 +223,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
           color="green"
           floated="right"
           onClick={this.onConfirm}
-          content='Submit Proposal'
+          content='Submit Draft'
         />
         <Button
           onClick={onBack}

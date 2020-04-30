@@ -1,35 +1,59 @@
 // @flow
 import React, { Component } from 'react';
-import { Button, Divider, Form, Icon, Segment, Header, Message } from 'semantic-ui-react';
+import { Button, Divider, Form, Icon, Input, Label, Segment, Select, Step, Table, Header, Message } from 'semantic-ui-react';
 import { translate } from 'react-i18next';
-import debounce from 'lodash/debounce';
+import Moment from 'react-moment';
+import { Decimal } from 'decimal.js';
 const CryptoJS = require('crypto-js');
 
-import GlobalFormFieldAccount from '../../../../Global/Form/Field/Account';
 import GlobalFormFieldGeneric from '../../../../Global/Form/Field/Generic';
+import GlobalFormFieldTextArea from '../../../../Global/Form/Field/TextArea';
 import FormMessageError from '../../../../Global/Form/Message/Error';
 import GovernanceProposalsFormProposalConfirming from './Proposal/Confirming';
 
 import ipfs from '../../../../../actions/helpers/ipfs';
 
-const formAttributes = ['title', 'ipfs_location', 'amount', 'send_to', 'cycles'];
+const formAttributes = ['title', 'description', 'content', 'proposal_name', 'category', 'total_requested', 'milestones'];
 
 class GovernanceProposalsFormProposal extends Component<Props> {
   constructor(props) {
     super(props);
 
     const {
-      amount,
-      cycles,
-      ipfs_location,
-      send_to,
-      title
+      category,
+      content,
+      description,
+      editing,
+      milestones,
+      proposal_name,
+      title,
+      total_requested,
+      settings
     } = props;
-    
+
+    let totalRequested = 0;
+    let existingMilestones = [];
+    if (editing) {
+      totalRequested = total_requested.split(' ')[0];
+      for (let m = 0; m < milestones.length; m++){
+        var date = new Date();
+        date.setDate(date.getDate() + (29 * (m+1)));
+        
+        var requested = milestones[m].requested.split(' ')[0];
+        existingMilestones[m] = {
+          number: milestones[m].milestone_id,
+          days: date,
+          amount: parseFloat(requested).toFixed(settings.tokenPrecision)
+        }
+      }
+    }
+
     this.state = {
-      amount,
+      category,
       confirming: false,
-      cycles,
+      content,
+      description,
+      editing,
       fileBuffer:'',
       fileInfo: '',
       ipfsHash:null,
@@ -42,9 +66,11 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         syscall:'',
         message:''
       },
-      ipfs_location,
-      send_to,
+      milestones: existingMilestones || [],
+      proposal_name,
+      stage: editing == true? 3 : 1,
       title,
+      total_requested: totalRequested,
       formErrors: {},
       submitDisabled: true
     };
@@ -64,7 +90,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         fileInfo: proposalFile
       });
       this.onChange(e, {
-        name: 'ipfs_location', 
+        name: 'content', 
         value: proposalFile, 
         valid: true});
     };
@@ -85,43 +111,99 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         }
       });
     }
-    e.preventDefault();
+    //e.preventDefault();
     return false;
   }
 
   onKeyPress = (e) => {
+    const {
+      stage,
+      submitDisabled
+    } = this.state;
     if (e.key === 'Enter') {
-      this.onSubmit(e);
+
+      if (stage !== 3 && !submitDisabled)
+        this.onStageSelect(stage+1);
 
       e.preventDefault();
       return false;
     }
   }
 
-  onChange = debounce((e, { name, value, valid=true }) => {
+  onMilestoneChange = (e) => {
+    const {
+      milestones
+    } = this.state;
+    const {
+      settings
+    } = this.props;
+
+    let existingMilestones = [...milestones];
+
+    //const amount = e.target.value.indexOf('TLOS') ? e.target.value.split(' ')[0] : e.target.value;
+    const index = parseInt(e.target.name - 1);
+    const milestone = milestones[index];
+    existingMilestones[index] = {
+      number: milestone.number,
+      days: milestone.days,
+      amount: parseFloat(e.target.value).toFixed(settings.tokenPrecision)
+    };
     this.setState({
-      submitDisabled: false,
-      [name]: value
+      milestones: existingMilestones
+    });
+
+    this.setState({
+      submitDisabled: false
     }, () => {
       let {
         formErrors
       } = this.state;
 
-      const {
-        send_to
-      } = this.state;
+      let submitDisabled = false;
+      formErrors['milestones'] = null;
 
-      const {
-        actions
-      } = this.props;
+      ({ formErrors, submitDisabled } = this.errorsInForm(formErrors));
 
-      const {
-        checkAccountAvailability
-      } = actions;
+      this.setState({
+        formErrors,
+        submitDisabled
+      });
+    });
+  }
 
-      if (name === 'send_to' && send_to.length !== 0) {
-        checkAccountAvailability(send_to);
+  onChange = (e, { name, value, valid=true }) => {
+    const {
+      total_requested
+    } = this.state;
+    const {
+      settings
+    } = this.props;
+
+    let computedMilestones = [];
+    if (name == 'milestones') {
+      for (let m = 0; m < value; m++){
+        var date = new Date();
+        date.setDate(date.getDate() + (29 * (m+1)));
+        
+        computedMilestones[m] = {
+          number: m+1,
+          days: date,
+          amount: parseFloat(total_requested / value).toFixed(settings.tokenPrecision)
+        }
       }
+      this.setState({
+        milestones: computedMilestones
+      });
+    } else {
+      this.setState({ [name]: value });
+    }
+
+    this.setState({
+      submitDisabled: false
+    }, () => {
+      let {
+        formErrors
+      } = this.state;
 
       let submitDisabled = false;
 
@@ -138,15 +220,23 @@ class GovernanceProposalsFormProposal extends Component<Props> {
         submitDisabled
       });
     });
-  }, 200)
-
+  }
+  
   errorsInForm = (errors) => {
     const {
-      amount,
-      cycles,
-      ipfs_location,
-      title
+      category,
+      content,
+      description,
+      milestones,
+      proposal_name,
+      stage,
+      title,
+      total_requested
     } = this.state;
+    const {
+      proposals,
+      settings
+    } = this.props;
     const { proposal_id } = this.props;
     const formErrors = errors;
     let submitDisabled = false;
@@ -155,27 +245,55 @@ class GovernanceProposalsFormProposal extends Component<Props> {
       formErrors[attribute] = null;
     });
 
-    if ((!title || title.length < 10 || title.size > 256) && !submitDisabled) {
+    if ((!title || title.length < 10 || title.size > 256) && !submitDisabled && stage === 1) {
       formErrors.title = 'invalid_proposal_title';
       submitDisabled = true;
     }
 
-    if ((!ipfs_location || ipfs_location.size < 1) && !submitDisabled) {
-      formErrors.ipfs_location = 'invalid_proposal_ipfs_location';
+    if ((!description || description.length < 10 || description.size > 256) && !submitDisabled && stage === 1) {
+      formErrors.title = 'invalid_proposal_description';
       submitDisabled = true;
     }
 
-    if ((Number(amount) < 1 || isNaN(amount)) && !submitDisabled) {
-      formErrors.amount = 'invalid_proposal_amount';
+    if ((!category || category.size < 1) && !submitDisabled && stage === 1) {
+      formErrors.content = 'invalid_proposal_category';
       submitDisabled = true;
     }
 
-    if ((Number(cycles) < 1 || isNaN(cycles)) && !submitDisabled && !proposal_id) {
-      formErrors.cycles = 'invalid_proposal_cycles';
+    if ((!content || content.size < 1) && !submitDisabled && stage === 2) {
+      formErrors.content = 'invalid_proposal_content';
       submitDisabled = true;
+    }
+
+    const minAmount = parseFloat(proposals.wpsconfig.min_requested.split(' ')[0]);
+    const maxAmount = parseFloat(proposals.wpsconfig.max_requested.split(' ')[0]);
+    if ((Number(total_requested) < 1 || isNaN(total_requested) || 
+      total_requested < minAmount || total_requested > maxAmount) && !submitDisabled && stage === 3) {
+      formErrors.total_requested = 'invalid_proposal_amount';
+      submitDisabled = true;
+    }
+
+    if ((!milestones || milestones.length < 1 
+      || milestones.length < proposals.wpsconfig.min_milestones
+      || milestones.length > proposals.wpsconfig.max_milestones) && !submitDisabled && !proposal_id && stage === 3) {
+      formErrors.milestones = 'invalid_proposal_milestones';
+      submitDisabled = true;
+    } else if (milestones.length > 1 && !proposal_id && stage === 3) {
+      let milestonesTotal = 0;
+      milestones.map((milestone) => {
+        milestonesTotal += parseFloat(milestone.amount);
+      });
+      if (Decimal(milestonesTotal.toFixed(settings.tokenPrecision)).equals(total_requested) == false) {
+        formErrors.milestones = 'invalid_proposal_milestones_amount';
+        submitDisabled = true;
+      }
     }
 
     return { formErrors, submitDisabled };
+  }
+
+  onStageSelect = (stage) => {
+    this.setState({ stage, submitDisabled: true });
   }
 
   onConfirm = async () => {
@@ -193,31 +311,34 @@ class GovernanceProposalsFormProposal extends Component<Props> {
 
     const {
       actions,
-      proposal_id,
       settings
     } = this.props;
 
     const {
-      createProposal,
-      editProposal
+      addWorksMilestones,
+      createWorksProposal,
+      editWorksMilestones
     } = actions;
 
     const {
-      amount,
-      cycles,
-      ipfs_location,
+      category,
+      content,
+      description,
+      editing,
+      milestones,
+      proposal_name,
       title,
-      send_to
+      total_requested
     } = this.state;
     
     // save proposal to IPFS, return its hash#, and submit contract to chain
-    let amountFormatted = parseFloat(amount).toFixed(settings.tokenPrecision);
-    if (proposal_id >= 0) { // editing
+    let amountFormatted = parseFloat(total_requested).toFixed(settings.tokenPrecision);
+    if (editing) {
         // submit WP
-        editProposal(proposal_id, title, ipfs_location, amountFormatted, send_to);
-
+        editWorksMilestones(proposal_name, milestones);
+        
       this.setState({
-        ipfsHash: ipfs_location
+        ipfsHash: content
       });
       this.setState({ipfsing: false});
     } else {
@@ -233,17 +354,44 @@ class GovernanceProposalsFormProposal extends Component<Props> {
           const ipfsLocation = settings.ipfsProtocol + "://" + settings.ipfsNode + hashPath;
           
           // submit WP
-          createProposal(title, hashPath, parseInt(cycles), amountFormatted, send_to);
+          var prop_name = this.getUniqueProposalName(); 
+          (async () => {
+            await createWorksProposal(title, description, ipfsLocation, prop_name, 
+              category, amountFormatted, milestones.length);
+            editWorksMilestones(prop_name, milestones);
+          })();
   
           this.setState({
             ipfsHash: hashPath,
-            ipfs_location: ipfsLocation
+            content: ipfsLocation
           });
         }
   
         this.setState({ipfsing: false});
       });
     }
+  }
+
+  getUniqueProposalName() {
+    const {
+      proposals
+    } = this.props;
+    
+    var unique = false;
+    var prop_name;
+
+    while (!unique) {
+      var randomChars = 'abcdefghijklmnopqrstuvwxyz12345';
+      prop_name = '';
+      for ( var i = 0; i < 12; i++ ) {
+        prop_name += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+      }
+      prop_name = prop_name.toLowerCase();
+
+      const name = proposals.submissions.filter((s)=>s.proposal_name==prop_name);
+      if (!name || name.length < 1) unique = true;
+    }
+    return prop_name;
   }
 
   onBack = (e) => {
@@ -269,6 +417,7 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     const {
       actions,
       proposal_id,
+      proposals,
       settings,
       system,
       t,
@@ -277,49 +426,75 @@ class GovernanceProposalsFormProposal extends Component<Props> {
     } = this.props;
 
     const {
-      amount,
+      category,
+      content,
       confirming,
-      cycles,
+      description,
+      editing,
       fileInfo,
       formErrors,
       ipfsing,
       ipfsError,
       ipfsHash,
-      ipfs_location,
+      milestones,
+      proposal_name,
+      stage,
       title,
-      send_to
+      total_requested
     } = this.state;
     let {
       submitDisabled
     } = this.state;
 
-    let amountLabel = "Requested Amount (" + settings.blockchain.tokenSymbol + ")";
-
-    if (send_to &&
-        send_to.length !== 0 &&
-        system.ACCOUNT_AVAILABLE === 'SUCCESS' &&
-        system.ACCOUNT_AVAILABLE_LAST_ACCOUNT === send_to) {
-      formErrors.send_to = 'invalid_proposal_send_to';
-      submitDisabled = true;
-    }
-
-    if (system.ACCOUNT_AVAILABLE === 'SUCCESS' && !submitDisabled) { // account doesn't exist!
-      submitDisabled = true;
-    }
+    const amountLabel = "Requested Amount (Min/Max: " + 
+      proposals.wpsconfig.min_requested + "/" + proposals.wpsconfig.max_requested + ")";
+    const milestonesLabel = t('proposal_label_milestones') + " (Min/Max: " + 
+      proposals.wpsconfig.min_milestones + "/" + proposals.wpsconfig.max_milestones + ")";
 
     const formErrorKeys = Object.keys(formErrors);
     const hasError = ipfsError.message && ipfsError.message.length > 0;
 
-    let feeAmount = (amount * 3 / 100);
-    if (feeAmount < 50 || isNaN(feeAmount))
-      feeAmount = 50;
+    const feePercent = parseFloat(proposals.wpsconfig.fee_percent).toFixed(settings.tokenPrecision);
+    const feeMin = parseFloat(proposals.wpsconfig.min_fee.split(' ')[0]);
+    const minYesRefundThreshold = parseFloat(proposals.wpsconfig.yes_refund_threshold).toFixed(settings.tokenPrecision) + '%';
+    let feeAmount = parseFloat(total_requested * feePercent / 100);
+    if (feeAmount < feeMin || isNaN(feeAmount))
+      feeAmount = feeMin;
+
+    const categoryOptions = [
+        {
+          key: 'apps',
+          text: 'Apps - applications being built on Telos.',
+          value: 'apps',
+        },
+        {
+          key: 'developers',
+          text: 'Development - tools, libraries, modules, etc.',
+          value: 'developers',
+        },
+        {
+          key: 'education',
+          text: 'Education - tutorials, guides, workshops, etc',
+          value: 'education',
+        },
+        {
+          key: 'marketing',
+          text: 'Marketing - audio, video, articles, etc',
+          value: 'marketing',
+        }
+      ];
+
+    let confirmText = 'Next';
+    if (stage === 3)
+      confirmText = 'Confirm';
 
     return (
       <Form
         warning
-        loading={ipfsing === true || system.GOVERNANCE_CREATEPROPOSAL === 'PENDING' || system.GOVERNANCE_EDITPROPOSAL === 'PENDING'}
+        loading={ipfsing === true || 
+          system.GOVERNANCE_CREATEWORKSPROPOSAL === 'PENDING' ||
+          system.GOVERNANCE_EDITWORKSMILESTONE === 'PENDING'}
         onKeyPress={this.onKeyPress}
-        onSubmit={this.onSubmit}
       >
         {(!confirming && !ipfsing) ? (
             <Segment basic clearing>
@@ -333,56 +508,146 @@ class GovernanceProposalsFormProposal extends Component<Props> {
                   )
                   : <Header
                     attached="top"
-                    color="black"
+                    color="red"
                     block
-                    size="huge"
+                    size="medium"
                   >
                   {title}
                   <Header.Subheader>
-                    Submission Fee: Upon submission, a deposit of 3% of the requested proposal amount (minimum 50.0000 {settings.blockchain.tokenSymbol}) will be transferred from this account to eosio.saving. Please make sure you have a balance of {feeAmount.toFixed(settings.tokenPrecision)} {settings.blockchain.tokenSymbol} or this submission will fail.
+                    {t('proposal_header_instructions', {tokenSymbol:settings.blockchain.tokenSymbol,feePercent:feePercent,feeMin:feeMin,feeAmount: feeAmount.toFixed(settings.tokenPrecision)})}
                   </Header.Subheader>
+                  <Header.Content>
+                    {t('proposal_header_instructions_fee', {minYesRefundThreshold:minYesRefundThreshold})}
+                  </Header.Content>
                 </Header>
                 }
-              <Message
-                content="The Worker Proposal system is a smart contract that allows EOSIO stakeholders to be involved in the governance of the blockchain. When a proposal is entered into the Worker Proposal contract, all accounts staking tokens will be allowed to vote Yes, No, or Abstain within a timeframe of a set number of cycles (each cycle represents ~29 days) on the matters presented in the proposal."
-                warning
-              />
+              <Step.Group fluid>
+                <Step active={stage === 1} completed={stage > 1}>
+                  <Icon name="info circle" />
+                  <Step.Content>
+                    <Step.Title>{t('proposal_step_1_title')}</Step.Title>
+                    <Step.Description>{t('proposal_step_1_desc')}</Step.Description>
+                  </Step.Content>
+                </Step>
+                <Step active={stage === 2} completed={stage > 2}>
+                  <Icon name="file pdf outline" />
+                  <Step.Content>
+                    <Step.Title>{t('proposal_step_2_title')}</Step.Title>
+                    <Step.Description>{t('proposal_step_2_desc')}</Step.Description>
+                  </Step.Content>
+                </Step>
+                <Step active={stage === 3} completed={stage > 3}>
+                  <Icon name="dollar" />
+                  <Step.Content>
+                    <Step.Title>{t('proposal_step_3_title')}</Step.Title>
+                    <Step.Description>{t('proposal_step_3_desc')}</Step.Description>
+                  </Step.Content>
+                </Step>
+              </Step.Group>
+
+              {(stage === 1) ?
               <GlobalFormFieldGeneric
                 autoFocus
-                label="Proposal Title:"
+                label={t('proposal_label_title')}
                 name="title"
                 onChange={this.onChange}
+                style={{marginTop:'10px'}}
                 value={title} 
               />
-              {(proposal_id >= 0) ? '' :
+              :''}
+              {(stage === 1) ?
+              <GlobalFormFieldTextArea
+                label={t('proposal_label_description')}
+                name="description"
+                onChange={this.onChange}
+                value={description} 
+              />
+              :''}
+              {(stage === 1) ?
+              <Select
+                placeholder={t('proposal_label_category')}
+                name="category"
+                onChange={(e, { value }) => this.onChange(e,{ name:'category', value })}
+                options={categoryOptions}
+                selection
+                defaultValue={category}
+              />
+              :''}
+              {(stage === 2) ?
+              <Message
+                header={t('proposal_step_2_note')}
+                size="tiny"
+              />:''}
+              {(stage === 2) ?
               <input 
                 type = "file"
                 onChange = {this.uploadWorkerProposal}
               />
-              }
+              :''}
+              {(stage === 3) ?
+              <Message
+                header={t('proposal_step_3_note')}
+                size="tiny"
+              />:''}
+              {(stage === 3) ?
               <GlobalFormFieldGeneric
                 label={amountLabel}
-                name="amount"
+                name="total_requested"
                 onChange={this.onChange}
-                value={amount}
+                value={total_requested}
+                width={6}
               />
-              <GlobalFormFieldAccount
-                contacts={settings.contacts}
-                label="Recipient:"
-                name="send_to"
-                onChange={this.onChange}
-                value={send_to}
-              />
-              {(proposal_id >= 0) ? '' :
+              :''}
+              {(stage === 3) ?
               <GlobalFormFieldGeneric
-                label="Cycles:"
-                name="cycles"
+              label={milestonesLabel}
+                name="milestones"
                 onChange={this.onChange}
-                value={cycles}
+                value={milestones.length}
               />
-              }
+              :''}
+              {(stage === 3) ?
+              <Table columns={3}>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>
+                    Milestone #
+                  </Table.HeaderCell>
+                  <Table.HeaderCell>
+                    Approx. Closing Date
+                  </Table.HeaderCell>
+                  <Table.HeaderCell>
+                    Funding Amount
+                  </Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {milestones.map((milestone) => {
+                    return (
+                      <Table.Row>
+                          <Table.Cell collapsing>
+                            {milestone.number}
+                          </Table.Cell>
+                          <Table.Cell collapsing>
+                            <Moment>{milestone.days}</Moment>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <Input labelPosition='right' type='text' placeholder='Amount' style={{width:'150px'}}>
+                              <input defaultValue={parseFloat(milestone.amount).toFixed(settings.tokenPrecision)}
+                                name={milestone.number}
+                                onChange={(e)=>this.onMilestoneChange(e)}/>
+                              <Label basic>{settings.blockchain.tokenSymbol}</Label>
+                            </Input>
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
+                </Table.Body>
+              </Table>
+              :''}
               <Divider />
               <FormMessageError
+                style={{ marginBottom: 10 }}
                 errors={
                   formErrorKeys.length > 0 && formErrorKeys.reduce((errors, key) => {
                     const error = this.state.formErrors[key];
@@ -399,31 +664,50 @@ class GovernanceProposalsFormProposal extends Component<Props> {
               >
                 <Icon name="x" /> {t('close')}
               </Button>
+              {(stage === 3) ?
               <Button
-                content={t('producers_form_proxy_confirm')}
+                content={confirmText}
+                floated="right"
                 disabled={submitDisabled}
+                onClick={()=>this.onSubmit()}
+                primary
+              />:<Button
+              content={confirmText}
+              disabled={submitDisabled}
+              onClick={()=>this.onStageSelect(stage+1)}
+              floated="right"
+              primary
+            />}
+            {(stage === 2 || stage === 3) ?
+              <Button
+                content={'Previous'}
+                disabled={editing}
+                onClick={()=>this.onStageSelect(stage-1)}
                 floated="right"
                 primary
-              />
+              />:''}
             </Segment>
           ) : ''}
         {(confirming)
           ? (
             <GovernanceProposalsFormProposalConfirming
               actions={actions}
-              amount={parseFloat(amount).toFixed(settings.tokenPrecision)}
-              cycles={cycles}
+              category={category}
+              content={content}
+              description={description}
+              editing={editing}
               fileInfo={fileInfo}
               ipfsHash={ipfsHash}
-              ipfs_location={ipfs_location}
+              milestones={milestones}
               onBack={this.onBack}
               onClose={this.onClose}
               onConfirm={this.onConfirm}
               proposal_id={proposal_id}
+              proposal_name={proposal_name}
               settings={settings}
-              send_to={send_to}
               system={system}
               title={title}
+              total_requested={parseFloat(total_requested).toFixed(settings.tokenPrecision)}
               validate={validate}
               wallet={wallet}
             />
@@ -434,4 +718,4 @@ class GovernanceProposalsFormProposal extends Component<Props> {
   }
 }
 
-export default translate('producers')(GovernanceProposalsFormProposal);
+export default translate('global')(GovernanceProposalsFormProposal);
