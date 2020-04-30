@@ -29,7 +29,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
 
     actions.unlockWallet(password);
     system.GOVERNANCE_CREATEWORKSPROPOSAL_LAST_ERROR = null;
-    system.GOVERNANCE_EDITPROPOSAL_LAST_ERROR = null;
+    system.GOVERNANCE_EDITWORKSMILESTONE_LAST_ERROR = null;
   }
   openLink = (link) => {
     const { settings } = this.props;
@@ -67,7 +67,7 @@ class GovernanceProposalsFormProposalConfirming extends Component<Props> {
     let ipfsSuccess = (ipfsHash && ipfsHash.length > 0);
     let lastError = system.GOVERNANCE_CREATEWORKSPROPOSAL_LAST_ERROR;
     if (editing)
-      lastError = system.GOVERNANCE_EDITPROPOSAL_LAST_ERROR;
+      lastError = system.GOVERNANCE_EDITWORKSMILESTONE_LAST_ERROR;
 
     if (walletUnLockRequested && validate.WALLET_PASSWORD === 'SUCCESS'){
       lastError = '';
