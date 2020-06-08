@@ -114,8 +114,8 @@ class GovernanceProposals extends Component<Props> {
       proposalAttributes.attrVotedYes = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "yes";
       proposalAttributes.attrVotedAbstain = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "abstain";
 
-      proposalAttributes.attrIsExpired = (ballot.end_time * 1000) < Date.now();
-      proposalAttributes.attrIsActive = ((ballot.begin_time * 1000) < Date.now()) && ((ballot.end_time * 1000) > Date.now());
+      proposalAttributes.attrIsExpired = new Date(ballot.end_time) < Date.now();
+      proposalAttributes.attrIsActive = (new Date(ballot.begin_time) < Date.now() && new Date(ballot.end_time) > Date.now());
       proposalAttributes.startTime = ballot.begin_time;
       proposalAttributes.endTime = ballot.end_time;
 
@@ -123,7 +123,7 @@ class GovernanceProposals extends Component<Props> {
         && submission.current_milestone > 1 
         && submission.current_milestone <= submission.milestonesCount - 1 
         && proposalAttributes.attrIsActive) { // allow vote again if new cycle
-        proposalAttributes.cycleVoteExpired = (vote.vote_time * 1000) < (ballot.begin_time * 1000); // last vote before start of new milestone
+        proposalAttributes.cycleVoteExpired = (new Date(vote.vote_time) < new Date(ballot.begin_time)); // last vote before start of new milestone
         if (proposalAttributes.cycleVoteExpired) { // on new cycle, user needs to revote
           proposalAttributes.attrVoted = false;
           proposalAttributes.attrVotedNo = false;
@@ -134,7 +134,7 @@ class GovernanceProposals extends Component<Props> {
 
       return proposalAttributes;
     });
-    console.log('retreived list:',validList)
+    
     const filteredList =
       validList.filter((submission) => (queryString.length === 0 ||
           (submission.title && submission.title.toLowerCase().includes(queryString.toLowerCase()))));

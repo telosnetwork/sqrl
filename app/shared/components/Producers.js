@@ -435,7 +435,7 @@ class Producers extends Component<Props> {
                         );
                       }
                     },
-                    {
+                    /*{
                       menuItem: 'Arbitration',
                       render: () => {
                         return (
@@ -458,7 +458,7 @@ class Producers extends Component<Props> {
                           </Tab.Pane>
                         );
                       }
-                    },
+                    },*/
                     {
                       menuItem: 'Ratify',
                       render: () => {

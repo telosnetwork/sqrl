@@ -7,6 +7,7 @@ const { shell } = require('electron');
 import { Button, Header, Image, Label, List, Message, Segment, Table } from 'semantic-ui-react';
 import {Chart} from 'react-google-charts';
 import avatarPlaceholder from '../../../../../renderer/assets/images/profile.png';
+import NumberFormat from 'react-number-format';
 
 import GovernanceProposalsProposalVote from './Proposal/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -40,9 +41,13 @@ class GovernanceProposalsProposal extends Component<Props> {
     await actions.voteBallot(voter, proposal_name, vote);
     actions.getVoteInfo(proposal_name);
   }
-  claim = async (proposal_name) => {
+  claim = async (proposal_name, reportUrl) => {
     const { actions } = this.props;
+    await actions.actOnProposal(proposal_name, 'submitreport');
+    await actions.actOnProposal(proposal_name, 'closems');
     await actions.actOnProposal(proposal_name, 'claimfunds');
+    await actions.actOnProposal(proposal_name, 'nextms');
+    await actions.actOnProposal(proposal_name, 'withdraw');
     actions.getProposalSubmissions();
   }
   openVoting = async (proposal_name, fee_amount, title) => {
@@ -291,7 +296,7 @@ class GovernanceProposalsProposal extends Component<Props> {
               />
             : ''}
             {
-            (proposal.proposer === settings.account && currentMilestone.status === 'passed') ?
+            (proposal.proposer === settings.account && currentMilestone.status === 'voting' && isExpired) ?
               <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
@@ -416,7 +421,10 @@ class GovernanceProposalsProposal extends Component<Props> {
                 <strong>Total Votes:</strong>
                 </Table.Cell>
                 <Table.Cell>
-                {proposal.tallyTotal}
+                <NumberFormat value={proposal.tallyTotal} 
+                      displayType={'text'}
+                      thousandSeparator={true}
+                    /> {settings.blockchain.tokenSymbol}
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -452,7 +460,7 @@ class GovernanceProposalsProposal extends Component<Props> {
           </React.Fragment>
 
           {
-            (proposal.status == 'inprogress') ?
+            (proposal.status == 'inprogress' && !isExpired) ?
             <React.Fragment>
               <GovernanceProposalsProposalVote
                 actionName="GOVERNANCE_VOTE_PROPOSAL"

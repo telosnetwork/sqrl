@@ -58,9 +58,9 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
         <Table.Body>
           {([].concat(list)
             .map((proposal) => {
-              const selected = selectedProposal === proposal.submission_title;
+              const selected = selectedProposal === proposal.ballot_name;
               return (
-                <React.Fragment key={proposal.submission_title}>
+                <React.Fragment key={proposal.ballot_name}>
                   <Table.Row>
                     <Table.Cell collapsing>
                       <Popup
@@ -82,16 +82,16 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
                       whiteSpace: "normal",
                       wordWrap: "break-word"
                     }}>
-                    {proposal.submission_title} (#{proposal.submission_proposal_id})
+                    {proposal.submission_title} (#{proposal.ballot_name})
                     </Table.Cell>
                     <Table.Cell style={{
                       whiteSpace: "normal",
                       wordWrap: "break-word"
                     }}>
-                    {proposal.document_title}
+                    {proposal.title}
                     </Table.Cell>
                     <Table.Cell>
-                      {proposal.submission_proposer}
+                      {proposal.proposer}
                     </Table.Cell>
                     <Table.Cell>
                       <Button
@@ -99,7 +99,7 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
                         icon={selected ? 'x' : 'bars'}
                         onClick={() => {
                           this.setState({
-                            selectedProposal: selected ? null : proposal.submission_title
+                            selectedProposal: selected ? null : proposal.ballot_name
                           });
                         }}
                         color={selected ? 'grey' : 'blue'}
@@ -112,7 +112,7 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
                         <Table.Cell colSpan="5">
                           <GovernanceProposalsRatify
                             actions={actions}
-                            key={proposal.prop_id}
+                            key={proposal.ballot_name}
                             ballots={ballots}
                             blockExplorers={blockExplorers}
                             proposal={proposal}

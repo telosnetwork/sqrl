@@ -10,7 +10,7 @@ import GovernanceProposalsRatifyTable from './Governance/Ratify/Table';
 class GovernanceRatify extends Component<Props> {
   state = {
     amount: 10,
-    scope: 'eosio.trail',
+    scope: 'amend.decide',
     queryString: ''
   };
   componentDidMount() {
@@ -71,39 +71,51 @@ class GovernanceRatify extends Component<Props> {
       }));
     }
 
-    const validList = list.filter((proposal) => proposal.publisher=='eosio.amend')
-    .map((proposal) => {
+    const validList = ratifydocuments.map((document) => {
 
-      let ballot = ballots.filter((b) => b.reference_id === proposal.prop_id && b.table_id === 0)[0];
-      if (!ballot) ballot = {};
-
-      let submission = ratifysubmissions.filter ((s) => s.ballot_id === ballot.ballot_id)[0];
+      let submission = ratifysubmissions.filter ((s) => s.document_name === document.document_name)[0];
       if (!submission) submission = {};
 
-      let document = ratifydocuments.filter ((s) => s.document_id === submission.document_id)[0];
-      if (!document) document = {};
+      let ballot = ballots.filter((b) => b.ballot_name === submission.ballot_name && b.publisher === scope)[0];
+      if (!ballot) ballot = {};
 
-      let vote = find(votes, { ballot_id: ballot.ballot_id });
-      if (!vote) vote = { directions: [], expiration: 0 };
+      let vote = find(votes[submission.ballot_name], { voter: settings.account });
+      if (!vote) vote = { weighted_votes: [], vote_time: 0 };
 
-      const proposalAttributes = proposal;
+      const proposalAttributes = submission;
 
-      proposalAttributes.submission_proposal_id = submission.proposal_id;
-      proposalAttributes.submission_title = submission.proposal_title;
-      proposalAttributes.document_id = submission.document_id;
-      proposalAttributes.document_title = document.document_title;
-      proposalAttributes.document_clauses = document.clauses;
-      proposalAttributes.document_last_amend = document.last_amend;
-      proposalAttributes.submission_proposer = submission.proposer;
-      proposalAttributes.submission_new_clause_nums = submission.new_clause_nums;
-      proposalAttributes.submission_new_ipfs_urls = submission.new_ipfs_urls;
-      proposalAttributes.attrVoted = !!vote;
-      proposalAttributes.attrVotedNo = vote && vote.directions[0] === 0;
-      proposalAttributes.attrVotedYes = vote && vote.directions[0] === 1;
-      proposalAttributes.attrVotedAbstain = vote && vote.directions[0] === 2;
+      proposalAttributes.author = document.author;
+      proposalAttributes.document_name = document.document_name;
+      proposalAttributes.open_proposals = document.open_proposals;
+      proposalAttributes.sections = document.sections;
+      proposalAttributes.subtitle = document.subtitle;
+      proposalAttributes.title = document.title;
 
-      proposalAttributes.attrIsExpired = (proposal.end_time * 1000) < Date.now();
-      proposalAttributes.attrIsActive = ((proposal.begin_time * 1000) < Date.now()) && ((proposal.end_time * 1000) > Date.now());
+      proposalAttributes.ballot_name = submission.ballot_name;
+      proposalAttributes.ballot_results = submission.ballot_results;
+      proposalAttributes.new_content = submission.new_content;
+      proposalAttributes.proposer = submission.proposer;
+      proposalAttributes.status = submission.status;
+      proposalAttributes.submission_subtitle = submission.subtitle;
+      proposalAttributes.submission_title = submission.title;
+      proposalAttributes.treasury_symbol = submission.treasury_symbol;
+
+      proposalAttributes.votes = votes[submission.ballot_name];
+      proposalAttributes.tallyTotal = ballot.total_raw_weight || "0.0000 VOTE";
+      proposalAttributes.tallyYes = ballot.options && ballot.options.filter((option)=>option.key=='yes')[0].value || "0.0000 VOTE";
+      proposalAttributes.tallyNo = ballot.options && ballot.options.filter((option)=>option.key=='no')[0].value || "0.0000 VOTE";
+      proposalAttributes.tallyAbstain = ballot.options && ballot.options.filter((option)=>option.key=='abstain')[0].value || "0.0000 VOTE";
+      
+      proposalAttributes.vote = vote;
+      proposalAttributes.attrVoted = !!vote && vote.weighted_votes && vote.weighted_votes.length > 0;
+      proposalAttributes.attrVotedNo = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "no";
+      proposalAttributes.attrVotedYes = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "yes";
+      proposalAttributes.attrVotedAbstain = vote && vote.weighted_votes.length > 0 && vote.weighted_votes[0].key === "abstain";
+
+      proposalAttributes.attrIsExpired = new Date(ballot.end_time) < Date.now();
+      proposalAttributes.attrIsActive = (new Date(ballot.begin_time) < Date.now() && new Date(ballot.end_time) > Date.now());
+      proposalAttributes.startTime = ballot.begin_time;
+      proposalAttributes.endTime = ballot.end_time;
 
       return proposalAttributes;
     });
@@ -111,13 +123,15 @@ class GovernanceRatify extends Component<Props> {
     const filteredList =
       validList.filter((proposal) => (queryString.length === 0 ||
           (proposal.submission_title && proposal.submission_title.toLowerCase().includes(queryString.toLowerCase())) 
-          || (proposal.document_title && proposal.document_title.toLowerCase().includes(queryString.toLowerCase())) ));
+          || (proposal.title && proposal.title.toLowerCase().includes(queryString.toLowerCase())) ));
     const sortedList = filteredList.filter((proposal) => {
       switch (filterByStatus) {
         case 'expired':
           return proposal.attrIsExpired;
         case 'active':
           return proposal.attrIsActive;
+        case 'failed':
+            return proposal.status==='failed';
         case 'all':
         default:
           return true;
@@ -138,6 +152,12 @@ class GovernanceRatify extends Component<Props> {
         key: 'expired',
         text: 'Show expired ratification proposals',
         value: 'expired',
+      }
+      ,
+      {
+        key: 'failed',
+        text: 'Show failed ratification proposals',
+        value: 'failed',
       }
     ];
     return (
