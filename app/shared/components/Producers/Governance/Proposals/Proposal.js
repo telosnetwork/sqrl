@@ -646,7 +646,7 @@ class GovernanceProposalsProposal extends Component<Props> {
                           var avatar = avatarPlaceholder;
                           if (globals.profiles && globals.profiles.length > 0) {
                             var profile = globals.profiles.filter((p) => (p.account == vote.voter))[0];
-                            if (profile) avatar = profile.avatar;
+                            if (profile && profile.avatar) avatar = profile.avatar;
                           }
                         return (
                           <Table.Row key={vote.voter}>
