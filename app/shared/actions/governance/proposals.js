@@ -301,6 +301,19 @@ export function actOnProposal(proposal_name, actionName, feeAmount, title, scope
           memo:'Cancelled by ' + account
         }
     });
+    } else if (actionName === 'submitreport') {
+      actions.push({
+        account: scope,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proposal_name,
+          report: proposal_name
+        }
+    });
     } else {
       actions.push({
         account: scope,
@@ -311,6 +324,80 @@ export function actOnProposal(proposal_name, actionName, feeAmount, title, scope
         }],
         data: {
           proposal_name
+        }
+      });
+    }
+  
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({
+      actions
+    }, {
+      broadcast: connection.broadcast,
+      expireInSeconds: connection.expireInSeconds,
+      sign: connection.sign
+    }).then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_FAILURE
+    }));
+  };
+}
+
+export function actOnAmendment(ballot_name, actionName, feeAmount, title, scope = worksContract) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+
+    let actions = [];
+
+    if (actionName == 'launchprop') {
+      actions.push({
+        account: 'eosio.token',
+        name: 'transfer',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          from: account,
+          to: worksContract,
+          quantity: Decimal(feeAmount).plus(30).toFixed(settings.tokenPrecision) + ' ' + settings.blockchain.tokenSymbol,
+          memo: "Works deposit ("+title+")"
+        }
+      });
+    } 
+    if (actionName === 'cancelprop') {
+      actions.push({
+        account: scope,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          ballot_name,
+          memo:'Cancelled by ' + account
+        }
+    });
+    } else {
+      actions.push({
+        account: scope,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          ballot_name
         }
       });
     }
@@ -796,6 +883,16 @@ export function voteBallot(voter, ballot_name, options) {
     let actions = [
       {
         account: 'telos.decide',
+        name: 'refresh',
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          voter
+        }
+      },{
+        account: 'telos.decide',
         name: 'castvote',
         authorization: [{
           actor: account,
@@ -881,7 +978,7 @@ export function getWPSConfig(scope = 'works.decide') {
   }
 };
 
-export function getRatifySubmissions(scope = 'eosio.amend', previous = false) {
+export function getRatifySubmissions(scope = 'amend.decide', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_GET_RATIFYSUBMISSIONS_PENDING
@@ -891,7 +988,7 @@ export function getRatifySubmissions(scope = 'eosio.amend', previous = false) {
       json: true,
       code: scope,
       scope,
-      table: 'submissions',
+      table: 'proposals',
       limit: 1000000
     };
     if (previous) {
@@ -913,25 +1010,29 @@ export function getRatifySubmissions(scope = 'eosio.amend', previous = false) {
       const data = rows
         .map((submission) => {
           const {
-            proposal_id,
-            ballot_id,
+            title,
+            subtitle,
+            ballot_name,
+            document_name,
+            status,
+            treasury_symbol,
             proposer,
-            document_id,
-            proposal_title,
-            new_clause_nums,
-            new_ipfs_urls
+            ballot_results,
+            new_content
           } = submission;
           return {
-            proposal_id,
-            ballot_id,
+            title,
+            subtitle,
+            ballot_name,
+            document_name,
+            status,
+            treasury_symbol,
             proposer,
-            document_id,
-            proposal_title,
-            new_clause_nums,
-            new_ipfs_urls
+            ballot_results,
+            new_content
           };
         });
-      const submissions = sortBy(data, 'proposal_id').reverse();
+      const submissions = sortBy(data, 'ballot_name').reverse();
       return dispatch({
         type: types.SYSTEM_GOVERNANCE_GET_RATIFYSUBMISSIONS_SUCCESS,
         payload: {
@@ -945,7 +1046,7 @@ export function getRatifySubmissions(scope = 'eosio.amend', previous = false) {
   };
 }
 
-export function getRatifyDocuments(scope = 'eosio.amend', previous = false) {
+export function getRatifyDocuments(scope = 'amend.decide', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_GET_RATIFYDOCUMENTS_PENDING
@@ -977,19 +1078,25 @@ export function getRatifyDocuments(scope = 'eosio.amend', previous = false) {
       const data = rows
         .map((document) => {
           const {
-            document_id,
-            document_title,
-            clauses,
-            last_amend
+            title,
+            subtitle,
+            document_name,
+            author,
+            sections,
+            open_proposals,
+            amendment
           } = document;
           return {
-            document_id,
-            document_title,
-            clauses,
-            last_amend
+            title,
+            subtitle,
+            document_name,
+            author,
+            sections,
+            open_proposals,
+            amendment
           };
         });
-      const documents = sortBy(data, 'document_id').reverse();
+      const documents = sortBy(data, 'document_name').reverse();
       return dispatch({
         type: types.SYSTEM_GOVERNANCE_GET_RATIFYDOCUMENTS_SUCCESS,
         payload: {

@@ -72,7 +72,10 @@ class GovernanceProposalsProposalTable extends Component<Props> {
               {([].concat(list)
                 .map((proposal) => {
                   const selected = selectedProposal === proposal.proposal_name;
-                  const amount = (proposal && proposal.total_requested) ? Decimal(proposal.total_requested/10000).toFixed(0) : 0;
+                  let amount = 0;
+                  if (proposal && proposal.total_requested && proposal.total_requested.indexOf('TLOS') != -1) {
+                    amount = Decimal(proposal.total_requested.split(' ')[0]).toFixed(settings.tokenPrecision);
+                  }
                   return (
                     <React.Fragment key={proposal.proposal_name}>
                       <Table.Row>

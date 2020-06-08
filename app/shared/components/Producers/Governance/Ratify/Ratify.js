@@ -7,67 +7,67 @@ const { shell } = require('electron');
 import { Button, Header, Message, Segment, Table } from 'semantic-ui-react';
 import { Chart } from 'react-google-charts';
 import ReactMarkdown from 'react-markdown';
+import NumberFormat from 'react-number-format';
 
 import GovernanceProposalsRatifyVote from './Ratify/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
 
-const scope = 'eosio.amend';
+const scope = 'amend.decide';
 
 class GovernanceProposalsRatify extends Component<Props> {
   constructor(props) {
     super(props);
     this.state = { 
-      currentClauseMarkdowns: [],
       proposedClauseMarkdowns: []
     };
   }
-  approve = async (ballot_id) => {
+  approve = async (ballot_name) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
-    const vote = 1;
-
+    const vote = ['yes'];
+    
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote !== false) {
-      await actions.mirrorCast(voter);
-    }
-    actions.voteBallot(voter, ballot_id, vote);
+    await actions.voteBallot(voter, ballot_name, vote);
+    actions.getVoteInfo(ballot_name);
   }
-  abstain = async (ballot_id) => {
+  abstain = async (ballot_name) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
-    const vote = 2;
-
+    const vote = ['abstain'];
+    
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote !== false) {
-      await actions.mirrorCast(voter);
-    }
-    actions.voteBallot(voter, ballot_id, vote);
+    await actions.voteBallot(voter, ballot_name, vote);
+    actions.getVoteInfo(ballot_name);
   }
-  oppose = async (ballot_id) => {
+  oppose = async (ballot_name) => {
     const { actions, settings } = this.props;
     const voter = settings.account;
-    const vote = 0;
-
+    const vote = ['no'];
+    
     await actions.registerVoter(voter);
-    if (settings.mirrorCastOnVote !== false) {
-      await actions.mirrorCast(voter);
-    }
-    actions.voteBallot(voter, ballot_id, vote);
+    await actions.voteBallot(voter, ballot_name, vote);
+    actions.getVoteInfo(ballot_name);
   }
-  closeprop = (submission_id) => {
+  openVoting = async (ballot_name, fee_amount, title) => {
     const { actions } = this.props;
-    actions.actOnProposal(submission_id, 'closeprop', scope);
-    actions.getBallots();
+    await actions.actOnAmendment(ballot_name, 'launchprop', fee_amount, title);
+    actions.getProposalSubmissions();
   }
-  openVoting = (submission_id) => {
+  cancelSubmission = async (ballot_name) => {
     const { actions } = this.props;
-    actions.actOnProposal(submission_id, 'openvoting', scope);
-    actions.getBallots();
+    await actions.actOnAmendment(ballot_name, 'cancelprop');
+    actions.getProposalSubmissions();
   }
-  cancelSubmission = (submission_id) => {
+  closeSubmission = async (ballot_name) => {
     const { actions } = this.props;
-    actions.actOnProposal(submission_id, 'cancelsub', scope);
-    actions.getBallots();
+    await actions.actOnAmendment(ballot_name, 'endprop');
+    await actions.actOnAmendment(ballot_name, 'amendprop');
+    actions.getProposalSubmissions();
+  }
+  deleteSubmission = async (ballot_name) => {
+    const { actions } = this.props;
+    await actions.actOnAmendment(ballot_name, 'deleteprop');
+    actions.getProposalSubmissions();
   }
   openLink = (link) => {
     const { settings } = this.props;
@@ -82,45 +82,16 @@ class GovernanceProposalsRatify extends Component<Props> {
       proposal
     } = this.props;
     const {
-      document_clauses,
-      submission_new_clause_nums,
-      submission_new_ipfs_urls
+      new_content
     } = proposal;
     
-    if (submission_new_clause_nums && submission_new_clause_nums.length > 0) {
-      for (let clauseIdx = 0; clauseIdx < submission_new_clause_nums.length; clauseIdx++) {
-        const currentClauseURL = document_clauses[submission_new_clause_nums[clauseIdx]];
-        //console.log(' seeking clause index ' + clauseIdx + 'for clause # ' + submission_new_clause_nums[clauseIdx] + ' at url ' + currentClauseURL);
+    if (new_content && new_content.length > 0) {
+      for (let clauseIdx = 0; clauseIdx < new_content.length; clauseIdx++) {
+        const currentClauseURL = new_content[clauseIdx].value;
+        //console.log(' seeking clause index ' + clauseIdx + ' for clause # ' + new_content[clauseIdx].key + ' at url ' + currentClauseURL);
 
         (async () => {
           await fetch(currentClauseURL)
-          .then(response=>{
-            return response.text();
-          }).then(data =>{
-            const newCurrentClauseMarkdowns = [
-              ...this.state.currentClauseMarkdowns.slice(0, clauseIdx),
-              data,
-              ...this.state.currentClauseMarkdowns.slice(clauseIdx + 1)
-            ];
-
-            this.setState({
-              currentClauseMarkdowns: newCurrentClauseMarkdowns 
-            });
-          }).catch(error => {
-            /*
-            console.log(' ERROR seeking clause index ' + clauseIdx + 'for clause # ' + 
-              submission_new_clause_nums[clauseIdx] + ' at url ' + currentClauseURL);
-
-            this.setState({
-              currentClauseMarkdowns: [...this.state.currentClauseMarkdowns, 
-                "CURRENT CLAUSE (" + submission_new_clause_nums[clauseIdx] + ") DOES NOT EXIST"]
-            });*/
-          });
-        })();
-
-        const proposedClauseURL = submission_new_ipfs_urls[clauseIdx];
-        (async () => {
-          await fetch(proposedClauseURL)
           .then(response=>{
             return response.text();
           }).then(data =>{
@@ -134,11 +105,6 @@ class GovernanceProposalsRatify extends Component<Props> {
               proposedClauseMarkdowns: newProposedClauseMarkdowns 
             });
           }).catch(error => {
-            /*
-            this.setState({
-              proposedClauseMarkdowns: [...this.state.proposedClauseMarkdowns, 
-                "PROPOSED CLAUSE FOR (" + submission_new_clause_nums[clauseIdx] + ") DOES NOT EXIST"]
-            });*/
           });
         })();
       }
@@ -160,58 +126,19 @@ class GovernanceProposalsRatify extends Component<Props> {
       votes,
       wallet
     } = this.props;
-    const {
-      prop_id,
-      publisher,
-      info_url,
-      no_count,
-      yes_count,
-      abstain_count,
-      unique_voters,
-      begin_time,
-      end_time,
-      cycle_count,
-      status,
-      document_clauses,
-      document_id,
-      document_last_amend,
-      document_title,
-      submission_new_clause_nums,
-      submission_new_ipfs_urls,
-      submission_proposal_id,
-      submission_proposer,
-      submission_title
-    } = proposal;
-
+    
     const { 
-      currentClauseMarkdowns,
       proposedClauseMarkdowns
     } = this.state;
-
-    let ballot = ballots.filter((b) => b.reference_id === prop_id && b.table_id === 0)[0]; 
-    if (!ballot)
-      ballot = {};
     
-    let submission = ratifysubmissions.filter ((s) => s.ballot_id === ballot.ballot_id)[0];
-    if (!submission) submission = {};
-
-    const vote = find(votes, ['ballot_id', ballot.ballot_id]);
-    const voted = !!(vote);
-    const against = (voted) ? (vote.directions[0]=='0') : false;
-    const approved = (voted) ? (vote.directions[0]=='1') : false;
-    const abstained = (voted) ? (vote.directions[0]=='2') : false;
-    const isExpired = (end_time * 1000) < Date.now();
-    const isStarted = (begin_time * 1000) < Date.now();
     const isVotePending = !!(system.GOVERNANCE_VOTE_PROPOSAL === 'PENDING' || system.GOVERNANCE_UNVOTE_PROPOSAL === 'PENDING')
-    const isSupporting = (voted && approved);
-    const isAbstaining = (voted && abstained);
-    const isAgainst = (voted && against);
-    const yesVotes = parseFloat(proposal.yes_count.split(' ')[0]);
-    const noVotes = parseFloat(proposal.no_count.split(' ')[0]);
-    const absVotes = parseFloat(proposal.abstain_count.split(' ')[0]);
+    const yesVotes = parseFloat(proposal.tallyYes.split(' ')[0]);
+    const noVotes = parseFloat(proposal.tallyNo.split(' ')[0]);
+    const absVotes = parseFloat(proposal.tallyAbstain.split(' ')[0]);
+    const proposalVotes = proposal.votes || [];
 
-    const clauseNotFound = 'Matching clause not found in ' + document_title;
-    const newClauseNotFound = 'New clause details not found for ' + submission_title;
+    const clauseNotFound = 'Matching clause not found in ' + proposal.title;
+    const newClauseNotFound = 'New clause details not found for ' + proposal.submission_title;
 
     return (
       <React.Fragment>
@@ -222,11 +149,11 @@ class GovernanceProposalsRatify extends Component<Props> {
           block
           size="huge"
         >
-          {submission_title} (#{submission_proposal_id})
+          {proposal.submission_title} (#{proposal.ballot_name})
           <Header.Subheader>
-            <p floated="left">Proposed By <strong>{submission.proposer}</strong></p>
+            <p floated="left">Proposed By <strong>{proposal.proposer}</strong></p>
             {
-            (submission.proposer === settings.account && proposal.cycle_count === 0 && proposal.status === 0) ?
+            (proposal.proposer === settings.account && proposal.status === 'drafting') ?
             <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
@@ -239,7 +166,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                 content={(
                   <Segment basic clearing>
                     <p>
-                    This action will open the <strong>{submission_title}</strong> ratification proposal's ballot for voting by other users on the network. 
+                    This action will open the <strong>{proposal.submission_title}</strong> ratification proposal's ballot for voting by other users on the network. 
                     Are you sure you would like to proceed?
                     <Button
                       color='green'
@@ -248,7 +175,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       icon="folder"
                       loading={isVotePending}
                       style={{ marginTop: 20 }}
-                      onClick={() => this.openVoting(submission_proposal_id)}
+                      onClick={() => this.openVoting(proposal.ballot_name)}
                       primary
                     />
                     </p> 
@@ -261,7 +188,7 @@ class GovernanceProposalsRatify extends Component<Props> {
               />
             : ''}
             {
-            (submission.proposer === settings.account && !isStarted) ?
+            (proposal.proposer === settings.account && proposal.status === 'voting') ?
             <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
@@ -274,7 +201,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                 content={(
                   <Segment basic clearing>
                     <p>
-                    This action will permanently delete the <strong>{submission_title}</strong> ratification proposal from the blockchain. 
+                    This action will permanently delete the <strong>{proposal.submission_title}</strong> ratification proposal from the blockchain. 
                     Are you sure you would like to proceed?
                     <Button
                       color='green'
@@ -283,7 +210,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       icon="delete"
                       loading={isVotePending}
                       style={{ marginTop: 20 }}
-                      onClick={() => this.cancelSubmission(submission_proposal_id)}
+                      onClick={() => this.cancelSubmission(proposal.ballot_name)}
                       primary
                     />
                     </p> 
@@ -296,7 +223,7 @@ class GovernanceProposalsRatify extends Component<Props> {
               />
             : ''}
             {
-            (submission.proposer === settings.account && proposal.status === 0 && isExpired) ?
+            (proposal.proposer === settings.account && proposal.status !== 'passed' && isExpired) ?
               <GlobalTransactionModal
                 actionName="GOVERNANCE_ACT_ON_PROPOSAL"
                 actions={actions}
@@ -309,7 +236,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                 content={(
                   <Segment basic clearing>
                     <p>
-                    This will close the ballot for the <strong>{submission_title}</strong> ratification proposal, tally the votes 
+                    This will close the ballot for the <strong>{proposal.submission_title}</strong> ratification proposal, tally the votes 
                     and finalize all changes, if votes are passed, on chain.
                     <Button
                       color='green'
@@ -318,7 +245,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       icon="checkmark"
                       loading={isVotePending}
                       style={{ marginTop: 20 }}
-                      onClick={() => this.closeprop(submission_proposal_id)}
+                      onClick={() => this.closeSubmission(proposal.ballot_name)}
                       primary
                     />
                     </p> 
@@ -333,7 +260,7 @@ class GovernanceProposalsRatify extends Component<Props> {
           </Header.Subheader>
         </Header>
         <Segment attached>
-          {(isSupporting)
+          {(proposal.attrVotedYes === true)
             ? (
               <Message
                 color="green"
@@ -344,7 +271,7 @@ class GovernanceProposalsRatify extends Component<Props> {
             )
             : false
           }
-          {(isAbstaining)
+          {(proposal.attrVotedAbstain === true)
             ? (
               <Message
                 color="yellow"
@@ -355,7 +282,7 @@ class GovernanceProposalsRatify extends Component<Props> {
             )
             : false
           }
-          {(isAgainst)
+          {(proposal.attrVotedNo === true)
             ? (
               <Message
                 color="red"
@@ -366,28 +293,108 @@ class GovernanceProposalsRatify extends Component<Props> {
             )
             : false
           }
-          <React.Fragment><p><strong>Ballot Begins:</strong> <Moment>{begin_time*1000}</Moment></p></React.Fragment>
-          <React.Fragment><p><strong>Ballot Ends:</strong> <Moment>{end_time*1000}</Moment></p></React.Fragment>
+          <Table basic="very">
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                <strong>Document Title:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                  {proposal.title}
+                </Table.Cell>
+                <Table.Cell>
+                <strong>Subtitle:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                {proposal.subtitle}
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                <strong>Open Proposals:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                {proposal.open_proposals}
+                </Table.Cell>
+                <Table.Cell>
+                <strong>Sections:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                {proposal.sections}
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                <strong>Voting Begins:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                <Moment>{proposal.startTime}</Moment>
+                </Table.Cell>
+                <Table.Cell>
+                <strong>Treasury Symbol:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                {proposal.treasury_symbol}
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                <strong>Voting Ends:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                <Moment>{proposal.endTime}</Moment>
+                </Table.Cell>
+                <Table.Cell>
+                <strong>Total Votes:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                  <NumberFormat value={proposal.tallyTotal} 
+                      displayType={'text'}
+                      thousandSeparator={true}
+                    /> {settings.blockchain.tokenSymbol}
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                <strong>Status:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                  {proposal.status}
+                </Table.Cell>
+                <Table.Cell>
+                <strong>Total Voters:</strong>
+                </Table.Cell>
+                <Table.Cell>
+                {proposalVotes.length}
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
 
           {
-            (isStarted || isExpired) ?
-          <Chart
-            width={'90%'}
-            chartType="BarChart"
+            (proposal.status !== 'drafting') ?
+            <Chart
+            width={'100%'}
+            height={'100%'}
+            chartType="PieChart"
             loader={<div>Loading...</div>}
             data={[
-              ['Vote', 'Yes', 'No', 'Abstain'],
-              ['', yesVotes, noVotes, absVotes],
+              ['Vote', 'Weight'],
+              ['Yes', yesVotes],
+              ['No', noVotes],
+              ['Abstain', absVotes],
             ]}
             legendToggle
             options={{
-              chartArea: { width: '99%' },
-              legend:{position:'top'},
+              //chartArea: { width: '80%' },
+              legend:{position:'bottom'},
+              title: 'Milestone Voting Statistics',
+              is3D: true
             }}
           /> : ''}
         
           <React.Fragment>
-            {([].concat(submission_new_clause_nums)
+            {([].concat(proposedClauseMarkdowns)
             .map((clauseNum, idx) => {
               return (
                 <div>
@@ -396,14 +403,13 @@ class GovernanceProposalsRatify extends Component<Props> {
                   color="black"
                   size="large"
                 >
-              <strong>Clause #:</strong> {clauseNum} in {document_title}
                 </Header>
                 </React.Fragment>
                 <Table style={{ marginTop: 20 }}>
                 <Table.Header>
                   <Table.Row>
                     <Table.HeaderCell>
-                      Current Clause
+                      Amendment
                     </Table.HeaderCell>
                   </Table.Row>
                 </Table.Header>
@@ -413,26 +419,7 @@ class GovernanceProposalsRatify extends Component<Props> {
                       whiteSpace: "normal",
                       wordWrap: "break-all"
                     }}>
-                    {(currentClauseMarkdowns[idx]) ? <ReactMarkdown source={currentClauseMarkdowns[idx]} /> : clauseNotFound}
-                    </Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-                </Table>
-                <Table style={{ marginTop: 20, marginBottom: 20 }}>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.HeaderCell>
-                      Proposed Clause
-                    </Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                <Table.Row>
-                    <Table.Cell style={{
-                      whiteSpace: "normal",
-                      wordWrap: "break-all"
-                    }}>
-                    {(proposedClauseMarkdowns[idx]) ? <ReactMarkdown source={proposedClauseMarkdowns[idx]} />  : newClauseNotFound}
+                    {(proposedClauseMarkdowns[idx]) ? <ReactMarkdown source={proposedClauseMarkdowns[idx]} /> : clauseNotFound}
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>
@@ -443,7 +430,7 @@ class GovernanceProposalsRatify extends Component<Props> {
           </React.Fragment>
 
           {
-            (isStarted && !isExpired) ?
+            (proposal.status === 'voting') ?
             <React.Fragment>
               <React.Fragment><p>Please use the buttons below to specify your vote for this ratification proposal.</p></React.Fragment>
               
@@ -454,25 +441,23 @@ class GovernanceProposalsRatify extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('Yes'),
-                  disabled: isSupporting,
+                  disabled: proposal.attrVotedYes === true,
                   icon: 'checkmark'
                 }}
                 confirm={(
                   <Button
-                    color={(isSupporting) ? 'green' : 'grey'}
+                    color={(proposal.attrVotedYes === true) ? 'green' : 'grey'}
                     content={t('confirm')}
                     floated="right"
                     icon="checkmark"
                     loading={isVotePending}
                     style={{ marginTop: 10 }}
-                    onClick={() => this.approve(ballot.ballot_id)}
+                    onClick={() => this.approve(proposal.ballot_name)}
                     primary
                   />
                 )}
-                isExpired={isExpired}
                 proposal={proposal}
                 settings={settings}
-                submission={submission}
                 system={system}
                 vote="Yes"
               />
@@ -483,26 +468,24 @@ class GovernanceProposalsRatify extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('No'),
-                  disabled: isAgainst,
+                  disabled: proposal.attrVotedNo === true,
                   icon: 'x'
                 }}
                 confirm={(
                   <Button
-                    color={(isAgainst) ? 'orange' : 'grey'}
+                    color={(proposal.attrVotedNo === true) ? 'orange' : 'grey'}
                     content={t('confirm')}
-                    disabled={isAgainst}
+                    disabled={proposal.attrVotedNo === true}
                     floated="right"
                     icon="checkmark"
                     loading={isVotePending}
                     style={{ marginTop: 10 }}
-                    onClick={() => this.oppose(ballot.ballot_id)}
+                    onClick={() => this.oppose(proposal.ballot_name)}
                     primary
                   />
                 )}
-                isExpired={isExpired}
                 proposal={proposal}
                 settings={settings}
-                submission={submission}
                 system={system}
                 vote="No"
               />
@@ -513,26 +496,24 @@ class GovernanceProposalsRatify extends Component<Props> {
                 button={{
                   color: 'grey',
                   content: t('Abstain'),
-                  disabled: isAbstaining,
+                  disabled: proposal.attrVotedAbstain === true,
                   icon: 'minus'
                 }}
                 confirm={(
                   <Button
-                    color={(isAbstaining) ? 'blue' : 'grey'}
+                    color={(proposal.attrVotedAbstain === true) ? 'blue' : 'grey'}
                     content={t('confirm')}
-                    disabled={isAbstaining}
+                    disabled={proposal.attrVotedAbstain === true}
                     floated="right"
                     icon="checkmark"
                     loading={isVotePending}
                     style={{ marginTop: 10 }}
-                    onClick={() => this.abstain(ballot.ballot_id)}
+                    onClick={() => this.abstain(proposal.ballot_name)}
                     primary
                   />
                 )}
-                isExpired={isExpired}
                 proposal={proposal}
                 settings={settings}
-                submission={submission}
                 system={system}
                 vote="Abstain"
               />
