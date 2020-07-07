@@ -179,7 +179,7 @@
     "css-loader": "^0.28.11",
     "detect-port": "^1.2.3",
     "devtron": "^1.4.0",
-    "electron": "^2.0.2",
+    "electron": "^7.2.4",
     "electron-builder": "20.28.1",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
