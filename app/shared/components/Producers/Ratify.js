@@ -41,6 +41,7 @@ class GovernanceRatify extends Component<Props> {
       accounts,
       actions,
       blockExplorers,
+      globals,
       proposals,
       settings,
       system,
@@ -202,6 +203,7 @@ class GovernanceRatify extends Component<Props> {
                 actions={actions}
                 ballots={ballots}
                 blockExplorers={blockExplorers}
+                globals={globals}
                 list={sortedList.splice(0, amount)}
                 scope={scope}
                 settings={settings}

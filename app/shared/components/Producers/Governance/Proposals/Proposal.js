@@ -46,8 +46,13 @@ class GovernanceProposalsProposal extends Component<Props> {
     await actions.actOnProposal(proposal_name, 'submitreport');
     await actions.actOnProposal(proposal_name, 'closems');
     await actions.actOnProposal(proposal_name, 'claimfunds');
-    await actions.actOnProposal(proposal_name, 'nextms');
     await actions.actOnProposal(proposal_name, 'withdraw');
+    actions.getProposalSubmissions();
+  }
+  nextms = async (proposal_name) => {
+    const { actions } = this.props;
+    var ballot_name = this.getUniqueBallotName();
+    await actions.actOnProposal(proposal_name, 'nextms', null, null, null, ballot_name);
     actions.getProposalSubmissions();
   }
   openVoting = async (proposal_name, fee_amount, title) => {
@@ -72,6 +77,28 @@ class GovernanceProposalsProposal extends Component<Props> {
     } else {
       shell.openExternal(link);
     }
+  }
+
+  getUniqueBallotName() {
+    const {
+      ballots
+    } = this.props;
+    
+    var unique = false;
+    var ballot_name;
+
+    while (!unique) {
+      var randomChars = 'abcdefghijklmnopqrstuvwxyz12345';
+      ballot_name = '';
+      for ( var i = 0; i < 12; i++ ) {
+        ballot_name += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+      }
+      ballot_name = ballot_name.toLowerCase();
+
+      const name = ballots.filter((s)=>s.ballot_name==ballot_name);
+      if (!name || name.length < 1) unique = true;
+    }
+    return ballot_name;
   }
   render() {
     const {
@@ -119,7 +146,8 @@ class GovernanceProposalsProposal extends Component<Props> {
     const remainingAmount = proposal.remaining.split(' ')[0];
     const proposalVotes = proposal.votes || [];
     const currentMilestone = proposal.milestones.filter((m)=>m.milestone_id==proposal.current_milestone)[0];
-    
+    const nextMilestone = proposal.current_milestone + 1;
+
     /*let profile;
     if (globals.profiles && globals.profiles.length > 0) {
       profile = globals.profiles.filter((p) => (p.account == settings.account))[0];
@@ -328,6 +356,40 @@ class GovernanceProposalsProposal extends Component<Props> {
                 settings={settings}
                 system={system}
                 title="Claim Milestone Funds"
+              />
+            : ''}
+            {
+            (proposal.proposer === settings.account && currentMilestone.status === 'paid' && proposal.current_milestone < proposal.milestonesCount) ?
+              <GlobalTransactionModal
+                actionName="GOVERNANCE_ACT_ON_PROPOSAL"
+                actions={actions}
+                blockExplorers={blockExplorers}
+                button={{
+                  color: 'green',
+                  content: "Start Next Ballot",
+                  icon: 'dollar'
+                }}
+                content={(
+                  <Segment basic clearing>
+                    <p>
+                    This action will begin the ballot for <strong>milestone # {nextMilestone}</strong>.
+                    <Button
+                      color='green'
+                      content="Start Next Ballot"
+                      floated="right"
+                      icon="checkmark"
+                      loading={isVotePending}
+                      style={{ marginTop: 20 }}
+                      onClick={() => this.nextms(proposal.proposal_name)}
+                      primary
+                    />
+                    </p> 
+                  </Segment>
+                )}
+                icon="share square"
+                settings={settings}
+                system={system}
+                title="Begin Next Milestone"
               />
             : ''}
           </Header.Subheader>
@@ -646,7 +708,7 @@ class GovernanceProposalsProposal extends Component<Props> {
                           var avatar = avatarPlaceholder;
                           if (globals.profiles && globals.profiles.length > 0) {
                             var profile = globals.profiles.filter((p) => (p.account == vote.voter))[0];
-                            if (profile) avatar = profile.avatar;
+                            if (profile && profile.avatar) avatar = profile.avatar;
                           }
                         return (
                           <Table.Row key={vote.voter}>

@@ -4,10 +4,11 @@ import { translate } from 'react-i18next';
 import { find } from 'lodash';
 import Moment from 'react-moment';
 const { shell } = require('electron');
-import { Button, Header, Message, Segment, Table } from 'semantic-ui-react';
+import { Button, Header, Image, Message, Segment, Table } from 'semantic-ui-react';
 import { Chart } from 'react-google-charts';
 import ReactMarkdown from 'react-markdown';
 import NumberFormat from 'react-number-format';
+import avatarPlaceholder from '../../../../../renderer/assets/images/profile.png';
 
 import GovernanceProposalsRatifyVote from './Ratify/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -116,6 +117,7 @@ class GovernanceProposalsRatify extends Component<Props> {
       actions,
       ballots,
       blockExplorers,
+      globals,
       proposal,
       settings,
       ratifysubmissions,
@@ -372,64 +374,6 @@ class GovernanceProposalsRatify extends Component<Props> {
           </Table>
 
           {
-            (proposal.status !== 'drafting') ?
-            <Chart
-            width={'100%'}
-            height={'100%'}
-            chartType="PieChart"
-            loader={<div>Loading...</div>}
-            data={[
-              ['Vote', 'Weight'],
-              ['Yes', yesVotes],
-              ['No', noVotes],
-              ['Abstain', absVotes],
-            ]}
-            legendToggle
-            options={{
-              //chartArea: { width: '80%' },
-              legend:{position:'bottom'},
-              title: 'Milestone Voting Statistics',
-              is3D: true
-            }}
-          /> : ''}
-        
-          <React.Fragment>
-            {([].concat(proposedClauseMarkdowns)
-            .map((clauseNum, idx) => {
-              return (
-                <div>
-                <React.Fragment>
-                <Header
-                  color="black"
-                  size="large"
-                >
-                </Header>
-                </React.Fragment>
-                <Table style={{ marginTop: 20 }}>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.HeaderCell>
-                      Amendment
-                    </Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                <Table.Row>
-                    <Table.Cell style={{
-                      whiteSpace: "normal",
-                      wordWrap: "break-all"
-                    }}>
-                    {(proposedClauseMarkdowns[idx]) ? <ReactMarkdown source={proposedClauseMarkdowns[idx]} /> : clauseNotFound}
-                    </Table.Cell>
-                  </Table.Row>
-                </Table.Body>
-                </Table>
-                </div>
-              )
-            }))}
-          </React.Fragment>
-
-          {
             (proposal.status === 'voting') ?
             <React.Fragment>
               <React.Fragment><p>Please use the buttons below to specify your vote for this ratification proposal.</p></React.Fragment>
@@ -520,6 +464,111 @@ class GovernanceProposalsRatify extends Component<Props> {
             </React.Fragment>
             : 
             <React.Fragment><p>The ballot for ratification proposal is currently closed.</p></React.Fragment>}
+
+          {
+            (proposal.status !== 'drafting') ?
+            <Chart
+            width={'100%'}
+            height={'100%'}
+            chartType="PieChart"
+            loader={<div>Loading...</div>}
+            data={[
+              ['Vote', 'Weight'],
+              ['Yes', yesVotes],
+              ['No', noVotes],
+              ['Abstain', absVotes],
+            ]}
+            legendToggle
+            options={{
+              //chartArea: { width: '80%' },
+              legend:{position:'bottom'},
+              title: 'Milestone Voting Statistics',
+              is3D: true
+            }}
+          /> : ''}
+        
+          <React.Fragment>
+            {([].concat(proposedClauseMarkdowns)
+            .map((clauseNum, idx) => {
+              return (
+                <div>
+                <React.Fragment>
+                <Header
+                  color="black"
+                  size="large"
+                >
+                </Header>
+                </React.Fragment>
+                <Table style={{ marginTop: 20 }}>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>
+                      Amendment
+                    </Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                <Table.Row>
+                    <Table.Cell style={{
+                      whiteSpace: "normal",
+                      wordWrap: "break-all"
+                    }}>
+                    {(proposedClauseMarkdowns[idx]) ? <ReactMarkdown source={proposedClauseMarkdowns[idx]} /> : clauseNotFound}
+                    </Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+                </Table>
+                </div>
+              )
+            }))}
+          </React.Fragment>
+
+          <Table definition>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell>
+                    <Table celled padded>
+                      <Table.Header>
+                        <Table.Row>
+                          <Table.HeaderCell>
+                            Voter
+                          </Table.HeaderCell>
+                          <Table.HeaderCell>
+                            Decision
+                          </Table.HeaderCell>
+                          <Table.HeaderCell>
+                            Weight
+                          </Table.HeaderCell>
+                        </Table.Row>
+                      </Table.Header>
+                      <Table.Body>
+                        {proposalVotes.map((vote) => {
+                          var avatar = avatarPlaceholder;
+                          if (globals.profiles && globals.profiles.length > 0) {
+                            var profile = globals.profiles.filter((p) => (p.account == vote.voter))[0];
+                            if (profile && profile.avatar) avatar = profile.avatar;
+                          }
+                        return (
+                          <Table.Row key={vote.voter}>
+                            <Table.Cell>
+                              <Image avatar src={avatar} />
+                              {vote.voter}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {vote.weighted_votes[0].key}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {vote.weighted_votes[0].value}
+                            </Table.Cell>
+                          </Table.Row>
+                          );
+                        })}
+                      </Table.Body>
+                    </Table>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
         </Segment>
       </React.Fragment>
     );
