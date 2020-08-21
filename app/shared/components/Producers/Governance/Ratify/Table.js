@@ -22,6 +22,7 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
       ballots,
       blockExplorers,
       contracts,
+      globals,
       isLocked,
       list,
       scope,
@@ -115,6 +116,7 @@ class GovernanceProposalsRatifyTable extends Component<Props> {
                             key={proposal.ballot_name}
                             ballots={ballots}
                             blockExplorers={blockExplorers}
+                            globals={globals}
                             proposal={proposal}
                             scope={scope}
                             settings={settings}

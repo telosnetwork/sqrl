@@ -1,7 +1,7 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A fully featured wallet and governance tool for EOS.IO blockchains",
   "scripts": {
     "build": "concurrently \"GENERATE_SOURCEMAP=false npm run build-main\" \"GENERATE_SOURCEMAP=false npm run build-renderer\"",
@@ -229,7 +229,7 @@
     "uglifyjs-webpack-plugin": "^1.2.5",
     "url-loader": "^1.0.1",
     "webpack": "^4.11.1",
-    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.0.2",
     "webpack-dev-server": "^3.1.4",
     "webpack-hot-middleware": "^2.22.2",
