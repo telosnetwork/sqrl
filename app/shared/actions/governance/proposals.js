@@ -262,7 +262,7 @@ export function editProposal(proposal_id, title, ipfs_location, amount, send_to)
   };
 }
 
-export function actOnProposal(proposal_name, actionName, feeAmount, title, scope = worksContract) {
+export function actOnProposal(proposal_name, actionName, feeAmount, title, scope = worksContract, ballot_name) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GOVERNANCE_ACT_ON_PROPOSAL_PENDING
@@ -312,6 +312,19 @@ export function actOnProposal(proposal_name, actionName, feeAmount, title, scope
         data: {
           proposal_name,
           report: proposal_name
+        }
+    });
+    } else if (actionName === 'nextms') {
+      actions.push({
+        account: worksContract,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          proposal_name,
+          ballot_name: ballot_name
         }
     });
     } else {
