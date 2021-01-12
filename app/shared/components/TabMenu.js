@@ -8,7 +8,7 @@ import GlobalBlockchainDropdown from '../containers/Global/Account/Blockchain';
 import WalletLanguage from './Wallet/Language';
 import WalletLockState from './Wallet/LockState';
 import WalletMode from './Wallet/Mode';
-import logo from '../../renderer/assets/images/sqrl.png';
+import logo from '../../renderer/assets/images/sqrl-p.png';
 
 class TabMenu extends Component<Props> {
   render() {

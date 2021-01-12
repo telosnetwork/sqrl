@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Divider, Grid, Header, Image, Segment } from 'semantic-ui-react';
 import { I18n } from 'react-i18next';
 
-import logo from '../../renderer/assets/images/sqrl.png';
+import logo from '../../renderer/assets/images/sqrl-p.png';
 import GlobalButtonResetContainer from '../containers/Global/Button/Reset';
 
 const { shell } = require('electron');

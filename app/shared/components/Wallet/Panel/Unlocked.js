@@ -99,13 +99,12 @@ class WalletPanelUnlocked extends Component<Props> {
           <Menu compact icon='labeled' className="walletmenuoption" vertical style={{width:'100% !important'}}>
             <Dropdown item simple text={t('wallet_panel_wallet_buy_sell_actions')} icon='dollar'>
               <Dropdown.Menu style={{marginTop:'-75px'}}>
-                {(hotWallet) ?
+                {(hotWallet && false) ?
                 <Dropdown.Item icon='settings' text={t('wallet_exchange_settings_button_cta')} onClick={()=>this.onOpen(WIN_ACCOUNT_SETTINGS)} />:false}
                 {(hotWallet && carbonRegistered) ?
                 <Dropdown.Item icon='dollar' text={t('wallet_buytoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_BUY_TOKENS)} />:false}
                 {(hotWallet && carbonRegistered && contactDetails && contactDetails.kycStatusStablecoin === true && 0==1) ?
-                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:
-                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta_vip', {tokenSymbol:settings.blockchain.tokenSymbol})} />}
+                <Dropdown.Item icon='money' text={t('wallet_selltoken_button_cta', {tokenSymbol:settings.blockchain.tokenSymbol})} onClick={()=>this.onOpen(WIN_SELL_TOKENS)} />:false}
                 {(hotWallet && bancorUnlocked===true) ?
                 <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta')} onClick={()=>this.onOpen(WIN_SWAP_TOKENS)} />:
                 <Dropdown.Item icon='exchange' text={t('wallet_swaptoken_button_cta_vip')} />}

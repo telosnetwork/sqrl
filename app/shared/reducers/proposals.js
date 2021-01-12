@@ -6,6 +6,7 @@ const initialState = {
   votes: [],
   ballots: [],
   ratifydocuments: [],
+  ratifysections: [],
   submissions: [],
   ratifysubmissions: [],
   wpsconfig: {},
@@ -56,12 +57,19 @@ export default function proposals(state = initialState, action) {
     }
     case types.SYSTEM_GOVERNANCE_GET_RATIFYSUBMISSIONS_SUCCESS: {
       return Object.assign({}, state, {
-        ratifysubmissions: action.payload.submissions,
+        ratifysubmissions: action.payload.ratifyproposals,
       });
     }
     case types.SYSTEM_GOVERNANCE_GET_RATIFYDOCUMENTS_SUCCESS: {
       return Object.assign({}, state, {
         ratifydocuments: action.payload.documents,
+      });
+    }
+    case types.SYSTEM_GOVERNANCE_GET_RATIFYSECTIONS_SUCCESS: {
+      return Object.assign({}, state, {
+        ratifysections: Object.assign({}, state.ratifysections, {
+          [action.payload.document_name]: action.payload.sections
+        })
       });
     }
     default: {

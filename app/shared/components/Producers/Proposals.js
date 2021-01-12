@@ -44,6 +44,7 @@ class GovernanceProposals extends Component<Props> {
       accounts,
       actions,
       blockExplorers,
+      connection,
       globals,
       proposals,
       settings,
@@ -306,6 +307,7 @@ class GovernanceProposals extends Component<Props> {
                 actions={actions}
                 ballots={ballots}
                 blockExplorers={blockExplorers}
+                connection={connection}
                 globals={globals}
                 list={sortedList.splice(0, amount)}
                 proposals={proposals}
