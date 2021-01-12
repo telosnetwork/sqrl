@@ -35,8 +35,6 @@ export function sellram(amount) {
     const payforaction = payforcpunet(account, getState());
     if (payforaction) actions = payforaction.concat(actions);
 
-    console.log('sell ram actions:', actions)
-
     return eos(connection, true, payforaction!==null).transaction({
       actions
     }).then((tx) => {

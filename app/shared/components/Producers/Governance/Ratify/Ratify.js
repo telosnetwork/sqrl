@@ -80,7 +80,8 @@ class GovernanceProposalsRatify extends Component<Props> {
   }
   componentDidMount(){
     const {
-      proposal
+      proposal,
+      settings
     } = this.props;
     const {
       new_content
@@ -88,9 +89,13 @@ class GovernanceProposalsRatify extends Component<Props> {
     
     if (new_content && new_content.length > 0) {
       for (let clauseIdx = 0; clauseIdx < new_content.length; clauseIdx++) {
-        const currentClauseURL = new_content[clauseIdx].value;
-        //console.log(' seeking clause index ' + clauseIdx + ' for clause # ' + new_content[clauseIdx].key + ' at url ' + currentClauseURL);
+        let currentClauseURL = new_content[clauseIdx].value;
 
+        //console.log(' seeking clause index ' + clauseIdx + ' for clause # ' + new_content[clauseIdx].key + ' at url ' + currentClauseURL);
+        
+        if (currentClauseURL && currentClauseURL.indexOf('http') == -1)
+          currentClauseURL = settings.ipfsProtocol + "://" + settings.ipfsNode + "/ipfs/" + currentClauseURL;
+        
         (async () => {
           await fetch(currentClauseURL)
           .then(response=>{
@@ -154,6 +159,7 @@ class GovernanceProposalsRatify extends Component<Props> {
           {proposal.submission_title} (#{proposal.ballot_name})
           <Header.Subheader>
             <p floated="left">Proposed By <strong>{proposal.proposer}</strong></p>
+            <p floated="left">{proposal.submission_subtitle}</p>
             {
             (proposal.proposer === settings.account && proposal.status === 'drafting') ?
             <GlobalTransactionModal

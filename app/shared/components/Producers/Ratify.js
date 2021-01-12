@@ -83,7 +83,7 @@ class GovernanceRatify extends Component<Props> {
       let vote = find(votes[submission.ballot_name], { voter: settings.account });
       if (!vote) vote = { weighted_votes: [], vote_time: 0 };
 
-      const proposalAttributes = submission;
+      const proposalAttributes = Object.assign({},submission);
 
       proposalAttributes.author = document.author;
       proposalAttributes.document_name = document.document_name;

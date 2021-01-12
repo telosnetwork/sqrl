@@ -422,7 +422,7 @@ class Producers extends Component<Props> {
                       }
                     },
                     {
-                      menuItem: 'Proposals',
+                      menuItem: 'Works',
                       render: () => {
                         return (
                           <Tab.Pane>
@@ -460,7 +460,7 @@ class Producers extends Component<Props> {
                       }
                     },*/
                     {
-                      menuItem: 'Ratify',
+                      menuItem: 'Amend',
                       render: () => {
                         return (
                           <Tab.Pane>

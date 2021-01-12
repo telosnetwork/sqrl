@@ -17,6 +17,7 @@ class GovernanceRatifyAmend extends Component<Props> {
   componentDidMount = async () => {
     const {
       proposals,
+      settings
     } = this.props;
     
     this.setState({loading: true});
@@ -27,13 +28,27 @@ class GovernanceRatifyAmend extends Component<Props> {
     const rdocuments = cloneDeep(docs);
 
     for (let index = 0; index < rdocuments.length; index++) {
-      for (let clauseIndex = 0; clauseIndex < rdocuments[index].clauses.length; clauseIndex++) {
-          let clauseData = await (await fetch(rdocuments[index].clauses[clauseIndex])).text();
-          rdocuments[index].clauses = [
-            ...rdocuments[index].clauses.slice(0, clauseIndex),
-            clauseData,
-            ...rdocuments[index].clauses.slice(clauseIndex + 1)
-          ];
+      const doc_name = rdocuments[index].document_name;
+      rdocuments[index].clauses = [];
+
+      for (let sectionNumber = 0; sectionNumber < rdocuments[index].sections; sectionNumber++) {
+          const section = proposals.ratifysections[doc_name][sectionNumber];
+          let sectionURL = section && section.content;
+
+          if (sectionURL && sectionURL.indexOf('http') == -1)
+            sectionURL = settings.ipfsProtocol + "://" + settings.ipfsNode + "/ipfs/" + sectionURL;
+
+          await fetch(sectionURL).then(response=>{
+            return response.text();
+          }).then(data =>{
+            rdocuments[index].clauses = [
+              ...rdocuments[index].clauses.slice(0, sectionNumber),
+              data,
+              ...rdocuments[index].clauses.slice(sectionNumber + 1)
+            ];
+          }).catch(error => {
+            console.log("!!!DOCS ERROR!!!", error);
+          });
       }
     }
 
@@ -48,6 +63,7 @@ class GovernanceRatifyAmend extends Component<Props> {
       documents,
       loading
     } = this.state;
+
     return (
       <Segment basic>
         <Header>
@@ -57,7 +73,7 @@ class GovernanceRatifyAmend extends Component<Props> {
           panes={(documents.map((document) => {
             return (
               {
-                menuItem: document.document_title.match(/\b(\w)/g).join(''),
+                menuItem: document.title.match(/\b(\w)/g).join(''),
                 render: () => <Tab.Pane attached={false} loading={loading}>
                   {
                   document.clauses.map((clause) => {

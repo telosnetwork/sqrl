@@ -23,6 +23,7 @@ class GovernanceProposalsProposalTable extends Component<Props> {
       actions,
       ballots,
       blockExplorers,
+      connection,
       contracts,
       globals,
       isLocked,
@@ -148,6 +149,7 @@ class GovernanceProposalsProposalTable extends Component<Props> {
                                 key={proposal.prop_id}
                                 ballots={ballots}
                                 blockExplorers={blockExplorers}
+                                connection={connection}
                                 globals={globals}
                                 proposal={proposal}
                                 proposals={proposals}

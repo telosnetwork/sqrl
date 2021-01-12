@@ -8,6 +8,7 @@ import { Button, Header, Image, Label, List, Message, Segment, Table } from 'sem
 import {Chart} from 'react-google-charts';
 import avatarPlaceholder from '../../../../../renderer/assets/images/profile.png';
 import NumberFormat from 'react-number-format';
+import eos from '../../../../actions/helpers/eos';
 
 import GovernanceProposalsProposalVote from './Proposal/Vote';
 import GlobalTransactionModal from '../../../Global/Transaction/Modal';
@@ -46,7 +47,9 @@ class GovernanceProposalsProposal extends Component<Props> {
     await actions.actOnProposal(proposal_name, 'submitreport');
     await actions.actOnProposal(proposal_name, 'closems');
     await actions.actOnProposal(proposal_name, 'claimfunds');
-    await actions.actOnProposal(proposal_name, 'withdraw');
+
+    this.withdrawRewards(proposal_name);
+
     actions.getProposalSubmissions();
   }
   nextms = async (proposal_name) => {
@@ -69,6 +72,28 @@ class GovernanceProposalsProposal extends Component<Props> {
     const { actions } = this.props;
     await actions.actOnProposal(proposal_name, 'deleteprop');
     actions.getProposalSubmissions();
+  }
+  withdrawRewards = async (proposal_name) => {
+    const { actions, connection, settings } = this.props;
+    const { account } = settings;
+    const query = {
+      json: true,
+      code: 'works.decide',
+      scope: account,
+      table: 'accounts',
+      limit: 1
+    };
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      const claimBalance = rows[0];
+
+      if (claimBalance && claimBalance.balance){
+        const parsedBalance = claimBalance.balance.split(' ')[0];
+        if (parsedBalance > 0) {
+          actions.actOnProposal(proposal_name, 'withdraw', claimBalance.balance);
+        }
+      }
+    });
   }
   openLink = (link) => {
     const { settings } = this.props;
@@ -170,6 +195,7 @@ class GovernanceProposalsProposal extends Component<Props> {
           block
           size="huge"
         >
+
           {proposal.title} ({proposal.proposal_name})
           <Header.Subheader>
             <p floated="left">Proposed By <strong>{proposal.proposer}</strong></p>
@@ -356,6 +382,41 @@ class GovernanceProposalsProposal extends Component<Props> {
                 settings={settings}
                 system={system}
                 title="Claim Milestone Funds"
+              />
+            : ''}
+            {
+            (proposal.proposer === settings.account && (proposal.status == 'inprogress' || proposal.status == 'completed')) ?
+            <GlobalTransactionModal
+                actionName="GOVERNANCE_ACT_ON_PROPOSAL"
+                actions={actions}
+                blockExplorers={blockExplorers}
+                button={{
+                  color: 'green',
+                  content: "Withdraw",
+                  icon: 'dollar',
+                  floated:"right"
+                }}
+                content={(
+                  <Segment basic clearing>
+                    <p>
+                    This action will request the funds due for <strong>{proposal.title}</strong>. 
+                    Are you sure you would like to proceed?
+                    <Button
+                      color='green'
+                      content="Withdraw"
+                      floated="right"
+                      icon="dollar"
+                      style={{ marginTop: 20 }}
+                      onClick={() => this.withdrawRewards(proposal.proposal_name)}
+                      primary
+                    />
+                    </p> 
+                  </Segment>
+                )}
+                icon="share square"
+                settings={settings}
+                system={system}
+                title="Withdraw"
               />
             : ''}
             {

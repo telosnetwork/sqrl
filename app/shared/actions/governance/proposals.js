@@ -327,6 +327,19 @@ export function actOnProposal(proposal_name, actionName, feeAmount, title, scope
           ballot_name: ballot_name
         }
     });
+    } else if (actionName === 'withdraw') {
+      actions.push({
+        account: worksContract,
+        name: actionName,
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          account_name: account,
+          quantity: feeAmount
+        }
+    });
     } else {
       actions.push({
         account: scope,
@@ -991,6 +1004,30 @@ export function getWPSConfig(scope = 'works.decide') {
   }
 };
 
+export function getWorksBalance() {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETWORKSBALANCE_PENDING
+    });
+    const { connection, settings } = getState();
+    const { account } = settings;
+    const query = {
+      json: true,
+      code: 'works.decide',
+      scope: account,
+      table: 'accounts',
+      limit: 1
+    };
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      return rows[0];
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GETWORKSBALANCE_FAILURE,
+      payload: { err },
+    }));
+  }
+};
+
 export function getRatifySubmissions(scope = 'amend.decide', previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
@@ -1045,11 +1082,11 @@ export function getRatifySubmissions(scope = 'amend.decide', previous = false) {
             new_content
           };
         });
-      const submissions = sortBy(data, 'ballot_name').reverse();
+      const ratifyproposals = sortBy(data, 'ballot_name').reverse();
       return dispatch({
         type: types.SYSTEM_GOVERNANCE_GET_RATIFYSUBMISSIONS_SUCCESS,
         payload: {
-          submissions
+          ratifyproposals
         }
       });
     }).catch((err) => dispatch({
@@ -1089,6 +1126,7 @@ export function getRatifyDocuments(scope = 'amend.decide', previous = false) {
         return dispatch(getRatifyDocuments(scope, rows));
       }
       const data = rows
+        .filter(doc => doc.author == 'eosio')
         .map((document) => {
           const {
             title,
@@ -1099,6 +1137,7 @@ export function getRatifyDocuments(scope = 'amend.decide', previous = false) {
             open_proposals,
             amendment
           } = document;
+          dispatch(getRatifySections(document_name));
           return {
             title,
             subtitle,
@@ -1123,6 +1162,67 @@ export function getRatifyDocuments(scope = 'amend.decide', previous = false) {
   };
 }
 
+export function getRatifySections(scope, previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_RATIFYSECTIONS_PENDING
+    });
+    const { connection } = getState();
+    const query = {
+      json: true,
+      code: 'amend.decide',
+      scope,
+      table: 'sections',
+      limit: 1000000
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].section_name;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getRatifySections(scope, rows));
+      }
+      const data = rows
+        .map((section) => {
+          const {
+            section_name,
+            section_number,
+            content,
+            last_amended,
+            amended_by
+          } = section;
+          return {
+            section_name,
+            section_number,
+            content,
+            last_amended,
+            amended_by
+          };
+        });
+      const sections = sortBy(data, 'section_number');
+      return dispatch({
+        type: types.SYSTEM_GOVERNANCE_GET_RATIFYSECTIONS_SUCCESS,
+        payload: {
+          document_name: scope,
+          sections
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GOVERNANCE_GET_RATIFYSECTIONS_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
 export default {
   actOnProposal,
   addWorksMilestones,
@@ -1134,6 +1234,7 @@ export default {
   getRatifyDocuments,
   getRatifySubmissions,
   getWPSConfig,
+  getWorksBalance,
   mirrorCast,
   registerVoter,
   voteBallot
