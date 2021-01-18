@@ -1079,7 +1079,7 @@ export function getCustomTokensRemote() {
     dispatch({
       type: types.GET_CUSTOMTOKENSREMOTE_REQUEST
     });
-    return fetch('https://raw.githubusercontent.com/telos-foundation/sqrl/master/resources/tokens.json')
+    return fetch('https://raw.githubusercontent.com/telosnetwork/sqrl/master/resources/tokens.json')
     .then(response => response.json()).then((response) => {
       return dispatch({
         payload: response,
