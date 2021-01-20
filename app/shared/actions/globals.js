@@ -1,10 +1,15 @@
 import { isEmpty } from 'lodash';
-
+import sortBy from 'lodash/sortBy';
+import pTokens from 'ptokens';
 import * as types from './types';
 import * as config from './config';
 
 import eos from './helpers/eos';
 import { payforcpunet } from './helpers/eos';
+
+const tokenContract = "btc.ptokens";
+const tbondContract = "marblefinall";
+const marketContract = "marblemarkt1";
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -1092,6 +1097,494 @@ export function getCustomTokensRemote() {
   };
 }
 
+export const getPBTCAddress = (account) => {
+  return async (dispatch: () => void, getState) => {
+    const {
+        settings
+    } = getState();
+    dispatch({
+        type: types.SYSTEM_GETPBTC_PENDING,
+    });
+
+    let pBtcToken = new pTokens({
+      pbtc: {
+        blockchain: "Telos",
+        network: "mainnet",
+      },
+    });
+    const pbtcAddress = await pBtcToken.pbtc.getDepositAddress(account);
+    dispatch({
+      type: types.SYSTEM_GETPBTC_SUCCESS,
+    });
+    return pbtcAddress.toString();
+  };
+}
+
+export function buyTBond(serial, price) {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_BUYBONDS_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [
+      {
+        account: tokenContract,
+        name: 'transfer',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          from: account,
+          to: marketContract,
+          quantity: price,
+          memo:"[deposit]"
+        }
+      },{
+        account: marketContract,
+        name: "buymrbitm",
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          account: account,
+          marble_contract: tbondContract,
+          serial: serial,
+          price: price,
+          referral: "telosmiamibp"
+        }
+      },{
+        account: marketContract,
+        name: "withdrawmitm",
+        authorization: [{
+          actor: account,
+          permission: settings.authorization || 'active'
+        }],
+        data: {
+          owner: account,
+          marble_contract: tbondContract,
+          serial: serial
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    //console.log('buy actions!', actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_BUYBONDS_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_BUYBONDS_FAILURE
+    }));
+  };
+}
+
+export function sellTBond(serial, price) {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_SELLBONDS_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [
+      {
+        account: tbondContract,
+        name: 'transferitem',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          from: account,
+          to: marketContract,
+          serials: [serial],
+          memo: 'Posting T-Bond for Sale',
+        }
+      },{
+        account: marketContract,
+        name: 'sellmrbitm',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          owner: account,
+          price : price,
+          serial: serial
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_SELLBONDS_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_SELLBONDS_FAILURE
+    }));
+  };
+}
+
+export function withdrawPBTC(amount, destinationAddr) {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_WITHDRAWPBTC_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [
+      {
+        account: "btc.ptokens",
+        name: 'redeem',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          sender: account,
+          quantity: amount,
+          memo: destinationAddr
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_WITHDRAWPBTC_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_WITHDRAWPBTC_FAILURE
+    }));
+  };
+}
+
+export function releaseTBond(serial) {
+  return (dispatch: () => void, getState) => {
+    const {
+      settings,
+      connection
+    } = getState();
+
+    dispatch({
+      type: types.SYSTEM_RELEASETBOND_PENDING
+    });
+
+    const { account } = settings;
+
+    let actions = [
+      {
+        account: tbondContract,
+        name: 'release',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          serial: serial
+        }
+      }
+    ];
+
+    const payforaction = payforcpunet(account, getState());
+    if (payforaction) actions = payforaction.concat(actions);
+
+    return eos(connection, true, payforaction!==null).transaction({actions: actions})
+    .then((tx) => {
+      return dispatch({
+        payload: { tx },
+        type: types.SYSTEM_RELEASETBOND_SUCCESS
+      });
+    }).catch((err) => dispatch({
+      payload: { err },
+      type: types.SYSTEM_RELEASETBOND_FAILURE
+    }));
+  };
+}
+
+export function getTBondsByOwner(previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GETBONDS_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: tbondContract,
+      scope: tbondContract,
+      table: 'items',
+      limit: 1000000
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].serial;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getTBondsByOwner(rows));
+      }
+      const data = rows
+        .map((item) => {
+          const {
+            serial,
+            group,
+            owner
+          } = item;
+          dispatch(getTBondsTagInfo(serial));
+          dispatch(getTBondsEventInfo(serial));
+          dispatch(getTBondsBondInfo(serial));
+          return {
+            serial,
+            group,
+            owner
+          };
+        });
+      const allbonds = sortBy(data, 'serial').reverse();
+      return dispatch({
+        type: types.SYSTEM_GETBONDS_SUCCESS,
+        payload: allbonds
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GETBONDS_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function getTBondsForSale(previous = false) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GETBONDSFORSALE_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: marketContract,
+      scope: marketContract,
+      table: 'listeditems',
+      limit: 1000000
+    };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].id;
+    }
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getTBondsForSale(rows));
+      }
+      const data = rows
+        .map((item) => {
+          const {
+            id,
+            serial,
+            owner,
+            price
+          } = item;
+          dispatch(getTBondsTagInfo(serial));
+          dispatch(getTBondsEventInfo(serial));
+          dispatch(getTBondsBondInfo(serial));
+          return {
+            id,
+            serial,
+            owner,
+            price
+          };
+        });
+      const listeditems = sortBy(data, 'id').reverse();
+      return dispatch({
+        type: types.SYSTEM_GETBONDSFORSALE_SUCCESS,
+        payload: listeditems
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GETBONDSFORSALE_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function getTBondsBondInfo(serial) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GETBONDS_BOND_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: tbondContract,
+      scope: serial,
+      table: 'bonds',
+      limit: 1000000
+    };
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      const bondData = rows
+        .map((item) => {
+          const {
+            backed_amount,
+            release_event,
+            locked
+          } = item;
+          return {
+            serial,
+            backed_amount,
+            release_event,
+            locked
+          };
+        });
+      return dispatch({
+        type: types.SYSTEM_GETBONDS_BOND_SUCCESS,
+        payload: {
+          serial,
+          bondData
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GETBONDS_BOND_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function getTBondsEventInfo(serial) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GETBONDS_EVENT_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: tbondContract,
+      scope: serial,
+      table: 'events',
+      limit: 1000000
+    };
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      const eventData = rows
+        .map((item) => {
+          const {
+            event_name,
+            event_time,
+            locked
+          } = item;
+          return {
+            serial,
+            event_name,
+            event_time,
+            locked
+          };
+        });
+      return dispatch({
+        type: types.SYSTEM_GETBONDS_EVENT_SUCCESS,
+        payload: {
+          serial,
+          eventData
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GETBONDS_EVENT_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
+export function getTBondsTagInfo(serial) {
+  return (dispatch: () => void, getState) => {
+    dispatch({
+      type: types.SYSTEM_GETBONDSTAGS_PENDING
+    });
+    const { connection, settings } = getState();
+    const query = {
+      json: true,
+      code: tbondContract,
+      scope: serial,
+      table: 'tags',
+      limit: 1000000
+    };
+    eos(connection).getTableRows(query).then((results) => {
+      let { rows } = results;
+      const tagData = rows
+        .map((item) => {
+          const {
+            tag_name,
+            content,
+            locked
+          } = item;
+          return {
+            serial,
+            tag_name,
+            content,
+            locked
+          };
+        });
+      return dispatch({
+        type: types.SYSTEM_GETBONDSTAGS_SUCCESS,
+        payload: {
+          serial,
+          tagData
+        }
+      });
+    }).catch((err) => dispatch({
+      type: types.SYSTEM_GETBONDSTAGS_FAILURE,
+      payload: { err },
+    }));
+  };
+}
+
 export default {
   addACHAccount,
   addACHDeposit,
@@ -1105,6 +1598,12 @@ export default {
   disable2FA,
   chargeCard,
   createExchangeContact,
+  buyTBond,
+  sellTBond,
+  withdrawPBTC,
+  releaseTBond,
+  getTBondsForSale,
+  getPBTCAddress,
   getContactByPublicKey,
   getCurrencyStats,
   getCustomTokensRemote,
