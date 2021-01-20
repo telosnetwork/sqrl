@@ -120,7 +120,7 @@ export default class GlobalFormFieldMultiToken extends Component<Props> {
             <input />
           :false}
           {(bancorOnly !== true) ?
-          <Image src={this.state.logo} 
+          <Image src={this.state.logo || 'https://raw.githubusercontent.com/telosnetwork/sqrl/master/resources/Images/default.png'} 
             style={{
               width:'42px',
               height:'42px',

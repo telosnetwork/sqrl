@@ -110,12 +110,12 @@ class BasicVoterContainer extends Component<Props> {
       getBlockExplorers,
       getCurrencyStats,
       getCustomTokensRemote,
-      getExchangeAPI,
       getProfiles,
       getRamStats,
       getRexPool,
       getRexFund,
-      getRexBalance
+      getRexBalance,
+      getPBTCAddress
     } = actions;
 
     switch (settings.walletMode) {
@@ -150,8 +150,12 @@ class BasicVoterContainer extends Component<Props> {
               }
             };
           }
-          
-          await getExchangeAPI();
+
+          const userPBTCAddress = settings[settings.account + "-pbtc"];
+          if (settings.blockchain.tokenSymbol === "TLOS" && !userPBTCAddress) {
+            let pbtcAddress = await getPBTCAddress(settings.account);
+            actions.setSetting(settings.account + "-pbtc", pbtcAddress);
+          }
         }
       }
     }

@@ -4,7 +4,12 @@ const initialState = {
   current: {},
   contract: {},
   currencyStats: {},
-  precision: 4
+  precision: 4,
+  tbonds: [],
+  tbondsowned: [],
+  tbondsBondInfo: [],
+  tbondsEventInfo: [],
+  tbondsTagInfo: []
 };
 
 export default function globals(state = initialState, action) {
@@ -130,6 +135,37 @@ export default function globals(state = initialState, action) {
     case types.GET_CUSTOMTOKENSREMOTE_SUCCESS: {
       return Object.assign({}, state, {
         remotetokens: action.payload
+      });
+    }
+    case types.SYSTEM_GETBONDS_SUCCESS: {
+      return Object.assign({}, state, {
+        tbondsowned: action.payload
+      });
+    }
+    case types.SYSTEM_GETBONDSFORSALE_SUCCESS: {
+      return Object.assign({}, state, {
+        tbonds: action.payload
+      });
+    }
+    case types.SYSTEM_GETBONDS_BOND_SUCCESS: {
+      return Object.assign({}, state, {
+        tbondsBondInfo: Object.assign({}, state.tbondsBondInfo, {
+          [action.payload.serial]: action.payload.bondData
+        })
+      });
+    }
+    case types.SYSTEM_GETBONDS_EVENT_SUCCESS: {
+      return Object.assign({}, state, {
+        tbondsEventInfo: Object.assign({}, state.tbondsEventInfo, {
+          [action.payload.serial]: action.payload.eventData
+        })
+      });
+    }
+    case types.SYSTEM_GETBONDSTAGS_SUCCESS: {
+      return Object.assign({}, state, {
+        tbondsTagInfo: Object.assign({}, state.tbondsTagInfo, {
+          [action.payload.serial]: action.payload.tagData
+        })
       });
     }
     default: {

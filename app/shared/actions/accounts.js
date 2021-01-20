@@ -5,7 +5,6 @@ import eos from './helpers/eos';
 import eos2 from './helpers/eos2';
 import { getRexBalance } from './rex';
 import EOSAccount from '../utils/EOS/Account';
-import { getContactByPublicKey } from './globals';
 const ecc = require('eosjs-ecc');
 import { payforcpunet } from './helpers/eos';
 
@@ -159,8 +158,7 @@ export function getAccount(account = '') {
             const auth = settings.authorization || 'active';
             const keys = model.getKeysForAuthorization(auth);
             if (keys && keys.length > 0) {
-              const { pubkey } = keys[0];
-              dispatch(getContactByPublicKey(pubkey));
+              
             }
           }
         }

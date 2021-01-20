@@ -6,6 +6,7 @@ import ReactJson from 'react-json-view';
 import { Header, Menu, Segment } from 'semantic-ui-react';
 
 import WalletStatusBalances from './Status/Balances';
+import WalletStatusTBonds from './Status/TBonds';
 import WalletStatusBalanceSummary from './Status/BalanceSummary';
 import WalletStatusResources from './Status/Resources';
 import WalletStatusStaked from './Status/Staked';
@@ -43,6 +44,7 @@ class WalletStatus extends Component<Props> {
       globals,
       rex,
       settings,
+      system,
       t,
       tables,
       validate
@@ -102,6 +104,22 @@ class WalletStatus extends Component<Props> {
               rex={rex}
               statsFetcher={statsFetcher}
               settings={settings}
+              connection={connection}
+            />
+          );
+          break;
+        }
+        case 'tbonds': {
+          activeTab = (
+            <WalletStatusTBonds
+              account={account}
+              actions={actions}
+              balances={balances}
+              globals={globals}
+              rex={rex}
+              statsFetcher={statsFetcher}
+              settings={settings}
+              system={system}
               connection={connection}
             />
           );
@@ -181,6 +199,15 @@ class WalletStatus extends Component<Props> {
               active={activeItem === 'balances'}
               onClick={this.handleItemClick}
             />
+            {(settings.blockchain.tokenSymbol==='TLOS') ?
+              <Menu.Item
+                name="tbonds"
+                icon="shield"
+                content={"T-Bonds"}
+                active={activeItem === 'tbonds'}
+                onClick={this.handleItemClick}
+              />
+            :false}
             <Menu.Item
               name="staked"
               icon="power cord"
