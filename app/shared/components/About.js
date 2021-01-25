@@ -64,10 +64,10 @@ export default class About extends Component<Props> {
                         >
                           https://telosfoundation.io
                         </a> or <a
-                          onClick={() => this.openLink('https://eos.miami')}
+                          onClick={() => this.openLink('https://zenblocks.io')}
                           role="button"
                         >
-                          https://eos.miami
+                          https://zenblocks.io
                         </a>.
                       </p>
                     </Segment>

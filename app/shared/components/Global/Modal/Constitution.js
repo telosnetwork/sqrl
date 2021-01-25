@@ -7,7 +7,7 @@ import Markdown from 'react-markdown';
 class ModalConstitution extends Component<Props> {
   state = { 
     open: false, 
-    loadedConstitution: 'Loading content from [Telos Blockchain Network Operating Agreement](https://web.ipfs.telosfoundation.io/Qmexc2Uejr2f5f8bCQxTkt5CfTAC9szXLpG6mu6No7pmVs). Please wait...' 
+    loadedConstitution: 'Loading content from [Telos Blockchain Network Operating Agreement](https://ipfs.telos.miami/ipfs/Qmdn7bZ8z25bM735R91rFkbvkBXfvo5oEtRQadjb2RdMce). Please wait...' 
   }
 
   componentWillReceiveProps(nextProps) {
@@ -25,7 +25,7 @@ class ModalConstitution extends Component<Props> {
   }
 
   loadData = () => {
-    const url = "https://web.ipfs.telosfoundation.io/Qmexc2Uejr2f5f8bCQxTkt5CfTAC9szXLpG6mu6No7pmVs";
+    const url = "https://ipfs.telos.miami/ipfs/Qmdn7bZ8z25bM735R91rFkbvkBXfvo5oEtRQadjb2RdMce";
     fetch(url)
       .then(function (response) {
         if(response.ok){

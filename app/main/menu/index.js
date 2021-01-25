@@ -104,8 +104,8 @@ export default class MenuBuilder {
     const subMenuHelp = {
       label: 'Help',
       submenu: [
-        { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl'); } },
-        { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/issues'); } },
+        { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/telosnetwork/sqrl'); } },
+        { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/telosnetwork/sqrl/issues'); } },
         { label: 'Web Site', click() { shell.openExternal('https://sqrlwallet.io'); } },
         //{ type: 'separator' },
         //{ label: 'Check for Updates', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
@@ -176,9 +176,9 @@ export default class MenuBuilder {
     }, {
       label: 'Help',
       submenu: [
-        { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl'); } },
-        { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/issues'); } },
-        { label: 'Releases (Github)', click() { shell.openExternal('https://github.com/Telos-Foundation/Sqrl/releases'); } },
+        { label: 'Source Code (Github)', click() { shell.openExternal('https://github.com/telosnetwork/sqrl'); } },
+        { label: 'Report Bug (Github)', click() { shell.openExternal('https://github.com/telosnetwork/sqrl/issues'); } },
+        { label: 'Releases (Github)', click() { shell.openExternal('https://github.com/telosnetwork/sqrl/releases'); } },
         //{ type: 'separator' },
         //{ label: 'Check Updates...', click: (menuItem, browserWindow) => { checkForUpdates(menuItem, browserWindow); } }
       ]

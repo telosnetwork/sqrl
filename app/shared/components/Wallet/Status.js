@@ -42,10 +42,12 @@ class WalletStatus extends Component<Props> {
       chain,
       connection,
       globals,
+      keys,
       rex,
       settings,
       system,
       t,
+      transaction,
       tables,
       validate
     } = this.props;
@@ -115,12 +117,15 @@ class WalletStatus extends Component<Props> {
               account={account}
               actions={actions}
               balances={balances}
+              blockExplorers={blockExplorers}
               globals={globals}
+              keys={keys}
               rex={rex}
               statsFetcher={statsFetcher}
               settings={settings}
               system={system}
               connection={connection}
+              transaction={transaction}
             />
           );
           break;

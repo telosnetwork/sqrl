@@ -1,7 +1,7 @@
 {
   "name": "Sqrl",
   "productName": "Sqrl",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A fully featured wallet and governance tool for EOS.IO blockchains",
   "scripts": {
     "build": "concurrently \"GENERATE_SOURCEMAP=false npm run build-main\" \"GENERATE_SOURCEMAP=false npm run build-renderer\"",
@@ -121,23 +121,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Telos-Foundation/Sqrl.git"
+    "url": "git+https://github.com/telosnetwork/sqrl.git"
   },
   "author": {
-    "name": "EOS Miami",
-    "email": "info@eos.miami",
-    "url": "https://eos.miami"
+    "name": "ZenBlocks.io",
+    "email": "info@zenblocks.io",
+    "url": "https://zenblocks.io"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Telos-Foundation/Sqrl/issues"
+    "url": "https://github.com/telosnetwork/sqrl/issues"
   },
   "keywords": [
     "telos",
     "voting",
     "wallet"
   ],
-  "homepage": "https://github.com/Telos-Foundation/Sqrl#readme",
+  "homepage": "https://github.com/telosnetwork/sqrl#readme",
   "jest": {
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",

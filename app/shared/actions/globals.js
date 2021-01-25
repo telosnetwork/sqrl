@@ -1,15 +1,16 @@
 import { isEmpty } from 'lodash';
 import sortBy from 'lodash/sortBy';
+import concat from 'lodash/concat';
 import pTokens from 'ptokens';
 import * as types from './types';
 import * as config from './config';
 
 import eos from './helpers/eos';
-import { payforcpunet } from './helpers/eos';
+import { payforcpunet, convertNameToInt } from './helpers/eos';
 
-const tokenContract = "btc.ptokens";
-const tbondContract = "marblefinall";
-const marketContract = "marblemarkt1";
+let tokenContract = "btc.ptokens";
+let tbondContract = "marblefinall";
+let marketContract = "marblemarkt1";
 
 export function getGlobals() {
   return (dispatch: () => void, getState) => {
@@ -1120,7 +1121,13 @@ export const getPBTCAddress = (account) => {
   };
 }
 
-export function buyTBond(serial, price) {
+function checkForTelosMainet(settings) {
+  if (settings.blockchain.chainId == "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11") {
+    marketContract = "tbond.code";
+    tbondContract = "tlos.tbond";
+  }
+}
+export function buyTBond(serial, price, referral) {
   return (dispatch: () => void, getState) => {
     const {
       settings,
@@ -1132,6 +1139,7 @@ export function buyTBond(serial, price) {
     });
 
     const { account } = settings;
+    checkForTelosMainet(settings);
 
     let actions = [
       {
@@ -1159,7 +1167,7 @@ export function buyTBond(serial, price) {
           marble_contract: tbondContract,
           serial: serial,
           price: price,
-          referral: "telosmiamibp"
+          referral: referral || "telosmiamibp"
         }
       },{
         account: marketContract,
@@ -1178,8 +1186,6 @@ export function buyTBond(serial, price) {
 
     const payforaction = payforcpunet(account, getState());
     if (payforaction) actions = payforaction.concat(actions);
-
-    //console.log('buy actions!', actions);
 
     return eos(connection, true, payforaction!==null).transaction({actions: actions})
     .then((tx) => {
@@ -1206,6 +1212,7 @@ export function sellTBond(serial, price) {
     });
 
     const { account } = settings;
+    checkForTelosMainet(settings);
 
     let actions = [
       {
@@ -1264,6 +1271,7 @@ export function withdrawPBTC(amount, destinationAddr) {
     });
 
     const { account } = settings;
+    checkForTelosMainet(settings);
 
     let actions = [
       {
@@ -1297,7 +1305,7 @@ export function withdrawPBTC(amount, destinationAddr) {
   };
 }
 
-export function releaseTBond(serial) {
+export function releaseTBond(serial, amount) {
   return (dispatch: () => void, getState) => {
     const {
       settings,
@@ -1309,6 +1317,7 @@ export function releaseTBond(serial) {
     });
 
     const { account } = settings;
+    checkForTelosMainet(settings);
 
     let actions = [
       {
@@ -1320,6 +1329,17 @@ export function releaseTBond(serial) {
           }],
         data: {
           serial: serial
+        }
+      },{
+        account: tbondContract,
+        name: 'withdraw',
+        authorization: [{
+            actor: account,
+            permission: settings.authorization || 'active'
+          }],
+        data: {
+          wallet_owner: account,
+          amount: amount
         }
       }
     ];
@@ -1340,22 +1360,33 @@ export function releaseTBond(serial) {
   };
 }
 
+function getTBondIndex(upper, lower) {
+  const u = convertNameToInt(upper);
+  const l = lower.toString().padStart(16,"0");
+  return u+l;
+}
 export function getTBondsByOwner(previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GETBONDS_PENDING
     });
     const { connection, settings } = getState();
+    checkForTelosMainet(settings);
+
+    const upper = getTBondIndex(settings.account, "9000000000000000");
+    const lower = getTBondIndex(settings.account, "0");
+    
     const query = {
       json: true,
       code: tbondContract,
       scope: tbondContract,
       table: 'items',
-      limit: 1000000
+      upper_bound: upper,
+      lower_bound: lower,
+      index_position: 3,
+      key_type: "i128",
+      limit: 500
     };
-    if (previous) {
-      query.lower_bound = previous[previous.length - 1].serial;
-    }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
       // If previous rows were returned
@@ -1397,35 +1428,23 @@ export function getTBondsByOwner(previous = false) {
   };
 }
 
-export function getTBondsForSale(previous = false) {
+export function getTBondsForSale(limit) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GETBONDSFORSALE_PENDING
     });
     const { connection, settings } = getState();
+    checkForTelosMainet(settings);
+
     const query = {
       json: true,
       code: marketContract,
       scope: marketContract,
       table: 'listeditems',
-      limit: 1000000
+      limit: limit
     };
-    if (previous) {
-      query.lower_bound = previous[previous.length - 1].id;
-    }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
-      // If previous rows were returned
-      if (previous) {
-        // slice last element to avoid dupes
-        previous.pop();
-        // merge arrays
-        rows = concat(previous, rows);
-      }
-      // if there are missing results
-      if (results.more) {
-        return dispatch(getTBondsForSale(rows));
-      }
       const data = rows
         .map((item) => {
           const {
@@ -1441,10 +1460,11 @@ export function getTBondsForSale(previous = false) {
             id,
             serial,
             owner,
-            price
+            price,
+            priceFloat: parseFloat(price.split(' ')[0])
           };
         });
-      const listeditems = sortBy(data, 'id').reverse();
+      const listeditems = sortBy(data, 'priceFloat').reverse();
       return dispatch({
         type: types.SYSTEM_GETBONDSFORSALE_SUCCESS,
         payload: listeditems
@@ -1462,6 +1482,8 @@ export function getTBondsBondInfo(serial) {
       type: types.SYSTEM_GETBONDS_BOND_PENDING
     });
     const { connection, settings } = getState();
+    checkForTelosMainet(settings);
+
     const query = {
       json: true,
       code: tbondContract,
@@ -1505,6 +1527,8 @@ export function getTBondsEventInfo(serial) {
       type: types.SYSTEM_GETBONDS_EVENT_PENDING
     });
     const { connection, settings } = getState();
+    checkForTelosMainet(settings);
+
     const query = {
       json: true,
       code: tbondContract,
@@ -1548,6 +1572,8 @@ export function getTBondsTagInfo(serial) {
       type: types.SYSTEM_GETBONDSTAGS_PENDING
     });
     const { connection, settings } = getState();
+    checkForTelosMainet(settings);
+
     const query = {
       json: true,
       code: tbondContract,
