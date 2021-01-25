@@ -249,7 +249,7 @@ class GovernanceProposals extends Component<Props> {
     return (
       <Segment basic>
         <Header floated="left">
-          Worker Proposals
+          Telos Works
         </Header>
           <Container floated="right" style={{ marginBottom: '50px' }}>
             <GovernanceProposalsButtonProposal

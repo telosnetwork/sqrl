@@ -167,8 +167,8 @@ class WelcomeConnectionContainer extends Component<Props> {
           content={(
             <p>
               <a
-                onClick={() => this.openLink('https://github.com/Telos-Foundation/Sqrl/blob/master/nodes.md')}
-                onKeyPress={() => this.openLink('https://github.com/Telos-Foundation/Sqrl/blob/master/nodes.md')}
+                onClick={() => this.openLink('https://github.com/telosnetwork/sqrl/blob/master/nodes.md')}
+                onKeyPress={() => this.openLink('https://github.com/telosnetwork/sqrl/blob/master/nodes.md')}
                 role="link"
                 style={{ cursor: 'pointer' }}
                 tabIndex={0}

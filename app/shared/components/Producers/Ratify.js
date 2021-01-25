@@ -164,7 +164,7 @@ class GovernanceRatify extends Component<Props> {
     return (
       <Segment basic>
         <Header floated="left">
-          Ratification Proposals
+          Telos Amend
         </Header>
         <Container floated="right" style={{ marginBottom: '50px' }}>
             

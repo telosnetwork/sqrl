@@ -142,9 +142,19 @@ export default function globals(state = initialState, action) {
         tbondsowned: action.payload
       });
     }
+    case types.SYSTEM_GETBONDS_FAILURE: {
+      return Object.assign({}, state, {
+        tbondsowned: null
+      });
+    }
     case types.SYSTEM_GETBONDSFORSALE_SUCCESS: {
       return Object.assign({}, state, {
         tbonds: action.payload
+      });
+    }
+    case types.SYSTEM_GETBONDSFORSALE_FAILURE: {
+      return Object.assign({}, state, {
+        tbonds: null
       });
     }
     case types.SYSTEM_GETBONDS_BOND_SUCCESS: {
@@ -154,6 +164,11 @@ export default function globals(state = initialState, action) {
         })
       });
     }
+    case types.SYSTEM_GETBONDS_BOND_FAILURE: {
+      return Object.assign({}, state, {
+        tbondsBondInfo: null
+      });
+    }
     case types.SYSTEM_GETBONDS_EVENT_SUCCESS: {
       return Object.assign({}, state, {
         tbondsEventInfo: Object.assign({}, state.tbondsEventInfo, {
@@ -161,11 +176,21 @@ export default function globals(state = initialState, action) {
         })
       });
     }
+    case types.SYSTEM_GETBONDS_EVENT_FAILURE: {
+      return Object.assign({}, state, {
+        tbondsEventInfo: null
+      });
+    }
     case types.SYSTEM_GETBONDSTAGS_SUCCESS: {
       return Object.assign({}, state, {
         tbondsTagInfo: Object.assign({}, state.tbondsTagInfo, {
           [action.payload.serial]: action.payload.tagData
         })
+      });
+    }
+    case types.SYSTEM_GETBONDSTAGS_FAILURE: {
+      return Object.assign({}, state, {
+        tbondsTagInfo: null
       });
     }
     default: {
