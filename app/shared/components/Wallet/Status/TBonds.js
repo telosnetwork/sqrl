@@ -116,8 +116,8 @@ getPBTCBalance = async () => {
   }
 }
 
-withdrawPBTC = async (withdrawDestAddr) => {
-  await this.props.actions.withdrawPBTC(Decimal(this.state.currentPBTCBalance).toFixed(8), withdrawDestAddr);
+withdrawPBTC = async () => {
+  await this.props.actions.withdrawPBTC(Decimal(this.state.currentPBTCBalance).toFixed(8), this.state.withdrawDestAddr);
   this.setState({openBTCModal: false});
   this.getPBTCBalance();
 }
@@ -136,7 +136,7 @@ releaseTBond = async (serial, amount) => {
   this.getTBonds();
 }
 getTBonds() {
-  this.props.actions.getTBondsForSale(this.state.amount);
+  this.props.actions.getTBondsForSale();
   this.props.actions.getTBondsByOwner();
 }
 
@@ -249,8 +249,8 @@ render() {
       tbonds = tbonds && tbonds.filter(t=>t.expired == true);
     }
 
-    const tbFiltered = tbonds && tbonds.slice(0, amount);
-    const TBonds = tbFiltered && tbFiltered.map((bond) => (
+    //const tbFiltered = tbonds && tbonds.slice(0, amount);
+    const TBonds = tbonds && tbonds.map((bond) => (
       <Card key={`tbond-${bond.serial}`} style={{width:'28%'}}>
           <Card.Content textAlign="center">
             <Image 
@@ -313,7 +313,7 @@ render() {
         continuous
         key="TBondTable"
         fireOnMount
-        onBottomVisible={this.loadMore}
+        //onBottomVisible={this.loadMore}
         //onTopVisible={this.resetDisplayAmount}
         once={false}
       >

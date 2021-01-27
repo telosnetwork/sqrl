@@ -1283,7 +1283,7 @@ export function withdrawPBTC(amount, destinationAddr) {
           }],
         data: {
           sender: account,
-          quantity: amount,
+          quantity: amount + ' PBTC',
           memo: destinationAddr
         }
       }
@@ -1428,7 +1428,7 @@ export function getTBondsByOwner(previous = false) {
   };
 }
 
-export function getTBondsForSale(limit) {
+export function getTBondsForSale(previous = false) {
   return (dispatch: () => void, getState) => {
     dispatch({
       type: types.SYSTEM_GETBONDSFORSALE_PENDING
@@ -1441,10 +1441,24 @@ export function getTBondsForSale(limit) {
       code: marketContract,
       scope: marketContract,
       table: 'listeditems',
-      limit: limit
+      limit: 1000000
     };
+    if (previous) {
+      query.lower_bound = previous[previous.length - 1].id;
+    }
     eos(connection).getTableRows(query).then((results) => {
       let { rows } = results;
+      // If previous rows were returned
+      if (previous) {
+        // slice last element to avoid dupes
+        previous.pop();
+        // merge arrays
+        rows = concat(previous, rows);
+      }
+      // if there are missing results
+      if (results.more) {
+        return dispatch(getTBondsForSale(rows));
+      }
       const data = rows
         .map((item) => {
           const {
