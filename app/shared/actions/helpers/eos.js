@@ -1,6 +1,6 @@
 import { decrypt } from '../wallet';
 import * as config from '../config';
-import { createInitialTypes, SerialBuffer } from 'eosjs/dist/eosjs-serialize';
+import { createInitialTypes, SerialBuffer } from 'eosjs';
 const CryptoJS = require('crypto-js');
 const ecc = require('eosjs-ecc');
 const Eos = require('eosjs');

@@ -1,3 +1,9 @@
+***NOTE: temp build fix instructions***
+- remove lock file files in root, .app, test
+- run `yarn install --force`
+- ignore ptokens errors
+- run `yarn <os-specific package>`
+
 [![version](https://img.shields.io/github/release/telosnetwork/Sqrl/all.svg)](https://github.com/telosnetwork/Sqrl/releases)
 [![issues](https://img.shields.io/github/issues/telosnetwork/Sqrl.svg)](https://github.com/telosnetwork/Sqrl/issues)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/telosnetwork/Sqrl/master/LICENSE)

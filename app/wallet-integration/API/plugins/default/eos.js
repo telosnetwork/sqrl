@@ -16,7 +16,7 @@ import * as ricardianParser from 'eos-rc-parser';
 import * as Actions from '../../models/api/ApiActions';
 // import {store} from '../../store/store'
 import eosjs2 from 'eosjs2';
-import * as numeric from  "../../../../node_modules/eosjs2/dist/eosjs2-numeric";
+import * as numeric from  'eosjs2';
 import { decrypt } from '../../../../shared/actions/wallet';
 import APIUtils from '../../util/APIUtils';
 import PopupService from '../../services/PopupService';

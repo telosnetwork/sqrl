@@ -4,7 +4,7 @@ import * as config from '../config';
 const CryptoJS = require('crypto-js');
 const ecc = require('eosjs-ecc');
 import { Api, Rpc } from 'eosjs2';
-import JsSignatureProvider from 'eosjs2/dist/eosjs2-jssig';
+import JsSignatureProvider from 'eosjs2';
 
 export default function eos2(connection, signing = true, payforsig = false) {
   const decrypted = Object.assign({}, connection);
