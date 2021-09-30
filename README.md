@@ -27,6 +27,7 @@
 **EXPORT AND SAVE BACKUP DATA**
 - Navigate to Tools > Manage Wallets
 - Click 'Save Backup' button 
+- This will save a `.json` file which you can then import into Anchor
 
 **NEW FEATURES**:
 - **(T-)REX**: Sqrl allows you to participate in the Resource Exchange system, or REX, for any blockchain that supports it. REX allows you to lend your idle CPU and NET resources to the network for others to use while you earn interest for being a lender.
