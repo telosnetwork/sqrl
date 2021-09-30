@@ -1,8 +1,11 @@
-***NOTE: temp build fix instructions***
+***NOTE: update to build from source instructions***
 - remove lock file files in root, .app, test
 - run `yarn install --force`
 - ignore ptokens errors
-- run `yarn <os-specific package>`
+- MacOS: `yarn package`
+- Linux: `yarn package-linux`
+- Windows: `yarn package-win`
+- All: `yarn package-all`
 
 [![version](https://img.shields.io/github/release/telosnetwork/Sqrl/all.svg)](https://github.com/telosnetwork/Sqrl/releases)
 [![issues](https://img.shields.io/github/issues/telosnetwork/Sqrl.svg)](https://github.com/telosnetwork/Sqrl/issues)
@@ -20,6 +23,10 @@
 [![Sqrl screenshot](https://raw.githubusercontent.com/telosnetwork/Sqrl/master/Sqrl.png)](https://raw.githubusercontent.com/telosnetwork/Sqrl/master/Sqrl.png)
 
 ### Features
+
+**EXPORT AND SAVE BACKUP DATA**
+- Navigate to Tools > Manage Wallets
+- Click 'Save Backup' button 
 
 **NEW FEATURES**:
 - **(T-)REX**: Sqrl allows you to participate in the Resource Exchange system, or REX, for any blockchain that supports it. REX allows you to lend your idle CPU and NET resources to the network for others to use while you earn interest for being a lender.
