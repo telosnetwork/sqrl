@@ -1,5 +1,5 @@
-***NOTE: update to build from source instructions***
-- remove lock file files in root, .app, test
+***NOTE: update to build from source***
+- remove any package-lock.json files in root, .app, test
 - run `yarn install --force`
 - ignore ptokens errors
 - MacOS: `yarn package`
