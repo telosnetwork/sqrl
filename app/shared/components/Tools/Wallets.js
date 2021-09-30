@@ -116,9 +116,9 @@ class ToolsWallets extends Component<Props> {
             settings={settings}
           />
           <Button
-            color="purple"
             content={t('tools_wallets_backup_button')}
             icon="save"
+            className="manage-button"
             onClick={this.backup}
           />
         </Button.Group>
