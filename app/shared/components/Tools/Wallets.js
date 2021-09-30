@@ -1,13 +1,57 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-
 import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react';
-
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
-
 import { find } from 'lodash';
+
+const { ipcRenderer } = require('electron');
+
+class EOSWallet {
+  constructor(wallet = {}) {
+    this.wallet = wallet;
+  }
+
+  importProps(wallet, chainId = undefined) {
+    this.wallet = {
+      schema: 'sqrl.wallet',
+      data: {
+        account: wallet.account,
+        authority: wallet.authorization,
+        chainId: wallet.chainId || chainId,
+        data: wallet.data || undefined,
+        path: wallet.path || undefined,
+        pubkey: wallet.pubkey,
+        type: (wallet.path) ? 'ledger' : 'key',
+      }
+    };
+  }
+
+  exportProps(mode = 'hot') {
+    const { wallet } = this;
+    switch (wallet.schema) {
+      case 'sqrl.wallet': {
+        return {
+          account: wallet.account,
+          authorization: wallet.authority,
+          chainId: wallet.chainId,
+          data: wallet.data,
+          mode: (wallet.path) ? 'ledger' : mode,
+          path: wallet.path,
+          pubkey: wallet.pubkey,
+        };
+      }
+      default: {
+        console.log(`undefined schema: ${wallet.schema}`, wallet);
+      }
+    }
+  }
+
+  json() {
+    return JSON.stringify(this.wallet, null, 2);
+  }
+}
 
 class ToolsWallets extends Component<Props> {
   removeWallet = (account) => {
@@ -30,6 +74,33 @@ class ToolsWallets extends Component<Props> {
       actions.unlockWallet(password);
     }
   }
+  backup = () => {
+    const {
+      connection,
+      settings,
+      wallets
+    } = this.props;
+    const backup = {
+      networks: settings.blockchains.map((blockchain) => ({
+        schema: 'sqrl.wallet',
+        data: Object.assign({}, blockchain)
+      })),
+      settings: {
+        schema: 'sqrl.wallet',
+        data: Object.assign({}, settings),
+      },
+      wallets: wallets.map((wallet) => {
+        const model = new EOSWallet();
+        model.importProps(wallet, connection.chainId);
+        return model.wallet;
+      })
+    };
+    ipcRenderer.send(
+      'saveFile',
+      JSON.stringify(backup),
+      'wallet'
+    );
+  }
   render() {
     const {
       settings,
@@ -43,6 +114,12 @@ class ToolsWallets extends Component<Props> {
         <Button.Group floated="right">
           <GlobalButtonAccountImport
             settings={settings}
+          />
+          <Button
+            color="purple"
+            content={t('tools_wallets_backup_button')}
+            icon="save"
+            onClick={this.backup}
           />
         </Button.Group>
         <Header floated="left">

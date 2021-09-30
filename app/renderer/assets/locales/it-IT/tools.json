@@ -133,6 +133,7 @@
   "tools_menu_governance_proposals_test": "Proposals (TEST)",
   "tools_menu_keys": "Key Generator",
   "tools_menu_keyvalidator": "Key Validator",
+  "tools_wallets_backup_button": "Save Backup",
   "tools_menu_permissions": "Permissions",
   "tools_menu_permissions_app": "App Integrations",
   "tools_menu_proxy": "Register Voting Proxy",
