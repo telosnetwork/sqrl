@@ -8,6 +8,7 @@ import { find } from 'lodash';
 
 const { ipcRenderer } = require('electron');
 
+
 class EOSWallet {
   constructor(wallet = {}) {
     this.wallet = wallet;
@@ -15,12 +16,12 @@ class EOSWallet {
 
   importProps(wallet, chainId = undefined) {
     this.wallet = {
-      schema: 'sqrl.wallet',
+      schema: 'anchor.v2.wallet',
       data: {
         account: wallet.account,
         authority: wallet.authorization,
         chainId: wallet.chainId || chainId,
-        data: wallet.data || undefined,
+        mode: wallet.mode,
         path: wallet.path || undefined,
         pubkey: wallet.pubkey,
         type: (wallet.path) ? 'ledger' : 'key',
@@ -31,13 +32,23 @@ class EOSWallet {
   exportProps(mode = 'hot') {
     const { wallet } = this;
     switch (wallet.schema) {
-      case 'sqrl.wallet': {
+      case 'anchor.v1.wallet': {
         return {
           account: wallet.account,
           authorization: wallet.authority,
           chainId: wallet.chainId,
           data: wallet.data,
           mode: (wallet.path) ? 'ledger' : mode,
+          path: wallet.path,
+          pubkey: wallet.pubkey,
+        };
+      }
+      case 'anchor.v2.wallet': {
+        return {
+          account: wallet.account,
+          authorization: wallet.authority,
+          chainId: wallet.chainId,
+          mode: wallet.path,
           path: wallet.path,
           pubkey: wallet.pubkey,
         };
@@ -74,24 +85,30 @@ class ToolsWallets extends Component<Props> {
       actions.unlockWallet(password);
     }
   }
+
   backup = () => {
     const {
-      connection,
+      actions,
       settings,
-      wallets
+      storage,
+      wallets,
     } = this.props;
     const backup = {
       networks: settings.blockchains.map((blockchain) => ({
-        schema: 'sqrl.wallet',
+        schema: 'anchor.v2.network',
         data: Object.assign({}, blockchain)
       })),
       settings: {
-        schema: 'sqrl.wallet',
+        schema: 'anchor.v2.settings',
         data: Object.assign({}, settings),
+      },
+      storage: {
+        schema: 'anchor.v2.storage',
+        data: storage,
       },
       wallets: wallets.map((wallet) => {
         const model = new EOSWallet();
-        model.importProps(wallet, connection.chainId);
+        model.importProps(wallet);
         return model.wallet;
       })
     };
@@ -100,7 +117,12 @@ class ToolsWallets extends Component<Props> {
       JSON.stringify(backup),
       'wallet'
     );
-  }
+    ipcRenderer.once('lastFileSuccess', (event, file) => {
+      actions.setSetting('lastFilePath', file.substring(0, file.lastIndexOf('/')));
+      actions.setSetting('lastBackupDate', Date.now());
+    });
+  };
+
   render() {
     const {
       settings,
