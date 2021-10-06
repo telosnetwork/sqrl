@@ -1,11 +1,3 @@
-***NOTE: update to build from source***
-- remove any package-lock.json files in root, /test, /app, if updating previous clone
-- run `yarn install --force`
-- MacOS: `yarn package` 
-- Linux: `yarn package-linux`
-- Windows: `yarn package-win`
-- All: `yarn package-all`
-
 [![version](https://img.shields.io/github/release/telosnetwork/Sqrl/all.svg)](https://github.com/telosnetwork/Sqrl/releases)
 [![issues](https://img.shields.io/github/issues/telosnetwork/Sqrl.svg)](https://github.com/telosnetwork/Sqrl/issues)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/telosnetwork/Sqrl/master/LICENSE)
@@ -99,7 +91,8 @@ Then either:
 - MacOS: `yarn package`
 - Linux: `yarn package-linux`
 - Windows: `yarn package-win`
-- All: `yarn package-all`
+
+You currently must build the binary for the desired operating system on that operating system. Windows builds must be built on Windows, macOS on macOS, etc.
 
 The files built will be located in the `releases` folder within the root project folder.
 
