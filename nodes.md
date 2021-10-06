@@ -18,7 +18,6 @@ If you are concerned about revealing this information to any of these 3rd party 
 
 ## Verified MainNet Nodes
 - [https://api.telosfoundation.io](https://api.telosfoundation.io/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
-- [https://api.eos.miami](https://api.eos.miami/v1/chain/get_info) - operated by [EOS/Telos Miami](https://eos.miami/)
 - [https://api.tlos.goodblock.io](https://api.tlos.goodblock.io/v1/chain/get_info) - operated by [GoodBlock](https://goodblock.io)
 - [https://api.blindblocart.io](https://api.blindblocart.io/v1/chain/get_info) - operated by [BlindBlocArt](http://blindblocart.io/)
 - [https://telos.caleos.io](https://telos.caleos.io/v1/chain/get_info) - operated by [CalEOS](http://caleos.io)
@@ -36,7 +35,6 @@ If you are concerned about revealing this information to any of these 3rd party 
 
 ## Verified TestNet Nodes
 - [https://api-test.telosfoundation.io](http://testnet.telosfoundation.io/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
-- [https://testnet.eos.miami](https://testnet.eos.miami/v1/chain/get_info) - operated by [EOS/Telos Miami](https://eos.miami/)
 - [http://api.testnet.telos.eosindex.io](http://api.testnet.telos.eosindex.io/v1/chain/get_info) - operated by EOS Index
 
 - [https://testnet.telos.eosdetroit.io](https://testnet.telos.eosdetroit.io/v1/chain/get_info) - operated by [EOS Detroit](https://eosdetroit.io)

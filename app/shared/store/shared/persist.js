@@ -147,12 +147,12 @@ const migrations = {
         {
           blockchain:'Telos Mainnet', 
           tokenSymbol:'TLOS',
-          node:'https://api.eos.miami',
+          node:'https://mainnet.telos.net',
           chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
         },{
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
-          node:'https://testnet.eos.miami',
+          node:'https://testnet.telos.net',
           chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
         },
         {
@@ -207,12 +207,12 @@ const migrations = {
         {
           blockchain:'Telos Mainnet', 
           tokenSymbol:'TLOS',
-          node:'https://api.eos.miami',
+          node:'https://mainnet.telos.net',
           chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
         },{
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
-          node:'https://testnet.eos.miami',
+          node:'https://testnet.telos.net',
           chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
         },
         {
@@ -279,19 +279,19 @@ const migrations = {
     if (
       !newSettings.blockchains
       || !newSettings.blockchains.length
-      || newSettings.blockchains.filter(b => b.node==='https://api.eos.miami:17441').length > 0
     ) {
       // Support multiple chains
       newSettings.blockchains = [
         {
           blockchain:'Telos Mainnet', 
           tokenSymbol:'TLOS',
-          node:'https://api.eos.miami',
+          node:'https://mainnet.telos.net',
           chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
-        },{
+        },
+        {
           blockchain:'Telos Testnet', 
           tokenSymbol:'TLOS',
-          node:'https://testnet.eos.miami',
+          node:'https://testnet.telos.net',
           chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
         },
         {
