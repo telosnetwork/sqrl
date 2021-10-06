@@ -1,8 +1,7 @@
 ***NOTE: update to build from source***
-- remove any package-lock.json files in root, .app, test
+- remove any package-lock.json files in root, /test, /app, if updating previous clone
 - run `yarn install --force`
-- ignore ptokens errors
-- MacOS: `yarn package`
+- MacOS: `yarn package` 
 - Linux: `yarn package-linux`
 - Windows: `yarn package-win`
 - All: `yarn package-all`
