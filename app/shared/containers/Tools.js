@@ -238,12 +238,13 @@ function mapStateToProps(state) {
     keys: state.keys,
     //proposals: state.proposals,
     settings: state.settings,
+    storage: state.storage,
     system: state.system,
     transaction: state.transaction,
     validate: state.validate,
     wapii: state.wapii,
     wallet: state.wallet,
-    wallets: state.wallets,
+    wallets: state.wallets
   };
 }
 

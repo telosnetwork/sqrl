@@ -18,6 +18,7 @@ import producers from './producers';
 import proposals from './proposals';
 import rex from './rex';
 import settings from './settings';
+import storage from './storage';
 import system from './system';
 import tables from './tables';
 import tfvoting from './tfvoting';
@@ -45,6 +46,7 @@ const rootReducer = combineReducers({
   rex,
   router,
   settings,
+  storage,
   system,
   tables,
   tfvoting,

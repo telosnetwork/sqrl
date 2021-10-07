@@ -2,13 +2,14 @@ import * as types from './types';
 import { setSetting } from './settings';
 import eos from './helpers/eos';
 import EOSAccount from '../utils/EOS/Account';
+import { setStorage } from '../actions/storage';
 
 const CryptoJS = require('crypto-js');
 const ecc = require('eosjs-ecc');
 
 export function setWalletKey(data, password, mode = 'hot', existingHash = false, auth = false) {
   return (dispatch: () => void, getState) => {
-    const { accounts, settings, connection } = getState();
+    const { accounts, settings, connection, storage } = getState();
     let hash = existingHash;
     let key = data;
     let obfuscated = data;
@@ -30,8 +31,20 @@ export function setWalletKey(data, password, mode = 'hot', existingHash = false,
         [, authorization] = auth.split('@');
       }
     }
-
-
+    console.log("SET WALLET KEY");
+    const testData = [{
+      key,
+      pubkey
+    }];
+    console.dir(testData);
+    const dataTest = encrypt(JSON.stringify(testData), password);
+    const keys = [pubkey];
+    const paths = {};
+    dispatch(setStorage({
+      data: dataTest,
+      keys,
+      paths,
+    }));
     dispatch({
       type: types.SET_WALLET_KEYS_ACTIVE,
       payload: {

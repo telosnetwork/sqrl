@@ -347,7 +347,8 @@ const persistConfig = {
   whitelist: [
     'settings',
     'wallet',
-    'wallets'
+    'wallets',
+    'storage'
   ]
 };
 

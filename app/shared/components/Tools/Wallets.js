@@ -4,9 +4,11 @@ import { translate } from 'react-i18next';
 import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react';
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
+import wallet, { encrypt, decrypt } from '../../actions/wallet';
 import { find } from 'lodash';
 
 const { ipcRenderer } = require('electron');
+const CryptoJS = require('crypto-js');
 
 
 class EOSWallet {
@@ -88,11 +90,28 @@ class ToolsWallets extends Component<Props> {
 
   backup = () => {
     const {
+      keys,
       actions,
       settings,
       storage,
-      wallets,
+      wallets
     } = this.props;
+    // console.log("backup storage");
+    // console.dir("KEY IS, FINGERS CROSSED:");
+    // console.log(decrypt(keys.key, keys.hash, 1).toString(CryptoJS.enc.Utf8));
+    // const key = decrypt(keys.key, keys.hash, 1).toString(CryptoJS.enc.Utf8);
+    // const testPW = decrypt(keys.hash, keys.hash, 1);
+    // const { pubkey } = wallets[0];
+    // const testData = [{
+    //   key,
+    //   pubkey
+    // }];
+    // console.dir(wallets[0]);
+    // console.dir(keys);
+    // console.log('PASSWORD:', testPW);
+    // const encrypted = encrypt(JSON.stringify(testData), testPW);
+    console.log("STORAGE IS:", storage);
+    console.dir(storage);
     const backup = {
       networks: settings.blockchains.map((blockchain) => ({
         schema: 'anchor.v2.network',
@@ -104,7 +123,7 @@ class ToolsWallets extends Component<Props> {
       },
       storage: {
         schema: 'anchor.v2.storage',
-        data: storage,
+        data: storage
       },
       wallets: wallets.map((wallet) => {
         const model = new EOSWallet();
