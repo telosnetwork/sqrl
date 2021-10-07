@@ -9,7 +9,7 @@ const ecc = require('eosjs-ecc');
 
 export function setWalletKey(data, password, mode = 'hot', existingHash = false, auth = false) {
   return (dispatch: () => void, getState) => {
-    const { accounts, settings, connection, storage } = getState();
+    const { accounts, settings, connection } = getState();
     let hash = existingHash;
     let key = data;
     let obfuscated = data;
@@ -31,20 +31,23 @@ export function setWalletKey(data, password, mode = 'hot', existingHash = false,
         [, authorization] = auth.split('@');
       }
     }
-    console.log("SET WALLET KEY");
+    
+    /* storage data for anchor compatibility */
     const testData = [{
       key,
       pubkey
     }];
-    console.dir(testData);
     const dataTest = encrypt(JSON.stringify(testData), password);
     const keys = [pubkey];
     const paths = {};
+
+    /* set storage object for anchor compatible backup */
     dispatch(setStorage({
       data: dataTest,
       keys,
       paths,
     }));
+
     dispatch({
       type: types.SET_WALLET_KEYS_ACTIVE,
       payload: {

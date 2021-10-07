@@ -16,9 +16,6 @@ export default function storage(state = initialState, action = {}) {
       return Object.assign({}, initialState);
     }
     case types.WALLET_STORAGE_UPDATE: {
-        console.log("SET STORAGE REDUCER");
-        console.dir(action);
-        console.log("********")
       return Object.assign({}, state, action.payload);
     }
     default: {
@@ -26,5 +23,3 @@ export default function storage(state = initialState, action = {}) {
     }
   }
 }
-
-
