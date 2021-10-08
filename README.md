@@ -76,7 +76,7 @@ This list will be updated over time and can be referenced from within the initia
 
 ### Build it yourself
 
-If you'd rather build the application yourself, please ensure you have nodejs/npm/yarn already installed locally.
+If you'd rather build the application yourself, please ensure you have nodejs/npm/yarn already installed locally. These instructions require node v14, `nvm use v14`. 
 
 **Note**: If you are configuring this Electron application within a Windows development environment, it will involve additional steps.
 
