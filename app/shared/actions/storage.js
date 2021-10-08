@@ -3,6 +3,7 @@
 import * as types from './types';
 
 export function setStorage(data) {
+  debugger;
   return async (dispatch: () => void) => {
     // flush to disk
     if (window && window.persistor) {

@@ -26,6 +26,7 @@ class GlobalModalAccountImportHot extends Component<Props> {
     this.props.actions.clearAccountByKey();
   }
   importAccounts = (password) => {
+    debugger;
     const {
       selected,
       value
