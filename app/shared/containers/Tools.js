@@ -238,7 +238,6 @@ function mapStateToProps(state) {
     keys: state.keys,
     //proposals: state.proposals,
     settings: state.settings,
-    storage: state.storage,
     system: state.system,
     transaction: state.transaction,
     validate: state.validate,

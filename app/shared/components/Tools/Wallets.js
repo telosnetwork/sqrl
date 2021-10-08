@@ -8,80 +8,14 @@ import { encrypt, decrypt } from '../../actions/wallet';
 import EOSWallet from '../../utils/EOSWallet';
 
 const { ipcRenderer } = require('electron');
-
-// import { backup } from '../../actions/wallet';
-
 const CryptoJS = require('crypto-js');
 
-// import * as types from '../../actions/types';
-
-
-// const CryptoJS = require('crypto-js');
-// const { ipcRenderer } = require('electron');
-
-// class EOSWallet {
-//   constructor(wallet = {}) {
-//     this.wallet = wallet;
-//   }
-
-//   importProps(wallet, chainId = undefined) {
-//     this.wallet = {
-//       schema: 'anchor.v2.wallet',
-//       data: {
-//         account: wallet.account,
-//         authority: wallet.authorization,
-//         chainId: wallet.chainId || chainId,
-//         mode: wallet.mode,
-//         path: wallet.path || undefined,
-//         pubkey: wallet.pubkey,
-//         type: (wallet.path) ? 'ledger' : 'key',
-//       }
-//     };
-//   }
-
-//   exportProps(mode = 'hot') {
-//     const { wallet } = this;
-//     switch (wallet.schema) {
-//       case 'anchor.v1.wallet': {
-//         return {
-//           account: wallet.account,
-//           authorization: wallet.authority,
-//           chainId: wallet.chainId,
-//           data: wallet.data,
-//           mode: (wallet.path) ? 'ledger' : mode,
-//           path: wallet.path,
-//           pubkey: wallet.pubkey,
-//         };
-//       }
-//       case 'anchor.v2.wallet': {
-//         return {
-//           account: wallet.account,
-//           authorization: wallet.authority,
-//           chainId: wallet.chainId,
-//           mode: wallet.path,
-//           path: wallet.path,
-//           pubkey: wallet.pubkey,
-//         };
-//       }
-//       default: {
-//         console.log(`undefined schema: ${wallet.schema}`, wallet);
-//       }
-//     }
-//   }
-
-//   json() {
-//     return JSON.stringify(this.wallet, null, 2);
-//   }
-// }
-
 class ToolsWallets extends Component<Props> {
-  debugger;
   removeWallet = (account) => {
     const { actions } = this.props;
     actions.removeWallet(account.account, account.chainId, account.authorization);
   }
   swapWallet = (account, password = false) => {
-    debugger;
     const { actions, settings } = this.props;
 
     // if we're not on the chain associated with this wallet, do so now...
@@ -98,21 +32,16 @@ class ToolsWallets extends Component<Props> {
     }
   }
   backup = (password) => {
-    debugger;
     const {
       actions,
       settings,
       wallets
     } = this.props;
 
-    // let test = decrypt(wallets[0].data, password).toString(CryptoJS.enc.Utf8);
-    debugger;
-    const testData = wallets.map((wallet) => {
+    const walletData = wallets.map((wallet) => {
       const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
-      const walletData = { key: decrypted, pubkey: wallet.pubkey };
-      return walletData;
+      return { key: decrypted, pubkey: wallet.pubkey };
     });
-    debugger;
 
     const backup = {
       networks: settings.blockchains.map((blockchain) => ({
@@ -126,7 +55,7 @@ class ToolsWallets extends Component<Props> {
       storage: {
         schema: 'anchor.v2.storage',
         data: {
-          data: encrypt(JSON.stringify(testData), password),
+          data: encrypt(JSON.stringify(walletData), password),
           keys: wallets.map(wallet => wallet.pubkey),
           paths: {}
         }
@@ -148,62 +77,6 @@ class ToolsWallets extends Component<Props> {
       actions.setSetting('lastBackupDate', Date.now());
     });
   }
-
-  // backup = () => {
-  //   // return( dispatch: () => void, getState) => {
-  //   const {
-  //     actions,
-  //     settings,
-  //     storage,
-  //     wallets
-  //   } = this.props;
-
-  //   dispatch({
-  //     type: types.VALIDATE_WALLET_PASSWORD_PENDING
-  //   });
-  //   debugger;
-  //   // const { keys } = getState();
-
-  //   // const testKeys = wallets.map((wallet) => wallet.pubkey);
-  //   // // console.log(settings);
-  //   // const tester = CryptoJS.enc.Utf8.parse(settings.walletHash);
-  //   // const privKey = decrypt(wallets[0].data, tester, 1);
-  //   // debugger;
-
-  //   // let mon = encrypt('test', 'no', 1);
-  //   // let tue = mon.toString(CryptoJS.enc.Utf8);
-  //   // let wed = decrypt(mon, 'test', 1).toString(CryptoJS.enc.Utf8);
-
-  //   debugger;
-  //   const backup = {
-  //     networks: settings.blockchains.map((blockchain) => ({
-  //       schema: 'anchor.v2.network',
-  //       data: Object.assign({}, blockchain)
-  //     })),
-  //     settings: {
-  //       schema: 'anchor.v2.settings',
-  //       data: Object.assign({}, settings),
-  //     },
-  //     storage: {
-  //       schema: 'anchor.v2.storage',
-  //       data: storage
-  //     },
-  //     wallets: wallets.map((wallet) => {
-  //       const model = new EOSWallet();
-  //       model.importProps(wallet);
-  //       return model.wallet;
-  //     })
-  //   };
-  //   ipcRenderer.send(
-  //     'saveFile',
-  //     JSON.stringify(backup),
-  //     'wallet'
-  //   );
-  //   ipcRenderer.once('lastFileSuccess', (event, file) => {
-  //     actions.setSetting('lastFilePath', file.substring(0, file.lastIndexOf('/')));
-  //     actions.setSetting('lastBackupDate', Date.now());
-  //   });
-  // };
 
   render() {
     const {

@@ -17,7 +17,6 @@ export function importWallet(account,
   chainId,
   publicKey = undefined,
   path = undefined) {
-    debugger;
   return (dispatch: () => void, getState) => {
     const { accounts, settings } = getState();
     const data = (key && password) ? encrypt(key, password) : undefined;
@@ -56,7 +55,6 @@ export function importWallet(account,
 }
 
 export function importWallets(accounts, authorization = false, key = false, password = false, mode = 'hot', chainId) {
-  debugger;
   return (dispatch: () => void) =>
     forEach(accounts, (account) => dispatch(importWallet(account, authorization, key, password, mode, chainId)));
 }

@@ -46,7 +46,6 @@ class WelcomeWalletContainer extends Component<Props> {
   }, 300)
 
   onComplete = () => {
-    debugger;
     const {
       encryptWallet,
       password

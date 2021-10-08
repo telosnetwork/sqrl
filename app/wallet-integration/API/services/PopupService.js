@@ -42,7 +42,6 @@ export class PopupService {
 
 
     async requestAccess(forPublicKey){
-        debugger;
         console.log("REQUEST ACCESS");
         return new Promise((resolve, reject) => {
             // get wallet

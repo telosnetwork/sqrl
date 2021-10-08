@@ -348,7 +348,6 @@ const persistConfig = {
     'settings',
     'wallet',
     'wallets',
-    'storage'
   ]
 };
 

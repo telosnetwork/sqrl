@@ -1,80 +1,25 @@
-import { partition, uniq } from 'lodash';
-
 import * as types from './types';
 import { setSetting } from './settings';
 import eos from './helpers/eos';
 import EOSAccount from '../utils/EOS/Account';
-// import EOSWallet from '../utils/EOSWallet';
-import { setStorage } from '../actions/storage';
 
 const CryptoJS = require('crypto-js');
 const ecc = require('eosjs-ecc');
-// const { ipcRenderer } = require('electron');
-
-// export function backup(password) {
-//   debugger;
-//   const {
-//     // actions,
-//     settings//,
-//     // wallets
-//   } = this.props;
-
-//   let test = decrypt(wallets[0].data, password, 1).toString(CryptoJS.enc.Utf8);
-//   debugger;
-
-//   const backupObject = {
-//     networks: settings.blockchains.map((blockchain) => ({
-//       schema: 'anchor.v2.network',
-//       data: Object.assign({}, blockchain)
-//     })),
-//     settings: {
-//       schema: 'anchor.v2.settings',
-//       data: Object.assign({}, settings),
-//     },
-//     storage: {
-//       schema: 'anchor.v2.storage',
-//       data: {
-//         data: '',
-//         keys: wallets.map(wallet => wallet.pubkey),
-//         paths: {}
-//       }
-//     },
-//     wallets: wallets.map((wallet) => {
-//       const model = new EOSWallet();
-//       model.importProps(wallet);
-//       return model.wallet;
-//     })
-//   };
-
-//   ipcRenderer.send(
-//     'saveFile',
-//     JSON.stringify(backup),
-//     'wallet'
-//   );
-//   ipcRenderer.once('lastFileSuccess', (event, file) => {
-//     actions.setSetting('lastFilePath', file.substring(0, file.lastIndexOf('/')));
-//     actions.setSetting('lastBackupDate', Date.now());
-//   });
-// }
 
 export function setWalletKey(data, password, mode = 'hot', existingHash = false, auth = false) {
-  debugger;
   return (dispatch: () => void, getState) => {
-    const { accounts, settings, connection, storage } = getState();
+    const { accounts, settings, connection } = getState();
     let hash = existingHash;
     let key = data;
     let obfuscated = data;
+
     if (existingHash) {
-      debugger;
       key = decrypt(data, existingHash, 1).toString(CryptoJS.enc.Utf8);
     } else {
       hash = encrypt(password, password, 1).toString(CryptoJS.enc.Utf8);
-      const test = JSON.parse(hash);
-      const tester = decrypt(test, test, 1);
-      debugger;
       obfuscated = encrypt(key, hash, 1).toString(CryptoJS.enc.Utf8);
     }
-    
+
     const pubkey = ecc.privateToPublic(key, connection.keyPrefix);
     const accountData = accounts[settings.account];
     let authorization;
@@ -86,67 +31,6 @@ export function setWalletKey(data, password, mode = 'hot', existingHash = false,
         [, authorization] = auth.split('@');
       }
     }
-    
-    // /* storage data for anchor compatibility */
-    // const testData = [{
-    //   key,
-    //   pubkey
-    // }];
-    // const dataTest = encrypt(JSON.stringify(testData), password);
-    // const keys = [pubkey];
-    // const paths = {};
-
-    let walletData;
-    if (storage.data) {
-      debugger;
-      // Decrypt storage
-      const decrypted = JSON.parse(decrypt(storage.data, password).toString(CryptoJS.enc.Utf8));
-      debugger;
-
-      // Generate the new record
-      const record = { key, pubkey };
-      debugger;
-
-      // Pull the other records from storage
-      const [, other] = partition(decrypted, { pubkey });
-      debugger;
-
-      // Merge new entry with array
-      walletData = [record, ...other];
-      debugger;
-
-    } else {
-      debugger;
-
-      // Establish a new array of keys
-      walletData = [{
-        key,
-        pubkey
-      }];
-    }
-    // Encrypt and store
-    const keys = uniq([
-      ...storage.keys,
-      ...walletData.map(k => k.pubkey)
-    ]);
-    debugger;
-
-
-    const encrypted = encrypt(JSON.stringify(walletData), password);
-
-    dispatch(setStorage({
-      data: encrypted,
-      keys,
-      paths: storage.paths
-    }));
-
-
-    // /* set storage object for anchor compatible backup */
-    // dispatch(setStorage({
-    //   data: dataTest,
-    //   keys,
-    //   paths,
-    // }));
 
     dispatch({
       type: types.SET_WALLET_KEYS_ACTIVE,
@@ -191,7 +75,7 @@ export function setTemporaryKey(key, authorization = 'active') {
     // Obfuscate key for in-memory storage
     const hash = encrypt(key, key, 1).toString(CryptoJS.enc.Utf8);
     const obfuscated = encrypt(key, hash, 1).toString(CryptoJS.enc.Utf8);
-    
+
     dispatch({
       type: types.SET_WALLET_KEYS_TEMPORARY,
       payload: {
@@ -231,7 +115,6 @@ export function removeWallet(account, chainId, authorization) {
 }
 
 export function validateWalletPassword(password, useWallet = false) {
-  debugger;
   return (dispatch: () => void, getState) => {
     let { wallet } = getState();
     // If a wallet was passed to be used, use that instead of state.
@@ -241,7 +124,7 @@ export function validateWalletPassword(password, useWallet = false) {
     dispatch({
       type: types.VALIDATE_WALLET_PASSWORD_PENDING
     });
-    setTimeout(() => {debugger;
+    setTimeout(() => {
       try {
         const key = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
         if (ecc.isValidPrivate(key) === true) {
@@ -279,7 +162,7 @@ export function unlockWallet(password, useWallet = false) {
     if (settings.walletMode === 'hot' && !account) {
       account = await eos(connection).getAccount(wallet.account);
     }
-    
+
     dispatch({
       type: types.VALIDATE_WALLET_PASSWORD_PENDING
     });
