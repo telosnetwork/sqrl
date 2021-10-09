@@ -20,6 +20,7 @@
     - Navigate to Tools > Manage Wallets
     - Click 'Save Backup' button 
     - This will export a `.json` file which you can then import into Anchor
+    
 **FIX**
 - Endpoints for main net & test net updated to use telos.net
 
