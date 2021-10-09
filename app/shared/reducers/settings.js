@@ -153,9 +153,9 @@ export default function settings(state = initialState, action) {
     case types.RESET_INVALID_SETTINGS: {
       // overwrite outdated & persisted TLOS endpoints
       const updatedBlockchains = state.blockchains.map(chainObj => {
-        if (chainObj.node === 'https://api.eos.miami') {
+        if (chainObj.chainId === initialState.blockchains[0].chainId && chainObj.node.includes('miami')) {
           return initialState.blockchains[0];
-        } else if (chainObj.node === 'https://testnet.eos.miami') {
+        } else if (chainObj.chainId === initialState.blockchains[1].chainId && chainObj.node.includes('miami')) {
           return initialState.blockchains[1];
         }
         return chainObj;
