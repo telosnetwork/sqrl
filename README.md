@@ -15,12 +15,15 @@
 
 ### Features
 
-**EXPORT AND SAVE BACKUP DATA**
-- Navigate to Tools > Manage Wallets
-- Click 'Save Backup' button 
-- This will export a `.json` file which you can then import into Anchor
+**NEW FEATURE**:
+- Backup & export wallet data
+    - Navigate to Tools > Manage Wallets
+    - Click 'Save Backup' button 
+    - This will export a `.json` file which you can then import into Anchor
+**FIX**
+- Endpoints for main net & test net updated to use telos.net
 
-**NEW FEATURES**:
+**CORE FEATURES**:
 - **(T-)REX**: Sqrl allows you to participate in the Resource Exchange system, or REX, for any blockchain that supports it. REX allows you to lend your idle CPU and NET resources to the network for others to use while you earn interest for being a lender.
 - **IPFS Storage for Key Documents**: All interactions with key documents in Sqrl, such as the Telos Blockchain Network Operating Agreement, are uploaded and retrieved from the InterPlanetary File System (IPFS).
 - **Create Worker Proposals**: Sqrl allows you to create new worker proposal requests on the Telos blockchain. You can also participate in voting on existing worker proposals.
@@ -29,8 +32,6 @@
 - **Works Across Chains**: Sqrl is the first wallet to add support for managing any EOS.IO blockchain in a single interface, such as Telos or EOS.
 - **Free User Account Creation**: Sqrl provides a simple wizard that allows new users to create their first Telos account on their own.
 - **ScatterJS Core Support**: Version 1.0.0+ of Sqrl now allows users to sign transactions in web-based dApps using ScatterJS, called **Login with Sqrl**. Users of Sqrl no longer needs Scatter Desktop in order to authenticate and interact with their accounts for EOS.IO-based applications.
-
-**CORE FEATURES**:
 - **New Key Generation**: You can use Sqrl to generate new EOS.IO public and private key pairs.
 - **Block Producer/Proxy Voting**: Select which block producers to support and cast your vote. You can also register/unregister your account as a Proxy.
 - **Token Transfers**: Transfer TLOS, EOS or any other token you may have a balance for to another user or exchanges.
@@ -46,11 +47,11 @@
 
 ### Releases
 
-Current 1.2.5 release downloads:
+Current 1.3.0 release downloads:
 
-- [Windows Installer](https://github.com/telosnetwork/Sqrl/releases/download/1.2.5/win-Sqrl-1.2.5.exe)
-- [macOS Package](https://github.com/telosnetwork/Sqrl/releases/download/1.2.5/mac-Sqrl-1.2.5.dmg)
-- [Linux (AppImage)](https://github.com/telosnetwork/Sqrl/releases/download/1.2.5/linux-Sqrl-1.2.5-x86_64.AppImage)
+- [Windows Installer](https://github.com/telosnetwork/Sqrl/releases/download/1.3.0/win-Sqrl-1.3.0.exe)
+- [macOS Package](https://github.com/telosnetwork/Sqrl/releases/download/1.3.0/mac-Sqrl-1.3.0.dmg)
+- [Linux (AppImage)](https://github.com/telosnetwork/Sqrl/releases/download/1.3.0/linux-Sqrl-1.3.0-x86_64.AppImage)
 
 The latest release will always be available on the releases page of this repository:
 
