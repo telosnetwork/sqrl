@@ -16,7 +16,7 @@ import * as ricardianParser from 'eos-rc-parser';
 import * as Actions from '../../models/api/ApiActions';
 // import {store} from '../../store/store'
 import eosjs2 from 'eosjs2';
-import * as numeric from  "../../../../node_modules/eosjs2/dist/eosjs2-numeric";
+import * as numeric from  'eosjs2';
 import { decrypt } from '../../../../shared/actions/wallet';
 import APIUtils from '../../util/APIUtils';
 import PopupService from '../../services/PopupService';
@@ -107,7 +107,7 @@ export default class EOS{
         return new Promise((resolve, reject) => {
             resolve(new Network(
                 'Telos Mainnet', 'https',
-                'api.eos.miami',
+                'https://mainnet.telos.net',
                 443,
                 Blockchains.TELOS,
                 '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'

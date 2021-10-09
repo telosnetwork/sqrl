@@ -1,13 +1,14 @@
 // @flow
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
-
 import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react';
-
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
+import { encrypt, decrypt } from '../../actions/wallet';
+import EOSWallet from '../../utils/EOSWallet';
 
-import { find } from 'lodash';
+const { ipcRenderer } = require('electron');
+const CryptoJS = require('crypto-js');
 
 class ToolsWallets extends Component<Props> {
   removeWallet = (account) => {
@@ -18,7 +19,7 @@ class ToolsWallets extends Component<Props> {
     const { actions, settings } = this.props;
 
     // if we're not on the chain associated with this wallet, do so now...
-    const blockchain = settings.blockchains.filter( (c) => { return c.chainId === account.chainId})[0];
+    const blockchain = settings.blockchains.filter((c) => { return c.chainId === account.chainId })[0];
     if (blockchain && blockchain.chainId !== settings.blockchain.chainId) {
       actions.setSetting('blockchain', blockchain);
       actions.setSettingWithValidation('node', blockchain.node);
@@ -30,6 +31,53 @@ class ToolsWallets extends Component<Props> {
       actions.unlockWallet(password);
     }
   }
+  backup = (password) => {
+    const {
+      actions,
+      settings,
+      wallets
+    } = this.props;
+
+    const walletData = wallets.map((wallet) => {
+      const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
+      return { key: decrypted, pubkey: wallet.pubkey };
+    });
+
+    const backup = {
+      networks: settings.blockchains.map((blockchain) => ({
+        schema: 'anchor.v2.network',
+        data: Object.assign({}, blockchain)
+      })),
+      settings: {
+        schema: 'anchor.v2.settings',
+        data: Object.assign({}, settings),
+      },
+      storage: {
+        schema: 'anchor.v2.storage',
+        data: {
+          data: encrypt(JSON.stringify(walletData), password),
+          keys: wallets.map(wallet => wallet.pubkey),
+          paths: {}
+        }
+      },
+      wallets: wallets.map((wallet) => {
+        const model = new EOSWallet();
+        model.importProps(wallet);
+        return model.wallet;
+      })
+    };
+
+    ipcRenderer.send(
+      'saveFile',
+      JSON.stringify(backup),
+      'wallet'
+    );
+    ipcRenderer.once('lastFileSuccess', (event, file) => {
+      actions.setSetting('lastFilePath', file.substring(0, file.lastIndexOf('/')));
+      actions.setSetting('lastBackupDate', Date.now());
+    });
+  }
+
   render() {
     const {
       settings,
@@ -43,6 +91,19 @@ class ToolsWallets extends Component<Props> {
         <Button.Group floated="right">
           <GlobalButtonAccountImport
             settings={settings}
+          />
+          <GlobalButtonElevate
+            onSuccess={(password) => this.backup(password)}
+            settings={settings}
+            trigger={(
+              <Button
+                color="purple"
+                className="manage-button"
+                content={t('tools_wallets_backup_button')}
+                icon="save"
+              />
+            )}
+            validate={validate}
           />
         </Button.Group>
         <Header floated="left">

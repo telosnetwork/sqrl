@@ -243,7 +243,7 @@ function mapStateToProps(state) {
     validate: state.validate,
     wapii: state.wapii,
     wallet: state.wallet,
-    wallets: state.wallets,
+    wallets: state.wallets
   };
 }
 

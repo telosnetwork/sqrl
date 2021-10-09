@@ -118,4 +118,9 @@ a {     -webkit-transition: all 0.3s ease;-moz-transition: all 0.3s ease;-o-tran
   position: relative;
   width: 100%; }
 
+.manage-button {
+  border-radius: .28571429rem !important;
+  margin-left: 1rem !important 
+}
+
 /*# sourceMappingURL=index.css.map */
