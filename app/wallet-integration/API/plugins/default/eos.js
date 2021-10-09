@@ -26,7 +26,6 @@ const CryptoJS = require('crypto-js');
 
 let cachedInstances = {};
 const getCachedInstance = network => {
-    debugger;
     if(cachedInstances.hasOwnProperty(network.unique())) return cachedInstances[network.unique()];
     else {
         const eos = Eos({httpEndpoint:`${network.fullhost()}`, chainId:network.chainId});
