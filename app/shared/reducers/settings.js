@@ -1,5 +1,4 @@
 import { get } from 'dot-prop-immutable';
-
 import * as types from '../actions/types';
 
 const initialState = {
@@ -18,32 +17,32 @@ const initialState = {
   // Support multiple chains
   blockchains: [
     {
-      blockchain:'Telos Mainnet', 
-      tokenSymbol:'TLOS',
-      node:'https://mainnet.telos.net',
+      blockchain: 'Telos Mainnet',
+      tokenSymbol: 'TLOS',
+      node: 'https://mainnet.telos.net',
       chainId: '4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11'
-    },{
-      blockchain:'Telos Testnet', 
-      tokenSymbol:'TLOS',
-      node:'https://testnet.telos.net',
+    }, {
+      blockchain: 'Telos Testnet',
+      tokenSymbol: 'TLOS',
+      node: 'https://testnet.telos.net',
       chainId: 'e17615decaecd202a365f4c029f206eee98511979de8a5756317e2469f2289e3'
     },
     {
-      blockchain:'EOS Mainnet', 
-      tokenSymbol:'EOS',
-      node:'https://eos.greymass.com',
+      blockchain: 'EOS Mainnet',
+      tokenSymbol: 'EOS',
+      node: 'https://eos.greymass.com',
       chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
     },
     {
-      blockchain:'EOS Testnet',
-      tokenSymbol:'EOS',
-      node:'https://jungle2.cryptolions.io',
-      chainId:'038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
+      blockchain: 'EOS Testnet',
+      tokenSymbol: 'EOS',
+      node: 'https://jungle2.cryptolions.io',
+      chainId: '038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
     },
     {
-      blockchain:'WAX Mainnet', 
-      tokenSymbol:'WAX',
-      node:'http://api.wax.alohaeos.com',
+      blockchain: 'WAX Mainnet',
+      tokenSymbol: 'WAX',
+      node: 'http://api.wax.alohaeos.com',
       chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4'
     },
   ],
@@ -152,8 +151,18 @@ export default function settings(state = initialState, action) {
       return Object.assign({}, state, action.payload);
     }
     case types.RESET_INVALID_SETTINGS: {
+      // overwrite outdated & persisted TLOS endpoints
+      const updatedBlockchains = state.blockchains.map(chainObj => {
+        if (chainObj.chainId === initialState.blockchains[0].chainId && chainObj.node.includes('miami')) {
+          return initialState.blockchains[0];
+        } else if (chainObj.chainId === initialState.blockchains[1].chainId && chainObj.node.includes('miami')) {
+          return initialState.blockchains[1];
+        }
+        return chainObj;
+      });
+
       return Object.assign({}, validSettings.reduce((o, setting) =>
-        ({ ...o, [setting]: state[setting] }), {}));
+        ({ ...o, [setting]: setting === 'blockchains' ? updatedBlockchains : state[setting] }), {}));
     }
     default: {
       return state;
