@@ -14,6 +14,7 @@ const migrations = {
       settings,
       wallet
     } = state;
+    debugger;
     // Create a copy of the existing wallet
     const existingWallet = Object.assign({}, wallet);
     // Replicate the wallet account and mode from settings onto the wallet
@@ -41,6 +42,7 @@ const migrations = {
     const {
       settings
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
     if (
       !newSettings.customTokens
@@ -68,6 +70,7 @@ const migrations = {
     const {
       settings
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
     if (
       newSettings.customTokens
@@ -92,6 +95,7 @@ const migrations = {
     const {
       settings
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
     if (
       !newSettings.recentContracts
@@ -113,6 +117,7 @@ const migrations = {
     const {
       settings
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
     if (
       !newSettings.recentProposalsScopes
@@ -139,10 +144,12 @@ const migrations = {
       settings
     } = state;
     const newSettings = Object.assign({}, settings);
+    debugger;
     if (
       !newSettings.blockchains
       || !newSettings.blockchains.length
     ) {
+      debugger;
       newSettings.blockchains = [
         {
           blockchain:'Telos Mainnet', 
@@ -190,6 +197,7 @@ const migrations = {
       settings,
       wallet
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
 
     if (!newSettings.blockchain || !newSettings.blockchain.node) {
@@ -269,6 +277,7 @@ const migrations = {
       settings,
       wallet
     } = state;
+    debugger;
     const newSettings = Object.assign({}, settings);
 
     if (!newSettings.blockchain || !newSettings.blockchain.node) {
@@ -329,7 +338,7 @@ const migrations = {
     existingWallet.mode = settings.walletMode;
     // Update this individual wallets version
     existingWallet.version = 2;
-
+    debugger;
     return Object.assign({}, state, {
       settings: newSettings,
       wallet: existingWallet,
