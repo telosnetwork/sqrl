@@ -19,6 +19,6 @@
     "eosjs2": "0.0.13",
     "ipfs-http-client": "^31.0.1",
     "scrypt-async": "^2.0.1",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.4.0"
   }
 }
