@@ -151,7 +151,7 @@ export default function settings(state = initialState, action) {
       return Object.assign({}, state, action.payload);
     }
     case types.RESET_INVALID_SETTINGS: {
-      /* overrite outdated & persisted TLOS endpoints */
+      // overwrite outdated & persisted TLOS endpoints
       const updatedBlockchains = state.blockchains.map(chainObj => {
         if (chainObj.chainId === initialState.blockchains[0].chainId) {
           return initialState.blockchains[0];
