@@ -1,12 +1,13 @@
+import { createInitialTypes, SerialBuffer } from 'eosjs2/dist/eosjs2-serialize';
 import { decrypt } from '../wallet';
 import * as config from '../config';
-import { createInitialTypes, SerialBuffer } from 'eosjs';
+
 const CryptoJS = require('crypto-js');
 const ecc = require('eosjs-ecc');
 const Eos = require('eosjs');
 
-export function convertNameToInt(name){
-  const builtinTypes = createInitialTypes()
+export function convertNameToInt(name) {
+  const builtinTypes = createInitialTypes();
   const typeUint64 = builtinTypes.get("uint64")
   const typeName = builtinTypes.get("name")
   var buffer = new SerialBuffer({ textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
