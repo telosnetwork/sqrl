@@ -109,7 +109,7 @@ class GlobalButtonElevate extends Component<Props> {
     } = this.state;
 
     const keysVisible = viewKeys && walletData.length > 0;
-    const pending = (validate.WALLET_PASSWORD === 'PENDING' || (viewKeys && walletData.length === 0));
+    const pending = (validate.WALLET_PASSWORD === 'PENDING' || (viewKeys && walletData.length === 0 && validate.WALLET_PASSWORD !== 'FAILURE'));
     const modalSize = keysVisible ? 'keys' : 'tiny';
 
     let modalContent;
