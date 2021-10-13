@@ -8,6 +8,7 @@ import { Button, Form, Header, Icon, Input, Message, Modal, Segment, Table } fro
 
 import * as WalletActions from '../../../actions/wallet';
 
+const { ipcRenderer } = require('electron');
 const CryptoJS = require('crypto-js');
 
 class GlobalButtonElevate extends Component<Props> {
@@ -91,6 +92,23 @@ class GlobalButtonElevate extends Component<Props> {
     });
   }
 
+  exportKeys = () => {
+    const { actions } = this.props;
+    const { walletData } = this.state;
+    ipcRenderer.send(
+      'saveFile',
+      JSON.stringify(walletData.map(keyObj => { 
+        delete keyObj.id;
+        return keyObj;
+      })),
+      'wallet-keys'
+    );
+    ipcRenderer.once('lastFileSuccess', (event, file) => {
+      actions.setSetting('lastFilePath', file.substring(0, file.lastIndexOf('/')));
+      actions.setSetting('lastBackupDate', Date.now());
+    });
+  }
+
   render() {
     const {
       settings,
@@ -156,6 +174,12 @@ class GlobalButtonElevate extends Component<Props> {
             >
               <Icon name="x" /> {t('close')}
             </Button>
+            <Button
+              color="green"
+              content={t('Export Keys')}
+              icon="save"
+              onClick={this.exportKeys}
+            />
           </Modal.Actions>
         </Fragment>
       );
@@ -217,6 +241,7 @@ class GlobalButtonElevate extends Component<Props> {
         className={modalSize}
       >
         {modalContent}
+
       </Modal>
     );
   }
