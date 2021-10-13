@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react';
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
+import GlobalButtonElevateKeys from '../../containers/Global/Button/ElevateKeys';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
 import { encrypt, decrypt } from '../../actions/wallet';
 import EOSWallet from '../../utils/EOSWallet';
@@ -11,6 +12,8 @@ const { ipcRenderer } = require('electron');
 const CryptoJS = require('crypto-js');
 
 class ToolsWallets extends Component<Props> {
+  walletData = [];
+
   removeWallet = (account) => {
     const { actions } = this.props;
     actions.removeWallet(account.account, account.chainId, account.authorization);
@@ -19,7 +22,10 @@ class ToolsWallets extends Component<Props> {
     const { actions, settings } = this.props;
 
     // if we're not on the chain associated with this wallet, do so now...
-    const blockchain = settings.blockchains.filter((c) => { return c.chainId === account.chainId })[0];
+    const blockchain = settings.blockchains.filter((c) => { 
+      return c.chainId === account.chainId;
+    })[0];
+
     if (blockchain && blockchain.chainId !== settings.blockchain.chainId) {
       actions.setSetting('blockchain', blockchain);
       actions.setSettingWithValidation('node', blockchain.node);
@@ -31,6 +37,7 @@ class ToolsWallets extends Component<Props> {
       actions.unlockWallet(password);
     }
   }
+
   backup = (password) => {
     const {
       actions,
@@ -78,6 +85,26 @@ class ToolsWallets extends Component<Props> {
     });
   }
 
+  getBlockchainName = (chainId) => {
+    const { settings } = this.props;
+    return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
+  }
+
+  showKeys = (password) => {
+    const {
+      wallets
+    } = this.props;
+    this.walletData = wallets.map((wallet) => {
+      const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
+      return {
+        account: wallet.account,
+        key: decrypted,
+        pubkey: wallet.pubkey,
+        blockchain: this.getBlockchainName(wallet.chainId)
+      };
+    });
+  }
+
   render() {
     const {
       settings,
@@ -103,6 +130,20 @@ class ToolsWallets extends Component<Props> {
                 icon="save"
               />
             )}
+            validate={validate}
+          />
+          <GlobalButtonElevateKeys
+            onSuccess={(password) => this.showKeys(password)}
+            settings={settings}
+            trigger={(
+              <Button
+                color="purple"
+                className="manage-button"
+                content={t('tools_wallets_show_keys_button')}
+                icon="key"
+              />
+            )}
+            walletData={this.walletData}
             validate={validate}
           />
         </Button.Group>
