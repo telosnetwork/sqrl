@@ -40,7 +40,13 @@ class GlobalButtonElevate extends Component<Props> {
   }
 
   onOpen = () => this.setState({ open: true });
-  onClose = () => this.setState({ open: false });
+  onClose = () => {
+    this.setState({
+      viewKeys: false,
+      open: false
+    });
+    this.props.clearKeys(); 
+  }
 
   onSubmit = () => {
     const {

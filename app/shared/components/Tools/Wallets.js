@@ -105,6 +105,10 @@ class ToolsWallets extends Component<Props> {
     });
   }
 
+  clearKeys = () => {
+    this.walletData = [];
+  }
+
   render() {
     const {
       settings,
@@ -145,6 +149,7 @@ class ToolsWallets extends Component<Props> {
             )}
             walletData={this.walletData}
             validate={validate}
+            clearKeys={() => this.clearKeys()}
           />
         </Button.Group>
         <Header floated="left">
