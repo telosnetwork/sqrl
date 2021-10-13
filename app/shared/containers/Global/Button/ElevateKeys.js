@@ -178,7 +178,7 @@ class GlobalButtonElevate extends Component<Props> {
         onClose={this.onClose}
         onOpen={this.onOpen}
         open={open}
-        size={modalSize}
+        className={modalSize}
       >
         {modalContent}
       </Modal>
