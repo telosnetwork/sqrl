@@ -8,11 +8,14 @@ import { Button, Form, Header, Icon, Input, Message, Modal, Segment, Table } fro
 
 import * as WalletActions from '../../../actions/wallet';
 
+const CryptoJS = require('crypto-js');
+
 class GlobalButtonElevate extends Component<Props> {
   state = {
     password: '',
     open: false,
-    viewKeys: false
+    viewKeys: false,
+    walletData: []
   }
 
   componentDidUpdate(prevProps) {
@@ -23,8 +26,36 @@ class GlobalButtonElevate extends Component<Props> {
       && validate.WALLET_PASSWORD === 'SUCCESS'
     ) {
       const { password } = this.state;
-      this.props.onSuccess(password);
+      this.showKeys(password);
     }
+  }
+
+  getBlockchainName = (chainId) => {
+    const { settings } = this.props;
+    return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
+  }
+
+  showKeys = (password) => {
+    const {
+      wallets
+    } = this.props;
+
+    const tableData = wallets.map((wallet, i) => {
+      const decrypted = WalletActions.decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
+      return {
+        account: wallet.account,
+        key: decrypted,
+        pubkey: wallet.pubkey,
+        blockchain: this.getBlockchainName(wallet.chainId),
+        id: i
+      };
+    });
+
+    this.setState({ walletData: tableData });
+  }
+
+  clearKeys = () => {
+    this.setState({ walletData: [] });
   }
 
   onChange = (e, { value }) => this.setState({ password: value })
@@ -44,7 +75,7 @@ class GlobalButtonElevate extends Component<Props> {
       open: false,
       viewKeys: false
     });
-    this.props.clearKeys();
+    this.clearKeys();
   }
 
   onSubmit = () => {
@@ -69,12 +100,12 @@ class GlobalButtonElevate extends Component<Props> {
       settings,
       t,
       trigger,
-      validate,
-      walletData
+      validate
     } = this.props;
     const {
       open,
-      viewKeys
+      viewKeys,
+      walletData
     } = this.state;
 
     const keysVisible = viewKeys && walletData.length > 0;
@@ -85,7 +116,7 @@ class GlobalButtonElevate extends Component<Props> {
 
     const walletKeys = walletData.map((wallet) => {
       return (
-        <Table.Row>
+        <Table.Row key={wallet.id}>
           <Table.Cell>{wallet.blockchain}</Table.Cell>
           <Table.Cell>{wallet.account}</Table.Cell>
           <Table.Cell>{wallet.pubkey}</Table.Cell>
@@ -102,12 +133,14 @@ class GlobalButtonElevate extends Component<Props> {
             <Segment basic>
               <h3>{t('global_button_elevate_keys_modal_description')}</h3>
               <Table celled unstackable className="keys">
-                <Table.Row>
-                  <Table.HeaderCell>Network</Table.HeaderCell>
-                  <Table.HeaderCell>Account</Table.HeaderCell>
-                  <Table.HeaderCell>Public Key</Table.HeaderCell>
-                  <Table.HeaderCell>Private Key</Table.HeaderCell>
-                </Table.Row>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>Network</Table.HeaderCell>
+                    <Table.HeaderCell>Account</Table.HeaderCell>
+                    <Table.HeaderCell>Public Key</Table.HeaderCell>
+                    <Table.HeaderCell>Private Key</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
                 <Table.Body>
                   {walletKeys}
                 </Table.Body>
@@ -189,7 +222,8 @@ class GlobalButtonElevate extends Component<Props> {
 function mapStateToProps(state) {
   return {
     settings: state.settings,
-    validate: state.validate
+    validate: state.validate,
+    wallets: state.wallets
   };
 }
 

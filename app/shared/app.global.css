@@ -123,7 +123,7 @@ a {     -webkit-transition: all 0.3s ease;-moz-transition: all 0.3s ease;-o-tran
   margin-left: 1rem !important 
 }
 
-table.keys tr th {
+.ui.table.keys thead th{
   cursor: auto;
   background: #f9fafb;
   text-align: inherit;

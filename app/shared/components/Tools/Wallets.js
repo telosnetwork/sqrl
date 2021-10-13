@@ -12,7 +12,7 @@ const { ipcRenderer } = require('electron');
 const CryptoJS = require('crypto-js');
 
 class ToolsWallets extends Component<Props> {
-  walletData = [];
+  // walletData = [];
 
   removeWallet = (account) => {
     const { actions } = this.props;
@@ -85,29 +85,29 @@ class ToolsWallets extends Component<Props> {
     });
   }
 
-  getBlockchainName = (chainId) => {
-    const { settings } = this.props;
-    return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
-  }
+  // getBlockchainName = (chainId) => {
+  //   const { settings } = this.props;
+  //   return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
+  // }
 
-  showKeys = (password) => {
-    const {
-      wallets
-    } = this.props;
-    this.walletData = wallets.map((wallet) => {
-      const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
-      return {
-        account: wallet.account,
-        key: decrypted,
-        pubkey: wallet.pubkey,
-        blockchain: this.getBlockchainName(wallet.chainId)
-      };
-    });
-  }
+  // showKeys = (password) => {
+  //   const {
+  //     wallets
+  //   } = this.props;
+  //   this.walletData = wallets.map((wallet) => {
+  //     const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
+  //     return {
+  //       account: wallet.account,
+  //       key: decrypted,
+  //       pubkey: wallet.pubkey,
+  //       blockchain: this.getBlockchainName(wallet.chainId)
+  //     };
+  //   });
+  // }
 
-  clearKeys = () => {
-    this.walletData = [];
-  }
+  // clearKeys = () => {
+  //   this.walletData = [];
+  // }
 
   render() {
     const {
@@ -137,7 +137,7 @@ class ToolsWallets extends Component<Props> {
             validate={validate}
           />
           <GlobalButtonElevateKeys
-            onSuccess={(password) => this.showKeys(password)}
+            wallets={wallets}
             settings={settings}
             trigger={(
               <Button
@@ -147,9 +147,7 @@ class ToolsWallets extends Component<Props> {
                 icon="key"
               />
             )}
-            walletData={this.walletData}
             validate={validate}
-            clearKeys={() => this.clearKeys()}
           />
         </Button.Group>
         <Header floated="left">
