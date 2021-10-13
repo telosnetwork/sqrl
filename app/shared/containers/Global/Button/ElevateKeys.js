@@ -11,8 +11,7 @@ import * as WalletActions from '../../../actions/wallet';
 class GlobalButtonElevate extends Component<Props> {
   state = {
     password: '',
-    open: false,
-    viewKeys: false
+    open: false
   }
 
   componentDidUpdate(prevProps) {
@@ -22,12 +21,8 @@ class GlobalButtonElevate extends Component<Props> {
       && prevProps.validate.WALLET_PASSWORD === 'PENDING'
       && validate.WALLET_PASSWORD === 'SUCCESS'
     ) {
-      this.setState({
-        viewKeys: true
-      }, () => {
-        const { password } = this.state;
-        this.props.onSuccess(password);
-      });
+      const { password } = this.state;
+      this.props.onSuccess(password);
     }
   }
 
@@ -41,11 +36,10 @@ class GlobalButtonElevate extends Component<Props> {
 
   onOpen = () => this.setState({ open: true });
   onClose = () => {
+    this.props.clearKeys();
     this.setState({
-      viewKeys: false,
       open: false
     });
-    this.props.clearKeys(); 
   }
 
   onSubmit = () => {
@@ -71,11 +65,11 @@ class GlobalButtonElevate extends Component<Props> {
       walletData
     } = this.props;
     const {
-      open,
-      viewKeys
+      open
     } = this.state;
-    const pending = (validate.WALLET_PASSWORD === 'PENDING');
-    const modalSize = viewKeys ? 'keys' : 'tiny';
+
+    const pending = (validate.WALLET_PASSWORD === 'PENDING' || (validate.WALLET_PASSWORD === 'SUCCESS' && walletData.length === 0));
+    const modalSize = walletData.length > 0 ? 'keys' : 'tiny';
 
     let modalContent;
 
@@ -90,7 +84,7 @@ class GlobalButtonElevate extends Component<Props> {
       );
     });
 
-    if (viewKeys && walletData) {
+    if (walletData.length > 0) {
       modalContent = (
         <Fragment>
           <Header icon="key" content={t('global_button_elevate_keys_modal_title')} />
