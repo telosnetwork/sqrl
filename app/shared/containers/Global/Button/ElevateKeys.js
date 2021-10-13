@@ -30,14 +30,10 @@ class GlobalButtonElevate extends Component<Props> {
     }
   }
 
-  getBlockchainName = (chainId) => {
-    const { settings } = this.props;
-    return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
-  }
-
   showKeys = (password) => {
     const {
-      wallets
+      wallets,
+      settings
     } = this.props;
 
     const tableData = wallets.map((wallet, i) => {
@@ -46,7 +42,7 @@ class GlobalButtonElevate extends Component<Props> {
         account: wallet.account,
         key: decrypted,
         pubkey: wallet.pubkey,
-        blockchain: this.getBlockchainName(wallet.chainId),
+        blockchain: settings.blockchains.find(blockchain => blockchain.chainId === wallet.chainId).blockchain,
         id: i
       };
     });
@@ -109,7 +105,14 @@ class GlobalButtonElevate extends Component<Props> {
     } = this.state;
 
     const keysVisible = viewKeys && walletData.length > 0;
-    const pending = (validate.WALLET_PASSWORD === 'PENDING' || (viewKeys && walletData.length === 0 && validate.WALLET_PASSWORD !== 'FAILURE'));
+    const pending = (
+      validate.WALLET_PASSWORD === 'PENDING' ||
+      (
+        viewKeys
+        && walletData.length === 0
+        && validate.WALLET_PASSWORD !== 'FAILURE'
+      )
+    );
     const modalSize = keysVisible ? 'keys' : 'tiny';
 
     let modalContent;

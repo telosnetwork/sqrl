@@ -12,7 +12,6 @@ const { ipcRenderer } = require('electron');
 const CryptoJS = require('crypto-js');
 
 class ToolsWallets extends Component<Props> {
-  // walletData = [];
 
   removeWallet = (account) => {
     const { actions } = this.props;
@@ -84,30 +83,6 @@ class ToolsWallets extends Component<Props> {
       actions.setSetting('lastBackupDate', Date.now());
     });
   }
-
-  // getBlockchainName = (chainId) => {
-  //   const { settings } = this.props;
-  //   return settings.blockchains.find(blockchain => blockchain.chainId === chainId).blockchain;
-  // }
-
-  // showKeys = (password) => {
-  //   const {
-  //     wallets
-  //   } = this.props;
-  //   this.walletData = wallets.map((wallet) => {
-  //     const decrypted = decrypt(wallet.data, password).toString(CryptoJS.enc.Utf8);
-  //     return {
-  //       account: wallet.account,
-  //       key: decrypted,
-  //       pubkey: wallet.pubkey,
-  //       blockchain: this.getBlockchainName(wallet.chainId)
-  //     };
-  //   });
-  // }
-
-  // clearKeys = () => {
-  //   this.walletData = [];
-  // }
 
   render() {
     const {
