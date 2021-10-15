@@ -15,13 +15,17 @@
 
 ### Features
 
-**NEW FEATURE**:
+**NEW FEATURES**:
 - Backup & export wallet data
     - Navigate to Tools > Manage Wallets
     - Click 'Save Backup' button 
     - This will export a `.json` file which you can then import into Anchor 
+- View & export keys
+    - Navigate to Tools > Manage Wallets
+    - Click 'View & Export Keys' to view keys 
+    - CLick 'Export Keys' in modal to export `.json` file
 
-**FIX**
+**FIX:**
 - Endpoints for main net & test net updated to use telos.net
 
 **CORE FEATURES**:

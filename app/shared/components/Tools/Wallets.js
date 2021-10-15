@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { Button, Header, Label, Popup, Segment, Table } from 'semantic-ui-react';
 import GlobalButtonElevate from '../../containers/Global/Button/Elevate';
+import GlobalButtonElevateKeys from '../../containers/Global/Button/ElevateKeys';
 import GlobalButtonAccountImport from '../Global/Button/Account/Import';
 import { encrypt, decrypt } from '../../actions/wallet';
 import EOSWallet from '../../utils/EOSWallet';
@@ -11,6 +12,7 @@ const { ipcRenderer } = require('electron');
 const CryptoJS = require('crypto-js');
 
 class ToolsWallets extends Component<Props> {
+
   removeWallet = (account) => {
     const { actions } = this.props;
     actions.removeWallet(account.account, account.chainId, account.authorization);
@@ -19,7 +21,10 @@ class ToolsWallets extends Component<Props> {
     const { actions, settings } = this.props;
 
     // if we're not on the chain associated with this wallet, do so now...
-    const blockchain = settings.blockchains.filter((c) => { return c.chainId === account.chainId })[0];
+    const blockchain = settings.blockchains.filter((c) => { 
+      return c.chainId === account.chainId;
+    })[0];
+
     if (blockchain && blockchain.chainId !== settings.blockchain.chainId) {
       actions.setSetting('blockchain', blockchain);
       actions.setSettingWithValidation('node', blockchain.node);
@@ -31,6 +36,7 @@ class ToolsWallets extends Component<Props> {
       actions.unlockWallet(password);
     }
   }
+
   backup = (password) => {
     const {
       actions,
@@ -101,6 +107,19 @@ class ToolsWallets extends Component<Props> {
                 className="manage-button"
                 content={t('tools_wallets_backup_button')}
                 icon="save"
+              />
+            )}
+            validate={validate}
+          />
+          <GlobalButtonElevateKeys
+            wallets={wallets}
+            settings={settings}
+            trigger={(
+              <Button
+                color="purple"
+                className="manage-button"
+                content={t('tools_wallets_show_keys_button')}
+                icon="key"
               />
             )}
             validate={validate}
