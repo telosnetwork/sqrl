@@ -32,6 +32,7 @@ If you are concerned about revealing this information to any of these 3rd party 
 - [http://api.emea.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
 - [http://api.na.telosglobal.io:8888](http://api.na.telosglobal.io:8888/v1/chain/get_info) - operated by [TelosGlobal](https://telosglobal.io)
 - [http://api.telos.csx.io:8787](http://api.telos.csx.io:8787/v1/chain/get_info) - operated by [CSX Community](http://telos.csx.io)
+- [https://telosapi.actifit.io](https://telosapi.actifit.io/v1/chain/get_info) - operated by [Actifit Telos](http://actifit.io)
 
 ## Verified TestNet Nodes
 - [https://api-test.telosfoundation.io](http://testnet.telosfoundation.io/v1/chain/get_info) - operated by [Telos Foundation](https://telosfoundation.io)
